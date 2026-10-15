@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mövat! - Ascolta Dettaglio Carta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#22a926',
+              darkgreen: '#157319',
+              lightgreen: '#e7f7e6',
+              mint: '#eaf8e9',
+              bgtab: '#dff3dc',
+              darktext: '#173617'
+            }
+          },
+          borderRadius: {
+            '3xl': '28px',
+            '4xl': '36px'
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-decorations">
+    /* Raggiere cartoon decorative per l'header */
+    .sunburst-bg {
+      background: radial-gradient(circle at 50% 30%, #a2f22b 0%, #6ddb14 60%, #44b80a 100%);
+      position: relative;
+    }
+    .sunburst-rays {
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.22) 0deg 12deg,
+        transparent 12deg 24deg
+      );
+    }
+    /* Effetto contorno cartoon per card principale */
+    .comic-card-border {
+      border: 3.5px solid #14610f;
+    }
+    /* Nascondi scrollbar per layout app-like */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="bg-[#e9f2eb] flex justify-center items-center min-h-screen p-0 sm:p-4 font-sans antialiased text-gray-900">
+<!-- BEGIN: MobileContainer -->
+<!-- Dimensioni tipiche smartphone iOS racchiuso in cornice con bordo verde fluo -->
+<main class="w-full max-w-[430px] h-screen sm:h-[930px] bg-white sm:rounded-[44px] overflow-hidden flex flex-col relative border-[3.5px] border-[#20a927] shadow-2xl">
+<!-- BEGIN: HeaderSection -->
+<header class="relative w-full h-32 shrink-0 sunburst-bg overflow-hidden flex items-start justify-between px-4 pt-3" data-purpose="app-header">
+<!-- Raggi di sfondo cartoon -->
+<div class="absolute inset-0 sunburst-rays pointer-events-none opacity-80"></div>
+<!-- Collina stilizzata sul fondo dell'header -->
+<div class="absolute -bottom-7 -left-10 -right-10 h-16 bg-[#3dbd10] rounded-[100%] border-t-[3px] border-[#185c0b]/40"></div>
+<div class="absolute -bottom-10 -left-6 -right-6 h-16 bg-[#2ca508] rounded-[100%] border-t-[2.5px] border-[#104b06]/50"></div>
+<!-- Sagome alberelli di sfondo -->
+<div class="absolute bottom-4 left-14 flex items-end space-x-1 opacity-70 z-0">
+<div class="w-4 h-7 bg-[#1c7809] rounded-full"></div>
+<div class="w-6 h-10 bg-[#156007] rounded-full"></div>
+<div class="w-4 h-8 bg-[#1c7809] rounded-full"></div>
+</div>
+<!-- Pulsante Indietro Circolare -->
+<button aria-label="Torna indietro" class="relative z-10 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md border-[2.5px] border-emerald-900 active:scale-95 transition-transform" data-purpose="back-button">
+<svg class="w-6 h-6 text-emerald-950 font-bold" fill="none" stroke="currentColor" stroke-width="3.5" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Logo MÖVAT! stilizzato a fumetto con camioncino -->
+<div class="relative z-10 flex items-center space-x-1.5 pt-0.5" data-purpose="header-branding">
+<!-- Logo MÖVAT! Tipografico Fumettoso -->
+<div class="relative inline-block">
+<span class="text-[32px] font-black tracking-wider text-white drop-shadow-[0_3px_0_#144e0b] italic" style="-webkit-text-stroke: 6px #104308; paint-order: stroke fill;">
+            MÖVAT!
+          </span>
+<span class="absolute inset-0 text-[32px] font-black tracking-wider text-white italic">
+            MÖVAT!
+          </span>
+</div>
+<!-- Camioncino giocattolo in testata -->
+<div class="relative w-20 h-14 shrink-0 -mt-1 ml-1" data-purpose="header-truck">
+<!-- Carte colorate nel cassone del camioncino -->
+<div class="absolute -top-1 left-2 w-5 h-7 bg-red-600 rounded-[3px] border-[1.5px] border-black transform -rotate-12 shadow-sm"></div>
+<div class="absolute -top-2 left-6 w-5 h-7 bg-blue-600 rounded-[3px] border-[1.5px] border-black transform rotate-6 shadow-sm"></div>
+<div class="absolute -top-0.5 left-9 w-4 h-6 bg-emerald-600 rounded-[3px] border-[1.5px] border-black transform rotate-12 shadow-sm"></div>
+<!-- Sagoma corpo camioncino -->
+<div class="absolute bottom-2 left-0 w-16 h-7 bg-white rounded-md border-[2px] border-black overflow-hidden flex flex-col justify-end">
+<div class="h-3 w-full bg-[#2da614] border-t border-black"></div>
+</div>
+<!-- Cabina del furgoncino con occhioni buffi -->
+<div class="absolute bottom-2 right-1 w-6 h-8 bg-white rounded-r-md rounded-tl-sm border-[2px] border-black flex items-center justify-center">
+<div class="w-2.5 h-2.5 bg-black rounded-full flex items-center justify-center">
+<div class="w-1 h-1 bg-white rounded-full -mt-0.5 -mr-0.5"></div>
+</div>
+</div>
+<!-- Ruote camioncino -->
+<div class="absolute bottom-0.5 left-2 w-3.5 h-3.5 bg-gray-900 rounded-full border-2 border-white"></div>
+<div class="absolute bottom-0.5 left-11 w-3.5 h-3.5 bg-gray-900 rounded-full border-2 border-white"></div>
+<!-- Cartello segnaletico di fianco -->
+<div class="absolute right-[-8px] bottom-1 w-2.5 h-6 flex flex-col items-center">
+<div class="w-3.5 h-2 bg-red-600 border border-black rounded-[2px] -mb-0.5"></div>
+<div class="w-1 h-4 bg-gray-600 border border-black"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: HeaderSection -->
+<!-- BEGIN: MainContentArea -->
+<!-- Contenitore centrale con curve bianche sovrapposte all'header verde -->
+<div class="flex-1 bg-white -mt-6 rounded-t-[34px] relative z-20 px-5 pt-3.5 pb-2 flex flex-col justify-between overflow-y-auto" data-purpose="playable-card-view">
+<!-- Sezione Titolo con accenti dinamici a fumetto -->
+<div class="text-center shrink-0">
+<div class="inline-flex items-center justify-center gap-2">
+<!-- Raggietti verdi sinistra -->
+<div class="flex flex-col space-y-1 rotate-[-20deg]">
+<span class="w-2.5 h-1 bg-[#85db18] rounded-full"></span>
+<span class="w-4 h-1.5 bg-[#85db18] rounded-full"></span>
+</div>
+<h1 class="text-[34px] font-black text-[#103714] tracking-tight leading-none">
+            Fermo lì!
+          </h1>
+<!-- Raggietti verdi destra -->
+<div class="flex flex-col space-y-1 rotate-[20deg]">
+<span class="w-2.5 h-1 bg-[#85db18] rounded-full"></span>
+<span class="w-4 h-1.5 bg-[#85db18] rounded-full"></span>
+</div>
+</div>
+<p class="text-[15px] font-medium text-emerald-950/80 mt-1">
+          Ascolta e scopri la traduzione
+        </p>
+</div>
+<!-- BEGIN: IllustrationCard -->
+<!-- Card illustrata cartoon della carta 'Fermo lì!' -->
+<div class="w-full h-[208px] rounded-[24px] comic-card-border overflow-hidden relative shadow-md mt-2 flex flex-col items-center justify-between p-2 sunburst-bg" data-purpose="illustrated-card">
+<!-- Raggi cartoon card -->
+<div class="absolute inset-0 sunburst-rays pointer-events-none opacity-85"></div>
+<!-- Prato e alberi nella card -->
+<div class="absolute -bottom-6 -left-8 -right-8 h-20 bg-[#35af0c] rounded-[100%] border-t-[2.5px] border-[#104e06]/60"></div>
+<div class="absolute bottom-4 left-4 w-6 h-14 bg-[#146408] rounded-full border border-black/30"></div>
+<div class="absolute bottom-4 right-5 w-7 h-16 bg-[#146408] rounded-full border border-black/30"></div>
+<!-- Titolo grafico della carta a fumetto -->
+<div class="relative z-10 pt-1">
+<div class="relative">
+<span class="text-[36px] font-black text-white italic drop-shadow-[0_4px_0_#134e09]" style="-webkit-text-stroke: 6px #123e09; paint-order: stroke fill;">
+              Fermo lì!
+            </span>
+<span class="absolute inset-0 text-[36px] font-black text-white italic">
+              Fermo lì!
+            </span>
+</div>
+</div>
+<!-- Camioncino con le carte e segnale di STOP a paletta -->
+<div class="relative z-10 w-full max-w-[270px] h-24 mb-1 flex items-end justify-center">
+<!-- Carte sul cassone -->
+<div class="absolute bottom-9 left-16 w-8 h-12 bg-red-600 rounded-[5px] border-[2.5px] border-black transform -rotate-12 shadow"></div>
+<div class="absolute bottom-11 left-24 w-8 h-12 bg-blue-600 rounded-[5px] border-[2.5px] border-black transform -rotate-3 shadow"></div>
+<!-- Segnale di STOP impugnato dal furgone -->
+<div class="absolute bottom-8 right-12 z-20 flex flex-col items-center transform rotate-6">
+<!-- Paletta ottagonale rossa -->
+<div class="w-12 h-12 bg-[#e01919] border-[3px] border-black rounded-[14px] flex items-center justify-center shadow-lg relative">
+<div class="w-9 h-9 border-2 border-white rounded-[10px]"></div>
+</div>
+<!-- Manico di legno della paletta -->
+<div class="w-2.5 h-6 bg-[#d19754] border-[1.5px] border-black -mt-1 rounded-sm"></div>
+</div>
+<!-- Camioncino DUSO cartoon -->
+<div class="relative z-10 w-44 h-15 flex flex-col items-center">
+<div class="relative w-44 h-12 bg-white rounded-xl border-[3px] border-black flex overflow-hidden shadow">
+<!-- Parte cassone con banda verde -->
+<div class="w-28 h-full bg-white flex flex-col justify-between p-0.5">
+<div class="h-3 w-full bg-[#209a15] rounded-sm border-b-2 border-black"></div>
+<span class="text-[9px] font-extrabold tracking-tighter text-[#136109] ml-2">DUSO</span>
+</div>
+<!-- Cabina con muso ed espressione visiva cartoon -->
+<div class="w-16 h-full bg-white border-l-2 border-black relative flex items-center justify-center">
+<!-- Occhione del veicolo -->
+<div class="w-6 h-6 rounded-full border-2 border-black bg-white flex items-center justify-center">
+<div class="w-3.5 h-3.5 bg-black rounded-full flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-white rounded-full -mt-1 -mr-1"></div>
+</div>
+</div>
+<!-- Sorriso e paraurti verde -->
+<div class="absolute bottom-0 right-0 left-0 h-2 bg-[#209a15]"></div>
+</div>
+</div>
+<!-- Ruote del camioncino -->
+<div class="w-full flex justify-between px-4 -mt-2.5 z-20">
+<div class="w-6 h-6 bg-gray-900 rounded-full border-[2.5px] border-black flex items-center justify-center">
+<div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+</div>
+<div class="w-6 h-6 bg-gray-900 rounded-full border-[2.5px] border-black flex items-center justify-center">
+<div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Badge con hashtag in basso a sinistra della carta -->
+<div class="absolute bottom-2 left-2.5 z-20 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border-2 border-emerald-900 shadow-sm flex items-center">
+<span class="text-xs font-black text-emerald-950">#...</span>
+</div>
+</div>
+<!-- END: IllustrationCard -->
+<!-- BEGIN: SpeechBubble -->
+<!-- Baloon verde fumettoso 'Frase in piacentino' -->
+<div class="relative flex flex-col items-center mt-2.5" data-purpose="dialect-speech-bubble">
+<!-- Raggietti verdi decorativi attorno al fumetto -->
+<div class="absolute -left-1 top-2 flex flex-col space-y-1 rotate-[-25deg]">
+<span class="w-2.5 h-1 bg-[#8be01c] rounded-full"></span>
+<span class="w-4 h-1.5 bg-[#8be01c] rounded-full"></span>
+</div>
+<div class="absolute -right-1 top-2 flex flex-col space-y-1 rotate-[25deg]">
+<span class="w-2.5 h-1 bg-[#8be01c] rounded-full"></span>
+<span class="w-4 h-1.5 bg-[#8be01c] rounded-full"></span>
+</div>
+<!-- Corpo del fumetto -->
+<div class="w-full max-w-[285px] bg-[#f8fff6] border-[2.5px] border-[#22a41d] rounded-full py-2 px-5 text-center shadow-[0_3px_0_#d1efcb] z-10">
+<p class="text-lg font-extrabold text-[#113913] tracking-tight">
+            Frase in piacentino
+          </p>
+</div>
+<!-- Coda del fumetto -->
+<div class="w-4 h-3.5 -mt-1 mr-28 bg-[#f8fff6] border-r-[2.5px] border-b-[2.5px] border-[#22a41d] transform rotate-45 z-20"></div>
+</div>
+<!-- END: SpeechBubble -->
+<!-- BEGIN: AudioPlayerSection -->
+<section class="w-full px-2 mt-0.5 flex flex-col items-center" data-purpose="audio-player-controls">
+<!-- Barra di riproduzione audio con cursore e tempi -->
+<div class="w-full flex items-center space-x-3 text-sm font-bold text-[#143715]" data-purpose="audio-progress">
+<!-- Tempo trascorso -->
+<span class="w-8 text-right font-semibold">0:03</span>
+<!-- Slider traccia audio personalizzata -->
+<div class="relative flex-1 flex items-center h-5">
+<!-- Barra sfondo grigia/chiara non ancora riprodotta -->
+<div class="w-full h-1.5 bg-[#e3e9e3] rounded-full"></div>
+<!-- Porzione verde già riprodotta -->
+<div class="absolute left-0 h-1.5 w-[42%] bg-[#22aa26] rounded-full"></div>
+<!-- Cursore / manopola verde -->
+<div class="absolute left-[42%] -ml-2.5 w-5 h-5 bg-[#22aa26] border-2 border-white rounded-full shadow-md cursor-pointer"></div>
+</div>
+<!-- Tempo totale carta -->
+<span class="w-8 font-semibold">0:07</span>
+</div>
+<!-- Grande pulsante di Pausa '||' con raggi di suono cartoon -->
+<div class="relative flex items-center justify-center my-1.5" data-purpose="play-pause-toggle">
+<!-- Onde sonore/trattini a sinistra -->
+<div class="absolute -left-9 flex flex-col space-y-1.5 items-end rotate-[-20deg]">
+<span class="w-3.5 h-1.5 bg-[#88e018] rounded-full"></span>
+<span class="w-5 h-2 bg-[#88e018] rounded-full"></span>
+</div>
+<!-- Pulsantone circolare verde pausa -->
+<button aria-label="Metti in pausa l'audio" class="w-[66px] h-[66px] rounded-full bg-[#20aa24] border-[3px] border-[#157918] shadow-lg flex items-center justify-center active:scale-95 transition-transform text-white">
+<!-- Icona PAUSA (due barre verticali spesse con angoli arrotondati) -->
+<div class="flex space-x-2">
+<span class="w-2.5 h-7 bg-white rounded-[3px]"></span>
+<span class="w-2.5 h-7 bg-white rounded-[3px]"></span>
+</div>
+</button>
+<!-- Onde sonore/trattini a destra -->
+<div class="absolute -right-9 flex flex-col space-y-1.5 items-start rotate-[20deg]">
+<span class="w-3.5 h-1.5 bg-[#88e018] rounded-full"></span>
+<span class="w-5 h-2 bg-[#88e018] rounded-full"></span>
+</div>
+</div>
+</section>
+<!-- END: AudioPlayerSection -->
+<!-- BEGIN: TranslationBox -->
+<!-- Box con icona libro e traduzione italiana -->
+<section class="w-full bg-[#f4faf2] border-[1.5px] border-[#d2edd0] rounded-2xl p-3 flex items-start space-x-3.5 shadow-sm mt-0.5" data-purpose="translation-box">
+<!-- Icona Libro Aperto stile outline spesso -->
+<div class="text-[#0d4611] shrink-0 pt-0.5">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+</svg>
+</div>
+<!-- Testo Traduzione -->
+<div class="flex-1 pr-1">
+<h2 class="text-[17px] font-black text-[#0f3c11] leading-tight">
+            Traduzione
+          </h2>
+<p class="text-[15px] font-medium text-[#1c4d1d] leading-snug mt-0.5">
+            Sei svelto come un gatto di marmo!
+          </p>
+</div>
+</section>
+<!-- END: TranslationBox -->
+<!-- BEGIN: NavigationButtons -->
+<div class="w-full space-y-2.5 mt-2" data-purpose="card-navigation-actions">
+<!-- Riga con i due pulsanti orizzontali: precedente e successiva -->
+<div class="grid grid-cols-2 gap-3">
+<!-- Carta precedente -->
+<button class="flex items-center justify-center space-x-1 py-2 px-2 bg-[#edf7eb] hover:bg-[#e2f3df] text-[#155317] font-bold text-[14px] rounded-full border border-[#c4e6bf] active:scale-98 transition shadow-xs">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Carta precedente</span>
+</button>
+<!-- Carta successiva -->
+<button class="flex items-center justify-center space-x-1 py-2 px-2 bg-[#edf7eb] hover:bg-[#e2f3df] text-[#155317] font-bold text-[14px] rounded-full border border-[#c4e6bf] active:scale-98 transition shadow-xs">
+<span>Carta successiva</span>
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<!-- Pulsante principale largo: Torna alla galleria -->
+<button class="w-full py-2.5 bg-[#22aa26] hover:bg-[#1f9b23] text-white font-extrabold text-[16px] rounded-full shadow-md flex items-center justify-center space-x-2 border-b-[3.5px] border-[#147917] active:translate-y-0.5 active:border-b-2 transition" data-purpose="back-to-gallery">
+<!-- Icona griglia 2x2 quadrati -->
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<rect height="7.5" rx="1.5" width="7.5" x="3" y="3"></rect>
+<rect height="7.5" rx="1.5" width="7.5" x="13.5" y="3"></rect>
+<rect height="7.5" rx="1.5" width="7.5" x="3" y="13.5"></rect>
+<rect height="7.5" rx="1.5" width="7.5" x="13.5" y="13.5"></rect>
+</svg>
+<span>Torna alla galleria</span>
+</button>
+</div>
+<!-- END: NavigationButtons -->
+</div>
+<!-- END: MainContentArea -->
+<!-- BEGIN: BottomNavigation -->
+<!-- Tab bar inferiore a 5 icone (Home, Ascolta [attivo], Scopri, Crea, FAQ) -->
+<nav class="w-full bg-[#fdfdfd] border-t border-gray-200 py-2 px-3 flex justify-around items-center shrink-0 z-30" data-purpose="bottom-tab-bar">
+<!-- 1. Tab Home -->
+<a class="flex flex-col items-center justify-center text-gray-700 w-14 group" href="#">
+<svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-semibold mt-0.5">Home</span>
+</a>
+<!-- 2. Tab Ascolta (Attivo con pillola verde chiaro) -->
+<a aria-current="page" class="flex flex-col items-center justify-center bg-[#e4f6df] text-[#1a851e] px-4 py-1.5 rounded-2xl w-18" href="#">
+<!-- Icona Cuffie Headphones -->
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 18v-6a9 9 0 0 1 18 0v6" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">Ascolta</span>
+</a>
+<!-- 3. Tab Scopri (Due carte sovrapposte) -->
+<a class="flex flex-col items-center justify-center text-gray-700 w-14 group" href="#">
+<svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<rect height="15" rx="2" stroke-linecap="round" stroke-linejoin="round" width="12" x="7" y="3"></rect>
+<path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-semibold mt-0.5">Scopri</span>
+</a>
+<!-- 4. Tab Crea (Matita stilizzata) -->
+<a class="flex flex-col items-center justify-center text-gray-700 w-14 group" href="#">
+<svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-semibold mt-0.5">Crea</span>
+</a>
+<!-- 5. Tab FAQ (Punto interrogativo cerchiato) -->
+<a class="flex flex-col items-center justify-center text-gray-700 w-14 group" href="#">
+<svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-semibold mt-0.5">FAQ</span>
+</a>
+</nav>
+<!-- END: BottomNavigation -->
+</main>
+<!-- END: MobileContainer -->
+</body></html>

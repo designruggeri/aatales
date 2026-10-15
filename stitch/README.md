@@ -20,3 +20,6 @@ Stitch project `1667910057551342406`, exported on 2026-10-15.
 | 14 | faq-ricerca-senza-risultati | [html](html/14-faq-ricerca-senza-risultati.html) | [img](screenshots/14-faq-ricerca-senza-risultati.png) |
 | 15 | ascolta-le-carte-parlanti | [html](html/15-ascolta-le-carte-parlanti.html) | [img](screenshots/15-ascolta-le-carte-parlanti.png) |
 | 16 | faq-categorie-e-domande | [html](html/16-faq-categorie-e-domande.html) | [img](screenshots/16-faq-categorie-e-domande.png) |
+| 17 | ascolta-audio-in-arrivo | [html](html/17-ascolta-audio-in-arrivo.html) | [img](screenshots/17-ascolta-audio-in-arrivo.png) |
+| 18 | ascolta-audio-in-riproduzione | [html](html/18-ascolta-audio-in-riproduzione.html) | [img](screenshots/18-ascolta-audio-in-riproduzione.png) |
+| 19 | faq-risposta-aperta | [html](html/19-faq-risposta-aperta.html) | [img](screenshots/19-faq-risposta-aperta.png) |

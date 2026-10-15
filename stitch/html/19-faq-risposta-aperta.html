@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mövat! - Dubbi e risposte</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Font Google: Baloo 2 per un look giocoso, arrotondato e fedele al brand -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800;900&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#22c55e',
+              darkgreen: '#15803d',
+              lightgreen: '#dcfce7',
+              headergreen: '#65c600',
+              accent: '#84cc16',
+              bgdark: '#0f3822',
+              cardbg: '#f7fdf9',
+              activegreen: '#1a7a37'
+            }
+          },
+          fontFamily: {
+            heading: ['"Baloo 2"', 'sans-serif'],
+            body: ['"Nunito"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom CSS Styles -->
+<style data-purpose="custom-layout">
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .font-brand-title {
+      font-family: 'Baloo 2', sans-serif;
+    }
+    /* Sunburst cartoon background for header */
+    .bg-sunburst {
+      background: radial-gradient(circle at 50% 30%, #a3e635 0%, #65c600 60%, #4d9a02 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .sunburst-rays {
+      position: absolute;
+      inset: -50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.18) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      animation: rotate-slow 40s linear infinite;
+    }
+    @keyframes rotate-slow {
+      100% { transform: rotate(360deg); }
+    }
+    /* Hide scrollbar for pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<!-- END: Custom CSS Styles -->
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 text-slate-800">
+<!-- BEGIN: Phone Screen Mockup Frame -->
+<div class="relative w-full max-w-[395px] h-[844px] bg-white rounded-[42px] border-[5px] border-[#22a447] shadow-2xl flex flex-col overflow-hidden">
+<!-- BEGIN: Top Header Section -->
+<header class="relative bg-sunburst pt-3 pb-8 px-4 flex-shrink-0" data-purpose="page-header">
+<!-- Animated / Stylized Rays Background -->
+<div class="sunburst-rays pointer-events-none"></div>
+<!-- Hills and Trees Graphic Layer -->
+<div class="absolute bottom-0 inset-x-0 h-16 pointer-events-none overflow-hidden z-0">
+<!-- Rolling back hill -->
+<div class="absolute -bottom-8 -left-6 w-52 h-24 rounded-full bg-[#3ba806] opacity-90"></div>
+<div class="absolute -bottom-6 -right-8 w-60 h-28 rounded-full bg-[#41b005]"></div>
+<!-- Trees silhouette -->
+<!-- Tree 1 -->
+<div class="absolute bottom-3 left-4 w-4 h-11 bg-[#195b05] rounded-t-full"></div>
+<div class="absolute bottom-2 left-9 w-6 h-14 bg-[#144d04] rounded-t-full"></div>
+<!-- Tree 2 -->
+<div class="absolute bottom-3 right-5 w-5 h-12 bg-[#195b05] rounded-t-full"></div>
+<div class="absolute bottom-2 right-12 w-4 h-9 bg-[#1e6608] rounded-t-full"></div>
+</div>
+<!-- Header Elements Top Bar: Back Button & Mascot Character -->
+<div class="relative z-10 flex items-center justify-between mt-1">
+<!-- Back Navigation Button -->
+<button aria-label="Torna indietro" class="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-slate-700 active:scale-95 transition-transform" type="button">
+<svg class="w-5 h-5 -ml-0.5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Brand Mascot / Character (MÖVAT Truck & Cards) -->
+<div class="relative flex items-center pr-2" data-purpose="brand-mascot">
+<!-- Logo text "MÖVAT!" with 3D cartoon style -->
+<div class="relative -mr-3 z-10 drop-shadow-[0_3px_2px_rgba(0,0,0,0.3)]">
+<span class="font-brand-title font-black text-[30px] tracking-tight text-white stroke-black" style="-webkit-text-stroke: 4px #0d4a13; paint-order: stroke fill; text-shadow: 0 4px 0 #0d4a13;">
+              MÖVAT!
+            </span>
+</div>
+<!-- Cartoon Van / Cart with Cards -->
+<div class="relative flex items-end">
+<!-- Cards stack in truck bed -->
+<div class="absolute -top-4 left-3 flex -space-x-2.5 z-0">
+<div class="w-6 h-8 bg-red-600 rounded-sm border-2 border-white transform -rotate-12 shadow-sm"></div>
+<div class="w-6 h-8 bg-blue-600 rounded-sm border-2 border-white transform rotate-6 shadow-sm"></div>
+<div class="w-6 h-8 bg-yellow-400 rounded-sm border-2 border-white transform rotate-12 shadow-sm"></div>
+</div>
+<!-- SVG Stylized Cartoon Truck -->
+<svg class="w-24 h-16 relative z-10 drop-shadow-md" fill="none" viewbox="0 0 100 65" xmlns="http://www.w3.org/2000/svg">
+<!-- Truck Cabin & Cargo Bed -->
+<path d="M5 38 H58 V18 H80 C83 18 86 21 87 25 L92 36 V48 H88 M5 48 H25 M45 48 H68" fill="white" stroke="#111827" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5"></path>
+<!-- Green Bumper / Lower Trim -->
+<rect fill="#22c55e" height="9" rx="2" stroke="#111827" stroke-width="3" width="30" x="58" y="38"></rect>
+<!-- Grille / Logo badge -->
+<rect fill="#a3e635" height="6" rx="1.5" stroke="#111827" stroke-width="1.5" width="10" x="62" y="27"></rect>
+<text fill="#14532d" font-family="sans-serif" font-size="4" font-weight="900" x="64" y="32">BUSA</text>
+<!-- Big Cartoon Eyes -->
+<circle cx="75" cy="28" fill="white" r="6" stroke="#111827" stroke-width="2.5"></circle>
+<circle cx="85" cy="28" fill="white" r="6" stroke="#111827" stroke-width="2.5"></circle>
+<circle cx="77" cy="28" fill="#111827" r="2.5"></circle>
+<circle cx="87" cy="28" fill="#111827" r="2.5"></circle>
+<!-- Wheels -->
+<circle cx="16" cy="48" fill="#374151" r="7" stroke="#111827" stroke-width="3"></circle>
+<circle cx="16" cy="48" fill="#d1d5db" r="2.5"></circle>
+<circle cx="78" cy="48" fill="#374151" r="7" stroke="#111827" stroke-width="3"></circle>
+<circle cx="78" cy="48" fill="#d1d5db" r="2.5"></circle>
+</svg>
+</div>
+</div>
+</div>
+</header>
+<!-- END: Top Header Section -->
+<!-- BEGIN: Main Scrollable Content -->
+<main class="flex-1 bg-white -mt-4 rounded-t-[28px] z-10 px-4 pt-3 pb-2 overflow-y-auto no-scrollbar flex flex-col gap-3" data-purpose="faq-main-content">
+<!-- Section Title with Green Accent Flares -->
+<div class="flex items-center justify-center gap-2 mt-1" data-purpose="title-container">
+<!-- Left accent spark -->
+<div class="flex flex-col gap-1 items-end rotate-[15deg]">
+<span class="w-3.5 h-1.5 bg-[#8fe11c] rounded-full"></span>
+<span class="w-5 h-2 bg-[#8fe11c] rounded-full -mr-1"></span>
+</div>
+<h1 class="font-brand-title font-black text-[25px] tracking-wide text-[#0d3b1e] text-center">
+          Dubbi e risposte
+        </h1>
+<!-- Right accent spark -->
+<div class="flex flex-col gap-1 items-start -rotate-[15deg]">
+<span class="w-3.5 h-1.5 bg-[#8fe11c] rounded-full"></span>
+<span class="w-5 h-2 bg-[#8fe11c] rounded-full -ml-1"></span>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="relative w-full" data-purpose="search-bar">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-emerald-800">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</span>
+<input class="w-full bg-[#f6fcf8] text-[13.5px] font-semibold text-slate-700 placeholder-slate-400 pl-11 pr-4 py-2.5 rounded-full border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition" placeholder="Cerca una domanda o una carta" type="search"/>
+</div>
+<!-- Filter Pills (Tags) -->
+<div class="flex flex-col gap-2 mt-0.5" data-purpose="filters">
+<!-- Row 1 of Filters -->
+<div class="flex items-center gap-2">
+<!-- Pill: Tutte (Active) -->
+<button class="px-5 py-1.5 rounded-full bg-[#185e2b] text-white font-brand-title font-bold text-[13.5px] shadow-sm flex-shrink-0 transition-transform active:scale-95" type="button">
+            Tutte
+          </button>
+<!-- Pill: Preparazione -->
+<button class="px-4 py-1.5 rounded-full bg-[#f4fcf7] text-[#1c4b2b] border border-emerald-200 font-brand-title font-bold text-[13.5px] flex-shrink-0 hover:bg-emerald-50 transition" type="button">
+            Preparazione
+          </button>
+<!-- Pill: Regole -->
+<button class="px-4 py-1.5 rounded-full bg-[#f4fcf7] text-[#1c4b2b] border border-emerald-200 font-brand-title font-bold text-[13.5px] flex-shrink-0 hover:bg-emerald-50 transition" type="button">
+            Regole
+          </button>
+</div>
+<!-- Row 2 of Filters -->
+<div class="flex items-center gap-2">
+<!-- Pill: Carte Busa -->
+<button class="px-4 py-1.5 rounded-full bg-[#f4fcf7] text-[#1c4b2b] border border-emerald-200 font-brand-title font-bold text-[13.5px] flex-shrink-0 hover:bg-emerald-50 transition" type="button">
+            Carte Busa
+          </button>
+<!-- Pill: Modalità -->
+<button class="px-4 py-1.5 rounded-full bg-[#f4fcf7] text-[#1c4b2b] border border-emerald-200 font-brand-title font-bold text-[13.5px] flex-shrink-0 hover:bg-emerald-50 transition" type="button">
+            Modalità
+          </button>
+</div>
+</div>
+<!-- BEGIN: Accordion Section -->
+<section class="flex flex-col gap-2.5 mt-1" data-purpose="faq-accordion-list">
+<!-- Accordion Item 1 (Closed) -->
+<div class="border border-emerald-200 rounded-[18px] bg-white p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-emerald-300 transition">
+<span class="font-brand-title font-bold text-[15px] text-[#0d3b1e] tracking-tight">
+            Come preparo il mazzo?
+          </span>
+<div class="w-6 h-6 rounded-full bg-[#eaf8ee] flex items-center justify-center text-[#185e2b]">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Item 2 (Closed) -->
+<div class="border border-emerald-200 rounded-[18px] bg-white p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-emerald-300 transition">
+<span class="font-brand-title font-bold text-[15px] text-[#0d3b1e] tracking-tight">
+            Cosa significa carta uguale?
+          </span>
+<div class="w-6 h-6 rounded-full bg-[#eaf8ee] flex items-center justify-center text-[#185e2b]">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Item 3 (OPEN ITEM) -->
+<div class="border-2 border-emerald-200/90 rounded-[20px] bg-[#f9fefb] p-3.5 shadow-sm transition" data-purpose="open-faq-item">
+<!-- Accordion Header -->
+<div class="flex items-center justify-between cursor-pointer">
+<span class="font-brand-title font-extrabold text-[15.5px] text-[#0d3b1e] tracking-tight">
+              Come propongo una modalità?
+            </span>
+<div class="w-6 h-6 rounded-full bg-[#eaf8ee] flex items-center justify-center text-[#185e2b]">
+<!-- Arrow Up Icon indicating open state -->
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Answer Content -->
+<div class="mt-2.5 text-[13px] leading-[1.4] text-slate-600 font-semibold pr-1">
+<p>
+              Apri Crea, scegli le carte Busa e indica le quantità. Aggiungi titolo e descrizione, controlla il riepilogo e invia. La proposta sarà pubblicata dopo il controllo Busa.
+            </p>
+</div>
+<!-- Inner Action Button -->
+<button class="mt-3.5 w-full bg-[#1b8a32] hover:bg-[#15772a] active:scale-[0.98] text-white font-brand-title font-extrabold text-[16px] py-2.5 px-4 rounded-full shadow-md flex items-center justify-center gap-1.5 transition" type="button">
+<span>Vai a Crea</span>
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<!-- Accordion Item 4 (Closed) -->
+<div class="border border-emerald-200 rounded-[18px] bg-white p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-emerald-300 transition">
+<span class="font-brand-title font-bold text-[15px] text-[#0d3b1e] tracking-tight">
+            Dove ascolto le frasi in dialetto?
+          </span>
+<div class="w-6 h-6 rounded-full bg-[#eaf8ee] flex items-center justify-center text-[#185e2b]">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- END: Accordion Section -->
+</main>
+<!-- END: Main Scrollable Content -->
+<!-- BEGIN: Bottom Navigation Bar -->
+<nav class="bg-white border-t border-slate-100 px-4 pt-2 pb-5 flex justify-between items-center z-20 flex-shrink-0" data-purpose="bottom-navigation">
+<!-- Tab 1: Home -->
+<button class="flex flex-col items-center flex-1 text-slate-500 hover:text-slate-700 transition" type="button">
+<svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24">
+<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+</svg>
+<span class="text-[11px] font-bold font-brand-title mt-0.5">Home</span>
+</button>
+<!-- Tab 2: Ascolta -->
+<button class="flex flex-col items-center flex-1 text-slate-500 hover:text-slate-700 transition" type="button">
+<svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"></path>
+</svg>
+<span class="text-[11px] font-bold font-brand-title mt-0.5">Ascolta</span>
+</button>
+<!-- Tab 3: Scopri -->
+<button class="flex flex-col items-center flex-1 text-slate-500 hover:text-slate-700 transition" type="button">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold font-brand-title mt-0.5">Scopri</span>
+</button>
+<!-- Tab 4: Crea -->
+<button class="flex flex-col items-center flex-1 text-slate-500 hover:text-slate-700 transition" type="button">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold font-brand-title mt-0.5">Crea</span>
+</button>
+<!-- Tab 5: FAQ (Active Item) -->
+<button class="flex flex-col items-center flex-1 text-[#15772a] relative transition" type="button">
+<!-- Question mark icon in a circle -->
+<div class="w-6 h-6 rounded-full bg-[#1b8a32] text-white flex items-center justify-center font-bold text-xs">
+          ?
+        </div>
+<span class="text-[11px] font-extrabold font-brand-title mt-0.5">FAQ</span>
+<!-- Active indicator bar below label -->
+<div class="w-5 h-0.5 bg-[#15772a] rounded-full mt-0.5"></div>
+</button>
+</nav>
+<!-- END: Bottom Navigation Bar -->
+</div>
+<!-- END: Phone Screen Mockup Frame -->
+<!-- Sub-caption label matching screenshot demo description -->
+<div class="mt-3 text-center">
+<p class="font-brand-title font-black text-xl text-[#082915]">Risposta aperta</p>
+</div>
+</body></html>
