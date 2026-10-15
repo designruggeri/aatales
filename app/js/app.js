@@ -1,6 +1,21 @@
 /* MÖVAT! — companion web app (vanilla JS, routing via hash). */
-(function () {
+(async function () {
   'use strict';
+
+  // Con il server attivo i contenuti arrivano dal CMS; altrimenti si usano i dati dimostrativi di data.js.
+  let API = false;
+  try {
+    const r = await fetch('api/content', { cache: 'no-store' });
+    if (r.ok && (r.headers.get('content-type') || '').includes('json')) {
+      const d = await r.json();
+      window.MOVAT_CONFIG = { ...window.MOVAT_CONFIG, ...d.config, submitUrl: 'api/proposals' };
+      window.MOVAT_CARDS = d.cards;
+      window.MOVAT_MODES = d.modes;
+      window.MOVAT_FAQ = d.faq;
+      window.MOVAT_FAQ_CATEGORIES = d.faqCategories;
+      API = true;
+    }
+  } catch { /* nessun server: modalità dimostrativa */ }
 
   const CONFIG = window.MOVAT_CONFIG;
   const CARDS = [...window.MOVAT_CARDS].sort((a, b) => a.number - b.number);
@@ -180,7 +195,7 @@
         <h1><img class="logo" src="assets/img/logo-movat.png" alt="MÖVAT!"></h1>
         <img class="truck" src="assets/img/camioncino.png" alt="Il camioncino Busa che corre tra le carte">
       </header>
-      <p class="welcome">Il gioco continua qui!</p>
+      <p class="welcome">${esc(CONFIG.welcome || 'Il gioco continua qui!')}</p>
       <nav class="home-links" aria-label="Sezioni dell'app">
         ${links.map(([k, t, s, img]) => `
           <a class="home-link" href="#/${k}">
@@ -191,7 +206,7 @@
       </nav>
       <footer class="footer">
         <div class="busa">busa<small>TRASPORTI E LOGISTICA</small></div>
-        <p style="margin-top:10px">MÖVAT! è un gioco di Busa Trasporti e Logistica</p>
+        <p style="margin-top:10px">${esc(CONFIG.footerText ?? 'MÖVAT! è un gioco di Busa Trasporti e Logistica')}</p>
         <p style="margin-top:6px"><a href="${CONFIG.privacyUrl}">Informativa privacy</a></p>
       </footer>`,
     };
@@ -337,9 +352,13 @@
 
   /* ---------------- Voti (senza account, salvati sul dispositivo) ---------------- */
   const votes = store.get('votes', {});
+  // Codice casuale del dispositivo: permette di modificare il proprio voto senza account.
+  let deviceId = store.get('device', null);
+  if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2) + Date.now().toString(36); store.set('device', deviceId); }
   function ratingOf(mode) {
     const mine = votes[mode.id];
-    const sum = mode.ratingSum + (mine || 0), count = mode.ratingCount + (mine ? 1 : 0);
+    // Con il server i totali includono già il voto di questo dispositivo.
+    const sum = mode.ratingSum + (API ? 0 : mine || 0), count = mode.ratingCount + (API || !mine ? 0 : 1);
     return { avg: count ? sum / count : 0, count, mine };
   }
   function ratingText(mode, long = false) {
@@ -507,7 +526,15 @@
       };
       paint();
       $v.querySelectorAll('[data-star]').forEach((b) => b.addEventListener('click', () => { pick = +b.dataset.star; paint(); }));
-      document.getElementById('send-vote').onclick = () => {
+      document.getElementById('send-vote').onclick = async () => {
+        if (API) {
+          const sb = document.getElementById('send-vote'); sb.disabled = true;
+          try {
+            const r = await fetch('api/votes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modeId: m.id, deviceId, value: pick }) });
+            if (!r.ok) throw new Error();
+            const d = await r.json(); m.ratingSum = d.ratingSum; m.ratingCount = d.ratingCount;
+          } catch { sb.disabled = false; toast('Voto non inviato: controlla la connessione e riprova.'); return; }
+        }
         votes[m.id] = pick; store.set('votes', votes);
         toast(editing ? 'Voto aggiornato' : 'Voto registrato, grazie!');
         drawVote(false);
@@ -956,7 +983,7 @@
           <button class="chip" data-cat="" aria-pressed="${!state.cat}">Tutte</button>
           ${FAQ_CATS.map((c) => `<button class="chip" data-cat="${esc(c)}" aria-pressed="${state.cat === c}">${esc(c)}</button>`).join('')}
         </div>
-        <p class="demo-tag" style="margin-top:10px">${icon('construction')}Domande e risposte segnaposto, da sostituire con i testi ufficiali</p>
+        ${FAQ.some((f) => /segnaposto/i.test(f.q)) ? `<p class="demo-tag" style="margin-top:10px">${icon('construction')}Domande e risposte segnaposto, da sostituire con i testi ufficiali</p>` : ''}
         <div id="results" class="faq-list"></div>
       </div>`;
     function draw() {
@@ -1012,13 +1039,12 @@
       section: 'privacy', headTitle: 'Privacy', back: '#/', title: 'Informativa privacy',
       html: `<div class="page prose">
         <h1 style="font-size:28px">Informativa privacy</h1>
-        <p class="demo-tag" style="margin-top:10px">${icon('construction')}Testo segnaposto da sostituire con l’informativa ufficiale Busa</p>
-        <h2>Quali dati raccogliamo</h2>
-        <p>Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.</p>
-        <h2>Come li usiamo</h2>
-        <p>Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.</p>
-        <h2>Voti</h2>
-        <p>I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.</p>
+        ${CONFIG.privacyIsPlaceholder !== false ? `<p class="demo-tag" style="margin-top:10px">${icon('construction')}Testo segnaposto da sostituire con l’informativa ufficiale Busa</p>` : ''}
+        ${(CONFIG.privacy || [
+          { title: 'Quali dati raccogliamo', text: 'Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.' },
+          { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
+          { title: 'Voti', text: 'I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.' },
+        ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map((t) => `<p>${esc(t)}</p>`).join('')}`).join('')}
         <p style="margin-top:20px"><a class="btn secondary" href="#/">${icon('home')}Torna alla Home</a></p>
       </div>`,
     };

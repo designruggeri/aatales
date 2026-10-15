@@ -1,0 +1,16 @@
+{
+  "name": "movat-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Server dell'app MÖVAT! e del CMS dei contenuti",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "optionalDependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

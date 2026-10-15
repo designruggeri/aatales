@@ -4,15 +4,18 @@ Web app mobile-first che accompagna il gioco di carte MÖVAT! di Busa Trasporti 
 Si apre di solito dal QR code stampato nei materiali del gioco. È HTML/CSS/JS statico:
 non richiede build, login o registrazione.
 
-## Avvio in locale
+## Avvio
+
+Con il CMS (consigliato): dalla cartella principale lancia `node server/server.js` e apri `http://localhost:8000`.
+I contenuti arrivano dal CMS (`/admin/`). Vedi il `README.md` principale.
+
+Solo l'app con i dati dimostrativi, senza server:
 
 ```bash
 cd app
 python3 -m http.server 8000
 # apri http://localhost:8000
 ```
-
-Può essere pubblicata su qualsiasi hosting statico (Netlify, GitHub Pages, S3…).
 
 ## Schermate e percorsi
 
@@ -36,7 +39,7 @@ Può essere pubblicata su qualsiasi hosting statico (Netlify, GitHub Pages, S3�
 
 ## Dove si cambiano i contenuti
 
-Tutti i contenuti sono in `js/data.js` e sono **dimostrativi**: vanno sostituiti con quelli ufficiali.
+Con il server, tutti i contenuti si gestiscono dal CMS. Il file `js/data.js` contiene solo i dati **dimostrativi**: si usano quando l'app gira senza server e per popolare il CMS al primo avvio.
 
 - `MOVAT_CARDS` è il catalogo configurabile delle carte Busa. Ogni carta ha numero, nome,
   numero di `copies` (il massimo selezionabile in *Crea*), frase in dialetto, traduzione,
