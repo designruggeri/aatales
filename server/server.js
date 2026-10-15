@@ -16,8 +16,6 @@
  *   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
  *                     per le email di notifica (serve il pacchetto "nodemailer")
  *   COOKIE_SECURE=1   imposta il cookie di sessione come Secure (da usare in HTTPS)
- *   ANTHROPIC_API_KEY chiave API di Claude per leggere le carte nel caricamento massivo
- *                     (in alternativa si inserisce dal CMS; serve "npm install" in server/)
  */
 'use strict';
 
@@ -34,7 +32,6 @@ const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(ROOT, 'data'));
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const ADMIN_FILE = path.join(DATA_DIR, 'admin.json');
-const AI_FILE = path.join(DATA_DIR, 'ai.json');
 const PORT = Number(process.env.PORT) || 8000;
 const SESSION_HOURS = 12;
 const MAX_JSON = 25 * 1024 * 1024; // gli upload arrivano in base64 dentro il JSON
@@ -533,100 +530,6 @@ on('POST', '/api/admin/upload', async (req) => {
   const name = `${Date.now().toString(36)}-${slugify(path.parse(String(b.name || 'file')).name)}${ext}`;
   await fsp.writeFile(path.join(UPLOAD_DIR, name), buf);
   return { url: 'uploads/' + name, size: buf.length };
-});
-
-/* Lettura automatica delle carte con Claude (caricamento massivo) */
-let anthropicSdk;
-function loadSdk() {
-  if (anthropicSdk !== undefined) return anthropicSdk;
-  try { const m = require('@anthropic-ai/sdk'); anthropicSdk = m.default || m; } catch { anthropicSdk = null; }
-  return anthropicSdk;
-}
-function aiKey() {
-  if (process.env.ANTHROPIC_API_KEY) return { key: process.env.ANTHROPIC_API_KEY, source: 'env' };
-  try { const k = JSON.parse(fs.readFileSync(AI_FILE, 'utf8')).apiKey; if (k) return { key: k, source: 'cms' }; } catch { /* nessuna chiave */ }
-  return null;
-}
-function aiStatus() {
-  const k = aiKey();
-  return { sdk: !!loadSdk(), configured: !!k, source: k?.source || null, hint: k ? '…' + k.key.slice(-4) : null, enabled: !!(k && loadSdk()) };
-}
-const CARD_SCHEMA = {
-  type: 'object',
-  properties: {
-    name: { type: 'string', description: 'Nome della carta, scritto in alto' },
-    dialect: { type: 'string', description: 'Frase in dialetto piacentino dentro il fumetto' },
-    translation: { type: 'string', description: 'Traduzione italiana subito sotto il fumetto' },
-    text: { type: 'string', description: 'Testo della carta che ne descrive l’effetto o la regola' },
-    number: { type: 'string', description: 'Numero della carta, in basso a destra; solo cifre' },
-    notes: { type: 'string', description: 'Dubbi di lettura: parti illeggibili, tagliate o incerte' },
-  },
-  required: ['name', 'dialect', 'translation', 'text', 'number', 'notes'],
-  additionalProperties: false,
-};
-const CARD_PROMPT = `Questa è l'immagine di una carta del gioco MÖVAT! di Busa Trasporti e Logistica.
-Trascrivi i testi stampati sulla carta:
-- name: il nome della carta, scritto in alto;
-- dialect: la frase in dialetto piacentino dentro il fumetto;
-- translation: la traduzione italiana scritta subito sotto il fumetto;
-- text: il testo della carta che ne spiega l'effetto o la regola (se c'è);
-- number: il numero della carta, in basso a destra (solo cifre).
-Trascrivi esattamente quello che vedi, con gli stessi accenti, apostrofi e punteggiatura: non correggere, non tradurre e non completare il dialetto.
-Non aggiungere virgolette o caporali che non sono stampati. Mantieni gli a capo del testo della carta solo se separano frasi diverse.
-Se un elemento manca o è illeggibile lascia una stringa vuota e spiegalo in notes. Se è tutto chiaro, notes è una stringa vuota.`;
-
-on('GET', '/api/admin/ai/status', () => aiStatus());
-on('PUT', '/api/admin/ai/key', async (req) => {
-  const { apiKey } = await readJson(req);
-  const k = str(apiKey, 300);
-  if (k && !/^sk-ant-[A-Za-z0-9_-]{10,}$/.test(k)) throw new HttpError(422, 'La chiave non sembra valida: deve iniziare con “sk-ant-”.');
-  if (k) fs.writeFileSync(AI_FILE, JSON.stringify({ apiKey: k }, null, 2), { mode: 0o600 });
-  else fs.rmSync(AI_FILE, { force: true });
-  return aiStatus();
-});
-on('POST', '/api/admin/ai/extract', async (req) => {
-  const Anthropic = loadSdk();
-  if (!Anthropic) throw new HttpError(503, 'Manca il pacchetto di Claude: esegui “npm install” nella cartella server e riavvia.');
-  const k = aiKey();
-  if (!k) throw new HttpError(503, 'Inserisci la chiave API di Claude in “Testi e impostazioni”.');
-  const b = await readJson(req);
-  const mediaType = String(b.type || '');
-  if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(mediaType)) throw new HttpError(415, 'Formato immagine non supportato');
-  const data = String(b.data || '');
-  if (!data || data.length > 7_000_000) throw new HttpError(413, 'Immagine mancante o troppo grande');
-  const client = new Anthropic({ apiKey: k.key, maxRetries: 3 });
-  let res;
-  try {
-    res = await client.beta.messages.create({
-      model: 'claude-opus-5-5',
-      max_tokens: 16000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'medium', format: { type: 'json_schema', schema: CARD_SCHEMA } },
-      messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: mediaType, data } },
-        { type: 'text', text: CARD_PROMPT },
-      ] }],
-    });
-  } catch (e) {
-    if (e instanceof Anthropic.AuthenticationError) throw new HttpError(502, 'La chiave API di Claude non è valida o è stata revocata.');
-    if (e instanceof Anthropic.PermissionDeniedError) throw new HttpError(502, 'La chiave API di Claude non ha i permessi per questo modello.');
-    if (e instanceof Anthropic.RateLimitError) throw new HttpError(429, 'Troppe richieste a Claude in poco tempo: riprova tra un minuto.');
-    if (e instanceof Anthropic.BadRequestError) throw new HttpError(502, 'Claude non ha accettato l’immagine: ' + (e.error?.error?.message || e.message));
-    if (e instanceof Anthropic.APIConnectionError) throw new HttpError(502, 'Impossibile contattare Claude: controlla la connessione del server.');
-    if (e instanceof Anthropic.APIError) throw new HttpError(502, 'Errore di Claude (' + (e.status || '?') + '): riprova.');
-    throw e;
-  }
-  if (res.stop_reason === 'refusal') throw new HttpError(422, 'Claude non ha potuto leggere questa immagine.');
-  if (res.stop_reason === 'max_tokens') throw new HttpError(502, 'Risposta di Claude incompleta: riprova.');
-  const textBlock = res.content.find((c) => c.type === 'text');
-  let out;
-  try { out = JSON.parse(textBlock?.text || ''); } catch { throw new HttpError(502, 'Risposta di Claude non leggibile: riprova.'); }
-  const num = String(out.number || '').match(/\d+/);
-  return {
-    name: str(out.name, 60), dialect: str(out.dialect, 300), translation: str(out.translation, 300), text: str(out.text, 1500),
-    number: num ? Number(num[0]) : null, notes: str(out.notes, 500),
-  };
 });
 
 /* Backup */

@@ -90,7 +90,7 @@
     if (parts[0] === 'login') return go('#/');
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
-    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
+    const views = { carte: id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
     const view = sec ? views[sec] : viewDashboard;
     if (!view) return go('#/');
     const pending = DATA.modes.filter((m) => m.status === 'pending').length;
@@ -183,7 +183,7 @@
     const q = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || '';
     $m.innerHTML = `
       <div class="page-head"><div><h1>Carte</h1><p class="muted">Catalogo delle carte Busa: nomi, copie, frasi in dialetto, immagini e audio.</p></div>
-        <div class="row"><a class="btn secondary" href="#/carte/importa">${icon('auto_awesome')}Caricamento massivo</a><a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div></div>
+        <a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div>
       <div class="panel">
         <div class="panel-head"><div class="search-box">${icon('search')}<input type="search" id="q" placeholder="Cerca per numero o nome" value="${esc(q)}"></div>
           <span class="muted small">Le “copie” sono il massimo selezionabile nel configuratore Crea.</span></div>
@@ -254,7 +254,7 @@
         <div>
           <div class="panel form">
             <div class="grid-3">
-              <div class="field"><label for="number">Numero</label><input id="number" name="number" type="number" min="0" value="${esc(c.number)}" required></div>
+              <div class="field"><label for="number">Numero</label><input id="number" name="number" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${esc(c.number)}" required></div>
               <div class="field" style="grid-column:span 2"><label for="name">Nome della carta</label><input id="name" name="name" type="text" maxlength="60" value="${esc(c.name)}" required></div>
             </div>
             <div class="field"><label for="copies">Copie presenti nella scatola</label><input id="copies" name="copies" type="number" min="1" max="99" value="${esc(c.copies)}" required style="max-width:140px">
@@ -299,6 +299,9 @@
     const values = () => Object.fromEntries(new FormData($f));
     const preview = () => { const v = values(); document.getElementById('preview').innerHTML = cardArt({ ...v, number: v.number || '?' }); };
     preview(); watchDirty($f);
+    // Il numero accetta solo cifre (campo di testo, senza frecce su/giù).
+    const $num = document.getElementById('number');
+    $num.addEventListener('input', () => { const v = $num.value.replace(/\D/g, ''); if (v !== $num.value) $num.value = v; });
     $f.addEventListener('input', preview);
     bindUploads($f, preview);
     $f.onsubmit = async (e) => {
@@ -312,196 +315,6 @@
       const msg = usedIn.length ? `La carta è usata in ${usedIn.length} modalità e verrà tolta anche da lì. Eliminarla definitivamente?` : 'Eliminare definitivamente questa carta?';
       if (!confirm(msg)) return;
       if (await act(e.currentTarget, () => api('DELETE', 'cards/' + c.id + (usedIn.length ? '?force=1' : '')), 'Carta eliminata')) { dirty = false; go('#/carte'); }
-    });
-  }
-
-  /* ---------------- Carte: caricamento massivo ---------------- */
-  // Lo stato resta in memoria finché la pagina del CMS è aperta, anche cambiando sezione.
-  const IMPORT = { rows: [], seq: 0, queue: [], running: 0 };
-  // Ridimensiona l'immagine nel browser: una copia per l'app e una per la lettura con Claude.
-  function resizeImage(file, maxSide, type, quality) {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = () => {
-        const k = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
-        const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
-        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-        const ctx = cv.getContext('2d');
-        if (type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
-        ctx.drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        cv.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Immagine non leggibile'))), type, quality);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Immagine non leggibile')); };
-      img.src = url;
-    });
-  }
-  const blobB64 = (blob) => readFileB64(blob);
-  function guessNumber(name) { const m = String(name).match(/\d+/); return m ? Number(m[0]) : null; }
-  function matchFor(row) { return row.number != null && row.number !== '' ? DATA.cards.find((c) => c.number === Number(row.number)) : null; }
-
-  async function processRow(row, ai) {
-    try {
-      row.status = 'upload'; drawImportRow(row);
-      const forApp = await resizeImage(row.file, 1400, 'image/webp', 0.9);
-      const appType = forApp.type || 'image/png';
-      const up = await api('POST', 'upload', { name: row.file.name, type: appType, data: await blobB64(forApp) });
-      row.image = up.url;
-      if (ai) {
-        row.status = 'ai'; drawImportRow(row);
-        const forAi = await resizeImage(row.file, 1568, 'image/jpeg', 0.92);
-        const r = await api('POST', 'ai/extract', { type: 'image/jpeg', data: await blobB64(forAi) });
-        Object.assign(row, { name: r.name, dialect: r.dialect, translation: r.translation, text: r.text, notes: r.notes });
-        if (r.number != null) row.number = r.number;
-      }
-      const m = matchFor(row);
-      row.action = m ? 'update' : 'create';
-      if (m && !row.copies) row.copies = m.copies;
-      row.status = 'ready';
-    } catch (e) { row.status = 'error'; row.error = e.message; }
-    drawImportRow(row); drawImportBar();
-  }
-  function pumpQueue(ai) {
-    while (IMPORT.running < 2 && IMPORT.queue.length) {
-      const row = IMPORT.queue.shift(); IMPORT.running++;
-      processRow(row, ai).finally(() => { IMPORT.running--; pumpQueue(ai); });
-    }
-  }
-  const STATUS_LBL = {
-    wait: [icon('schedule'), 'In coda'], upload: [icon('progress_activity', 'spin'), 'Caricamento…'], ai: [icon('progress_activity', 'spin'), 'Claude sta leggendo la carta…'],
-    ready: [icon('check_circle', 'fill yes'), 'Da controllare'], error: [icon('error', 'fill'), 'Errore'], saved: [icon('task_alt', 'fill yes'), 'Salvata'],
-  };
-  function rowHtml(r) {
-    const m = matchFor(r);
-    const dup = r.number != null && r.number !== '' && IMPORT.rows.filter((x) => x.status !== 'saved' && x.action !== 'skip' && String(x.number) === String(r.number)).length > 1;
-    const busy = ['wait', 'upload', 'ai'].includes(r.status);
-    const locked = busy || r.status === 'saved';
-    const missCopies = r.action === 'create' && !(Number(r.copies) >= 1);
-    return `<div class="imp-row ${r.status}" data-row="${r.key}">
-      <div class="imp-thumb">${r.preview ? `<img src="${r.preview}" alt="">` : ''}</div>
-      <div class="imp-body">
-        <div class="row" style="justify-content:space-between">
-          <span class="imp-status">${STATUS_LBL[r.status][0]}${STATUS_LBL[r.status][1]} <span class="muted small">· ${esc(r.file.name)}</span></span>
-          <div class="row">
-            ${r.status === 'error' ? `<button type="button" class="btn secondary sm" data-retry="${r.key}">${icon('refresh')}Riprova</button>` : ''}
-            ${r.status !== 'saved' ? `<button type="button" class="btn ghost sm icon" data-drop="${r.key}" aria-label="Togli dall’elenco">${icon('close')}</button>` : ''}
-          </div>
-        </div>
-        ${r.status === 'error' ? `<p class="notice err small">${icon('error')}${esc(r.error)}</p>` : ''}
-        ${r.notes ? `<p class="notice warn small">${icon('visibility')}<span><b>Da verificare:</b> ${esc(r.notes)}</span></p>` : ''}
-        <fieldset ${locked ? 'disabled' : ''} class="imp-fields">
-          <div class="imp-grid">
-            <div class="field"><label>N.</label><input type="number" min="0" data-k="number" value="${esc(r.number ?? '')}"></div>
-            <div class="field"><label>Nome</label><input type="text" maxlength="60" data-k="name" value="${esc(r.name || '')}"></div>
-            <div class="field ${missCopies ? 'need' : ''}"><label>Copie nel mazzo</label><input type="number" min="1" max="99" data-k="copies" value="${esc(r.copies || '')}" placeholder="?"></div>
-            <div class="field"><label>Azione</label><select data-k="action">
-              <option value="create" ${r.action === 'create' ? 'selected' : ''}>Crea nuova carta</option>
-              ${m ? `<option value="update" ${r.action === 'update' ? 'selected' : ''}>Aggiorna #${pad2(m.number)} ${esc(m.name)}</option>` : ''}
-              <option value="skip" ${r.action === 'skip' ? 'selected' : ''}>Non importare</option></select></div>
-          </div>
-          <div class="imp-grid-3">
-            <div class="field"><label>Frase in piacentino</label><textarea rows="2" maxlength="300" data-k="dialect">${esc(r.dialect || '')}</textarea></div>
-            <div class="field"><label>Traduzione</label><textarea rows="2" maxlength="300" data-k="translation">${esc(r.translation || '')}</textarea></div>
-            <div class="field"><label>Testo della carta</label><textarea rows="2" maxlength="1500" data-k="text">${esc(r.text || '')}</textarea></div>
-          </div>
-          ${dup ? `<p class="notice warn small">${icon('content_copy')}Ci sono più carte con il numero ${esc(r.number)} in questo caricamento.</p>` : ''}
-          ${m && r.action === 'create' ? `<p class="notice warn small">${icon('warning')}Esiste già la carta #${pad2(m.number)} “${esc(m.name)}”: scegli “Aggiorna” per sostituirla.</p>` : ''}
-        </fieldset>
-      </div>
-    </div>`;
-  }
-  function drawImportRow(r) {
-    const el = document.querySelector(`[data-row="${r.key}"]`);
-    if (el) el.outerHTML = rowHtml(r);
-  }
-  function drawImportBar() {
-    const bar = document.getElementById('imp-bar'); if (!bar) return;
-    const todo = IMPORT.rows.filter((r) => r.status === 'ready' && r.action !== 'skip');
-    const busy = IMPORT.rows.filter((r) => ['wait', 'upload', 'ai'].includes(r.status)).length;
-    const miss = todo.filter((r) => r.action === 'create' && !(Number(r.copies) >= 1) || !String(r.name || '').trim() || r.number === '' || r.number == null).length;
-    bar.innerHTML = `<span class="muted">${busy ? `${busy} in lavorazione · ` : ''}${todo.length} pronte${miss ? ` · <b style="color:var(--red)">${miss} da completare</b>` : ''}</span>
-      <button class="btn" id="imp-save" ${todo.length && !busy ? '' : 'disabled'}>${icon('save')}Salva ${todo.length || ''} ${todo.length === 1 ? 'carta' : 'carte'}</button>`;
-    document.getElementById('imp-save').onclick = saveImport;
-    dirty = IMPORT.rows.some((r) => r.status !== 'saved');
-  }
-  async function saveImport(e) {
-    const todo = IMPORT.rows.filter((r) => r.status === 'ready' && r.action !== 'skip');
-    const bad = todo.filter((r) => !String(r.name || '').trim() || r.number === '' || r.number == null || (r.action === 'create' && !(Number(r.copies) >= 1)));
-    if (bad.length) { toast(`Completa nome, numero e copie di ${bad.length} ${bad.length === 1 ? 'carta' : 'carte'}`, true); document.querySelector(`[data-row="${bad[0].key}"]`)?.scrollIntoView({ block: 'center' }); return; }
-    const btn = e.currentTarget; btn.disabled = true;
-    let ok = 0;
-    for (const r of todo) {
-      const fields = { number: r.number, name: r.name, dialect: r.dialect || '', translation: r.translation || '', text: r.text || '', image: r.image };
-      try {
-        if (r.action === 'update') {
-          const c = matchFor(r);
-          if (!c) throw new Error('La carta da aggiornare non esiste più');
-          await api('PUT', 'cards/' + c.id, { ...c, ...fields, copies: Number(r.copies) || c.copies });
-        } else await api('POST', 'cards', { ...fields, copies: Number(r.copies), color: '#439626', icon: 'style', audio: '' });
-        r.status = 'saved'; ok++;
-      } catch (er) { r.status = 'error'; r.error = er.message; }
-      drawImportRow(r);
-    }
-    await reload().catch(() => {});
-    IMPORT.rows.forEach((r) => r.status !== 'saved' && drawImportRow(r));
-    drawImportBar();
-    toast(`${ok} ${ok === 1 ? 'carta salvata' : 'carte salvate'}`, ok !== todo.length);
-  }
-
-  async function viewImport($m) {
-    $m.innerHTML = `
-      <a class="crumb" href="#/carte">${icon('arrow_back')}Carte</a>
-      <div class="page-head"><div><h1>Caricamento massivo</h1>
-        <p class="muted">Seleziona le immagini delle carte: Claude legge nome, frase in piacentino, traduzione, testo e numero. Tu controlli e aggiungi le copie presenti nel mazzo.</p></div></div>
-      <div id="ai-state"></div>
-      <label class="drop" id="drop">
-        <input type="file" id="files" accept="image/png,image/jpeg,image/webp" multiple hidden>
-        ${icon('add_photo_alternate')}<b>Trascina qui le immagini delle carte</b><span class="muted">oppure clicca per sceglierle (PNG, JPG o WEBP)</span>
-      </label>
-      <div id="rows" class="imp-list"></div>
-      <div class="imp-bar" id="imp-bar"></div>`;
-    let ai = false;
-    try {
-      const st = await api('GET', 'ai/status');
-      ai = st.enabled;
-      document.getElementById('ai-state').innerHTML = ai
-        ? `<p class="notice" style="margin-bottom:14px">${icon('auto_awesome')}<span>Lettura automatica attiva con Claude. Controlla sempre i testi prima di salvare: soprattutto il dialetto.</span></p>`
-        : `<p class="notice warn" style="margin-bottom:14px">${icon('auto_awesome')}<span>La lettura automatica non è attiva: ${!st.configured ? 'inserisci la chiave API di Claude in <a href="#/impostazioni">Testi e impostazioni</a>' : 'manca il pacchetto di Claude sul server (esegui “npm install” nella cartella server e riavvia)'}. Puoi comunque caricare le immagini e scrivere i testi a mano.</span></p>`;
-    } catch (e) { toast(e.message, true); }
-    const $rows = document.getElementById('rows');
-    $rows.innerHTML = IMPORT.rows.map(rowHtml).join('');
-    drawImportBar();
-    const addFiles = (files) => {
-      const imgs = [...files].filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
-      if (!imgs.length) return toast('Seleziona immagini PNG, JPG o WEBP', true);
-      imgs.sort((a, b) => a.name.localeCompare(b.name, 'it', { numeric: true }));
-      for (const file of imgs) {
-        const row = { key: 'r' + ++IMPORT.seq, file, preview: URL.createObjectURL(file), status: 'wait', number: guessNumber(file.name), name: '', dialect: '', translation: '', text: '', copies: '', action: 'create' };
-        IMPORT.rows.push(row); IMPORT.queue.push(row);
-        $rows.insertAdjacentHTML('beforeend', rowHtml(row));
-      }
-      drawImportBar(); pumpQueue(ai);
-    };
-    document.getElementById('files').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
-    const $drop = document.getElementById('drop');
-    ['dragenter', 'dragover'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.add('over'); }));
-    ['dragleave', 'drop'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.remove('over'); }));
-    $drop.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
-    const rowOf = (el) => IMPORT.rows.find((r) => r.key === el.closest('[data-row]')?.dataset.row);
-    $rows.addEventListener('input', (e) => {
-      const r = rowOf(e.target), k = e.target.dataset.k; if (!r || !k) return;
-      r[k] = k === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value;
-      if (k === 'number') { const m = matchFor(r); r.action = m ? 'update' : 'create'; if (m && !r.copies) r.copies = m.copies; }
-      if (k === 'number' || k === 'action') { drawImportRow(r); document.querySelector(`[data-row="${r.key}"] [data-k="${k}"]`)?.focus(); }
-      else if (k === 'copies') { const f = e.target.closest('.field'); f.classList.toggle('need', r.action === 'create' && !(Number(r.copies) >= 1)); }
-      drawImportBar();
-    });
-    $rows.addEventListener('change', (e) => { if (e.target.dataset.k === 'action') { const r = rowOf(e.target); r.action = e.target.value; drawImportRow(r); drawImportBar(); } });
-    $rows.addEventListener('click', (e) => {
-      const rt = e.target.closest('[data-retry]'), dp = e.target.closest('[data-drop]');
-      if (rt) { const r = rowOf(rt); r.status = 'wait'; r.error = ''; drawImportRow(r); IMPORT.queue.push(r); pumpQueue(ai); }
-      if (dp) { const r = rowOf(dp); if (['upload', 'ai'].includes(r.status)) return toast('Attendi la fine della lettura', true); IMPORT.rows.splice(IMPORT.rows.indexOf(r), 1); IMPORT.queue = IMPORT.queue.filter((x) => x !== r); dp.closest('[data-row]').remove(); drawImportBar(); }
     });
   }
 
@@ -797,13 +610,6 @@
         <label class="check"><input type="checkbox" id="placeholder" ${s.privacyIsPlaceholder ? 'checked' : ''}>Mostra l’avviso “testo segnaposto” nell’app</label>
         <div class="row"><button class="btn" type="submit">${icon('save')}Salva l’informativa</button></div>
       </form>
-      <form class="panel form" id="ai" novalidate>
-        <h2>Lettura automatica delle carte (Claude)</h2>
-        <p class="muted">Serve per il <a href="#/carte/importa">caricamento massivo</a>: Claude legge i testi dalle immagini delle carte. Crea una chiave su <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a> (servono credito o un piano API).</p>
-        <div id="ai-st" class="muted small">Verifica in corso…</div>
-        <div class="field"><label for="apiKey">Chiave API</label><input id="apiKey" name="apiKey" type="password" autocomplete="off" placeholder="sk-ant-…"></div>
-        <div class="row"><button class="btn" type="submit">${icon('key')}Salva la chiave</button><button class="btn danger" type="button" id="ai-del" hidden>${icon('delete')}Rimuovi</button></div>
-      </form>
       <form class="panel form" id="pw" novalidate>
         <h2>Accesso al CMS</h2>
         ${ME.passwordFromEnv ? `<p class="notice">${icon('info')}Utente e password sono impostati nelle variabili d’ambiente del server (ADMIN_USER e ADMIN_PASSWORD): per cambiarli modifica lì.</p>` : `
@@ -846,23 +652,6 @@
     document.getElementById('privacy').onsubmit = async (e) => {
       e.preventDefault();
       if (await act(e.submitter, () => api('PUT', 'settings', { privacy, privacyIsPlaceholder: document.getElementById('placeholder').checked }), 'Informativa salvata')) { dirty = false; route(); }
-    };
-    const drawAi = (st) => {
-      document.getElementById('ai-st').innerHTML = st.configured
-        ? `<span class="badge published">${icon('check_circle')}Chiave configurata ${esc(st.hint || '')}</span> ${st.source === 'env' ? '<span class="muted">(impostata sul server con ANTHROPIC_API_KEY)</span>' : ''}${st.sdk ? '' : ` <span class="badge rejected">Manca il pacchetto: esegui “npm install” nella cartella server</span>`}`
-        : `<span class="badge pending">Nessuna chiave</span>`;
-      document.getElementById('ai-del').hidden = st.source !== 'cms';
-    };
-    api('GET', 'ai/status').then(drawAi).catch(() => {});
-    document.getElementById('ai').onsubmit = async (e) => {
-      e.preventDefault();
-      const k = document.getElementById('apiKey').value.trim(); if (!k) return toast('Incolla la chiave API', true);
-      const st = await act(e.submitter, () => api('PUT', 'ai/key', { apiKey: k }), 'Chiave salvata');
-      if (st) { document.getElementById('apiKey').value = ''; drawAi(st); }
-    };
-    document.getElementById('ai-del').onclick = async (e) => {
-      if (!confirm('Rimuovere la chiave API di Claude?')) return;
-      const st = await act(e.currentTarget, () => api('PUT', 'ai/key', { apiKey: '' }), 'Chiave rimossa'); if (st) drawAi(st);
     };
     document.getElementById('pw').onsubmit = async (e) => {
       e.preventDefault(); if (ME.passwordFromEnv) return;
