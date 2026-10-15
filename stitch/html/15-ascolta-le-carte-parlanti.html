@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mövat! - Le carte parlanti</title>
+<!-- Tailwind CSS v3 CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Fredoka & Quicksand for authentic comic/game styling -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            comic: ['Fredoka', 'sans-serif'],
+            sans: ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            'movat-green': '#28a745',
+            'movat-lime': '#84cc16',
+            'movat-dark': '#0d381e',
+            'movat-bg': '#70db2b',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="typography-and-effects">
+    body {
+      background-color: #e4f4dc;
+      font-family: 'Quicksand', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Outlined Comic Headings */
+    .comic-stroke-dark {
+      text-shadow: 
+        -2px -2px 0 #134611,  
+         2px -2px 0 #134611,
+        -2px  2px 0 #134611,
+         2px  2px 0 #134611,
+         0px  3px 0 #0f380e,
+         0px  4px 0 #000000;
+    }
+
+    .comic-title-white {
+      color: #ffffff;
+      text-shadow: 
+        -2.5px -2.5px 0 #0d2818,  
+         2.5px -2.5px 0 #0d2818,
+        -2.5px  2.5px 0 #0d2818,
+         2.5px  2.5px 0 #0d2818,
+         0px  4px 2px rgba(0,0,0,0.4);
+    }
+
+    /* Custom green ray burst background */
+    .sunburst-bg {
+      background: radial-gradient(circle at 50% 40%, #b4f738 0%, #6bc812 70%, #4da506 100%);
+      position: relative;
+    }
+
+    .sunburst-card {
+      background: repeating-conic-gradient(
+        from 0deg,
+        #a6f429 0deg 15deg,
+        #82dd11 15deg 30deg
+      );
+    }
+
+    /* Hide scrollbars for app wrapper */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="flex items-center justify-center min-h-screen p-0 sm:p-4 bg-emerald-950/20">
+<!-- BEGIN: Phone Mockup Frame -->
+<div class="relative w-full max-w-[430px] h-[932px] max-h-screen sm:rounded-[48px] bg-white overflow-hidden shadow-2xl border-[6px] border-[#22c55e] flex flex-col" data-purpose="mobile-viewport-container">
+<!-- BEGIN: Top Graphic Header -->
+<header class="relative sunburst-bg pt-4 pb-6 px-4 overflow-hidden select-none border-b-2 border-[#16a34a] shadow-inner flex-shrink-0">
+<!-- Hill silhouettes -->
+<div class="absolute bottom-0 left-0 right-0 h-10 bg-[#5ca817] rounded-t-[50%] scale-150 opacity-90 pointer-events-none"></div>
+<div class="absolute bottom-0 left-[-20%] right-[-20%] h-6 bg-[#3f7b0a] rounded-t-[50%] opacity-70 pointer-events-none"></div>
+<!-- Top Navigation & Logo Bar -->
+<div class="relative z-10 flex items-center justify-between">
+<!-- Back Button -->
+<button aria-label="Torna indietro" class="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center text-slate-800 active:scale-95 transition-transform border border-slate-100" type="button">
+<svg class="w-7 h-7 stroke-[3.5] text-slate-800" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Brand Title & Mini Mascot -->
+<div class="flex items-center gap-1">
+<!-- Logo text -->
+<h1 class="text-3xl font-comic font-black tracking-wider text-white comic-stroke-dark uppercase transform -rotate-1">
+            MÖVAT!
+          </h1>
+<!-- Mini Truck Header SVG -->
+<div class="w-20 h-14 relative -mt-1 ml-1 drop-shadow-md">
+<svg class="w-full h-full" viewbox="0 0 140 100">
+<!-- Cargo Boxes -->
+<rect fill="#dc2626" height="42" rx="4" stroke="#000" stroke-width="4" transform="rotate(-6 35 30)" width="30" x="25" y="10"></rect>
+<rect fill="#2563eb" height="45" rx="4" stroke="#000" stroke-width="4" width="30" x="52" y="6"></rect>
+<rect fill="#16a34a" height="38" rx="4" stroke="#000" stroke-width="4" transform="rotate(8 85 30)" width="28" x="75" y="15"></rect>
+<!-- Truck Body -->
+<rect fill="#15803d" height="30" rx="6" stroke="#000" stroke-width="4" width="75" x="15" y="42"></rect>
+<rect fill="#22c55e" height="10" width="70" x="18" y="45"></rect>
+<!-- Cabin -->
+<path d="M 85 35 L 115 35 Q 128 35 128 50 L 128 72 L 85 72 Z" fill="#ffffff" stroke="#000" stroke-width="4"></path>
+<rect fill="#15803d" height="14" stroke="#000" stroke-width="3" width="43" x="85" y="58"></rect>
+<!-- Eyes -->
+<circle cx="102" cy="46" fill="#fff" r="10" stroke="#000" stroke-width="3"></circle>
+<circle cx="104" cy="46" fill="#000" r="4.5"></circle>
+<circle cx="121" cy="46" fill="#fff" r="10" stroke="#000" stroke-width="3"></circle>
+<circle cx="123" cy="46" fill="#000" r="4.5"></circle>
+<!-- Smile -->
+<path d="M 108 64 Q 114 68 120 64" fill="none" stroke="#000" stroke-linecap="round" stroke-width="3"></path>
+<!-- Wheels -->
+<circle cx="36" cy="74" fill="#1f2937" r="13" stroke="#000" stroke-width="4"></circle>
+<circle cx="36" cy="74" fill="#d1d5db" r="5"></circle>
+<circle cx="106" cy="74" fill="#1f2937" r="13" stroke="#000" stroke-width="4"></circle>
+<circle cx="106" cy="74" fill="#d1d5db" r="5"></circle>
+</svg>
+</div>
+</div>
+<!-- Wooden direction sign top right -->
+<div class="w-8 h-8 flex items-center justify-center">
+<div class="relative w-7 h-7 flex flex-col items-center">
+<div class="w-1.5 h-full bg-[#78350f] rounded"></div>
+<div class="absolute top-1 right-0 w-6 h-3 bg-[#b91c1c] rounded-sm transform rotate-6 border border-black flex items-center justify-center">
+<span class="w-1.5 h-1 bg-white rounded-full"></span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: Top Graphic Header -->
+<!-- BEGIN: Main Scrollable Content -->
+<main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-24 bg-white" data-purpose="cards-content-section">
+<!-- Section Title with comic sparkles -->
+<div class="text-center my-2">
+<div class="flex items-center justify-center gap-2">
+<!-- Left comic burst -->
+<div class="flex flex-col gap-1 items-end -rotate-12">
+<span class="w-2.5 h-5 bg-[#a3e635] rounded-full transform rotate-45"></span>
+<span class="w-4 h-2 bg-[#a3e635] rounded-full transform -rotate-12"></span>
+</div>
+<h2 class="text-[30px] font-comic font-black text-[#0f3d1b] tracking-tight">
+            Le carte parlanti
+          </h2>
+<!-- Right comic burst -->
+<div class="flex flex-col gap-1 items-start rotate-12">
+<span class="w-2.5 h-5 bg-[#a3e635] rounded-full transform -rotate-45"></span>
+<span class="w-4 h-2 bg-[#a3e635] rounded-full transform rotate-12"></span>
+</div>
+</div>
+<p class="text-slate-600 font-sans font-bold text-sm tracking-wide -mt-0.5">
+          Ascolta le frasi in piacentino
+        </p>
+</div>
+<!-- Search Input Container -->
+<div class="mt-3 mb-4" data-purpose="search-bar">
+<div class="relative flex items-center">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+<svg class="h-6 w-6 text-slate-400 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="11" cy="11" r="7"></circle>
+<line stroke-linecap="round" x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+</div>
+<input class="w-full pl-11 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-full text-slate-700 placeholder-slate-400 font-medium text-sm focus:outline-none focus:border-movat-green transition-colors" placeholder="Numero o nome della carta" type="text"/>
+</div>
+</div>
+<!-- BEGIN: 2x2 Cards Grid -->
+<div class="grid grid-cols-2 gap-3.5">
+<!-- CARD 1: Fermo lì! -->
+<article class="relative aspect-square rounded-[22px] overflow-hidden sunburst-card border-2 border-[#5cb311] shadow-md flex flex-col justify-between p-2 select-none group cursor-pointer">
+<!-- Card Title -->
+<div class="z-10 text-center">
+<h3 class="font-comic font-extrabold text-[22px] leading-tight comic-title-white uppercase tracking-tight transform -rotate-1">
+              Fermo lì!
+            </h3>
+</div>
+<!-- Vector Illustration Container -->
+<div class="relative w-full h-full flex items-center justify-center -my-2">
+<svg class="w-[96%] h-auto drop-shadow-md" viewbox="0 0 160 140">
+<!-- Stop Sign with hand -->
+<g transform="translate(95, 25)">
+<polygon fill="#dc2626" points="18,0 36,7 44,25 36,43 18,50 0,43 -8,25 0,7" stroke="#000" stroke-width="3"></polygon>
+<polygon fill="#ef4444" points="18,3 33,9 40,25 33,39 18,46 3,39 -4,25 3,9" stroke="#fff" stroke-width="2"></polygon>
+<rect fill="#b45309" height="25" stroke="#000" stroke-width="2" width="6" x="15" y="50"></rect>
+</g>
+<!-- Boxes in truck -->
+<rect fill="#dc2626" height="42" rx="4" stroke="#000" stroke-width="4" transform="rotate(-10 40 55)" width="30" x="30" y="45"></rect>
+<rect fill="#0284c7" height="45" rx="4" stroke="#000" stroke-width="4" width="30" x="52" y="40"></rect>
+<!-- Truck green body -->
+<rect fill="#15803d" height="30" rx="5" stroke="#000" stroke-width="4" width="85" x="15" y="75"></rect>
+<rect fill="#4ade80" height="8" width="75" x="20" y="80"></rect>
+<!-- Cabin -->
+<path d="M 90 62 L 122 62 Q 135 62 135 80 L 135 105 L 90 105 Z" fill="#ffffff" stroke="#000" stroke-width="4"></path>
+<rect fill="#15803d" height="15" stroke="#000" stroke-width="3" width="45" x="90" y="90"></rect>
+<!-- Big comic eyes -->
+<circle cx="106" cy="74" fill="#fff" r="11" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="108" cy="74" fill="#000" r="5"></circle>
+<circle cx="126" cy="74" fill="#fff" r="11" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="128" cy="74" fill="#000" r="5"></circle>
+<!-- Mouth -->
+<path d="M 112 96 Q 118 100 124 96" fill="none" stroke="#000" stroke-linecap="round" stroke-width="3"></path>
+<!-- Wheels -->
+<circle cx="38" cy="106" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="38" cy="106" fill="#9ca3af" r="5"></circle>
+<circle cx="112" cy="106" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="112" cy="106" fill="#9ca3af" r="5"></circle>
+</svg>
+</div>
+<!-- Bottom card details (Number tag & Play button) -->
+<div class="relative z-10 flex items-center justify-between mt-auto">
+<span class="bg-white/95 px-2.5 py-1 rounded-full text-xs font-black font-comic text-slate-800 shadow border border-slate-200">
+              #...
+            </span>
+<button aria-label="Riproduci Fermo lì" class="w-10 h-10 rounded-full bg-[#22c55e] border-2 border-white shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform">
+<svg class="w-5 h-5 ml-0.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M8 5v14l11-7z"></path>
+</svg>
+</button>
+</div>
+</article>
+<!-- CARD 2: Svuota colore -->
+<article class="relative aspect-square rounded-[22px] overflow-hidden sunburst-card border-2 border-[#5cb311] shadow-md flex flex-col justify-between p-2 select-none group cursor-pointer">
+<!-- Card Title -->
+<div class="z-10 text-center">
+<h3 class="font-comic font-extrabold text-[20px] leading-tight comic-title-white uppercase tracking-tight">
+              Svuota colore
+            </h3>
+</div>
+<!-- Vector Illustration Container -->
+<div class="relative w-full h-full flex items-center justify-center -my-2">
+<svg class="w-[96%] h-auto drop-shadow-md" viewbox="0 0 160 140">
+<!-- Colorful Splash Splatters -->
+<circle cx="35" cy="40" fill="#3b82f6" r="4"></circle>
+<circle cx="130" cy="45" fill="#eab308" r="5"></circle>
+<path d="M 20 55 Q 26 50 30 58 Q 24 64 20 55" fill="#ef4444"></path>
+<!-- Color Cards on truck -->
+<rect fill="#dc2626" height="42" rx="4" stroke="#000" stroke-width="3.5" transform="rotate(-15 45 45)" width="28" x="36" y="38"></rect>
+<rect fill="#0284c7" height="46" rx="4" stroke="#000" stroke-width="3.5" width="28" x="58" y="32"></rect>
+<rect fill="#16a34a" height="44" rx="4" stroke="#000" stroke-width="3.5" transform="rotate(12 90 45)" width="28" x="80" y="38"></rect>
+<!-- Truck green body with "buSo" writing -->
+<rect fill="#15803d" height="30" rx="5" stroke="#000" stroke-width="4" width="85" x="15" y="72"></rect>
+<rect fill="#4ade80" height="8" width="75" x="20" y="77"></rect>
+<!-- Cabin -->
+<path d="M 90 58 L 124 58 Q 138 58 138 78 L 138 102 L 90 102 Z" fill="#ffffff" stroke="#000" stroke-width="4"></path>
+<text fill="#ffffff" font-family="Fredoka, sans-serif" font-size="9" font-weight="bold" x="50" y="93">buSo</text>
+<rect fill="#15803d" height="15" stroke="#000" stroke-width="3" width="48" x="90" y="87"></rect>
+<!-- Eyes wide -->
+<circle cx="108" cy="70" fill="#fff" r="12" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="110" cy="70" fill="#000" r="5.5"></circle>
+<circle cx="130" cy="70" fill="#fff" r="11" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="132" cy="70" fill="#000" r="5"></circle>
+<!-- Smile -->
+<path d="M 115 93 Q 120 97 125 93" fill="none" stroke="#000" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Wheels -->
+<circle cx="38" cy="103" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="38" cy="103" fill="#9ca3af" r="5"></circle>
+<circle cx="114" cy="103" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="114" cy="103" fill="#9ca3af" r="5"></circle>
+</svg>
+</div>
+<!-- Bottom card details (Number tag & Play button) -->
+<div class="relative z-10 flex items-center justify-between mt-auto">
+<span class="bg-white/95 px-2.5 py-1 rounded-full text-xs font-black font-comic text-slate-800 shadow border border-slate-200">
+              #...
+            </span>
+<button aria-label="Riproduci Svuota colore" class="w-10 h-10 rounded-full bg-[#22c55e] border-2 border-white shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform">
+<svg class="w-5 h-5 ml-0.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M8 5v14l11-7z"></path>
+</svg>
+</button>
+</div>
+</article>
+<!-- CARD 3: L'ultimo paga -->
+<article class="relative aspect-square rounded-[22px] overflow-hidden sunburst-card border-2 border-[#5cb311] shadow-md flex flex-col justify-between p-2 select-none group cursor-pointer">
+<!-- Card Title -->
+<div class="z-10 text-center">
+<h3 class="font-comic font-extrabold text-[20px] leading-tight comic-title-white uppercase tracking-tight">
+              L'ultimo paga
+            </h3>
+</div>
+<!-- Vector Illustration Container -->
+<div class="relative w-full h-full flex items-center justify-center -my-2">
+<svg class="w-[96%] h-auto drop-shadow-md" viewbox="0 0 160 140">
+<!-- Water/sweat drops -->
+<path d="M 30 45 C 30 40, 25 35, 23 30 C 21 35, 16 40, 16 45 C 16 49, 22 52, 23 52 C 24 52, 30 49, 30 45 Z" fill="#38bdf8" stroke="#000" stroke-width="2"></path>
+<path d="M 45 32 C 45 28, 41 24, 40 20 C 39 24, 35 28, 35 32 C 35 35, 39 37, 40 37 C 41 37, 45 35, 45 32 Z" fill="#38bdf8" stroke="#000" stroke-width="2"></path>
+<!-- Loaded packages on back -->
+<rect fill="#dc2626" height="38" rx="4" stroke="#000" stroke-width="3.5" transform="rotate(-5 50 50)" width="30" x="42" y="46"></rect>
+<rect fill="#16a34a" height="42" rx="4" stroke="#000" stroke-width="3.5" width="28" x="62" y="42"></rect>
+<!-- Truck Body with busa label -->
+<rect fill="#15803d" height="30" rx="5" stroke="#000" stroke-width="4" width="85" x="18" y="74"></rect>
+<rect fill="#4ade80" height="8" width="75" x="23" y="79"></rect>
+<!-- Cabin -->
+<path d="M 90 60 L 124 60 Q 138 60 138 80 L 138 104 L 90 104 Z" fill="#ffffff" stroke="#000" stroke-width="4"></path>
+<text fill="#ffffff" font-family="Fredoka, sans-serif" font-size="9" font-weight="bold" x="52" y="94">buSo</text>
+<rect fill="#15803d" height="15" stroke="#000" stroke-width="3" width="48" x="90" y="89"></rect>
+<!-- Comic stressed/looking back eyes -->
+<circle cx="110" cy="72" fill="#fff" r="11" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="113" cy="72" fill="#000" r="5"></circle>
+<circle cx="129" cy="72" fill="#fff" r="10" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="131" cy="72" fill="#000" r="4.5"></circle>
+<!-- Mouth straight / worried -->
+<line stroke="#000" stroke-linecap="round" stroke-width="3" x1="114" x2="124" y1="94" y2="94"></line>
+<!-- Wheels -->
+<circle cx="40" cy="104" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="40" cy="104" fill="#9ca3af" r="5"></circle>
+<circle cx="114" cy="104" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="114" cy="104" fill="#9ca3af" r="5"></circle>
+</svg>
+</div>
+<!-- Bottom card details (Number tag & Play button) -->
+<div class="relative z-10 flex items-center justify-between mt-auto">
+<span class="bg-white/95 px-2.5 py-1 rounded-full text-xs font-black font-comic text-slate-800 shadow border border-slate-200">
+              #...
+            </span>
+<button aria-label="Riproduci L'ultimo paga" class="w-10 h-10 rounded-full bg-[#22c55e] border-2 border-white shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform">
+<svg class="w-5 h-5 ml-0.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M8 5v14l11-7z"></path>
+</svg>
+</button>
+</div>
+</article>
+<!-- CARD 4: Affare fatto -->
+<article class="relative aspect-square rounded-[22px] overflow-hidden sunburst-card border-2 border-[#5cb311] shadow-md flex flex-col justify-between p-0 select-none group cursor-pointer">
+<!-- Inner Top Content -->
+<div class="p-2 pb-0 flex flex-col h-full justify-between">
+<!-- Card Title -->
+<div class="z-10 text-center">
+<h3 class="font-comic font-extrabold text-[20px] leading-tight comic-title-white uppercase tracking-tight">
+                Affare fatto
+              </h3>
+</div>
+<!-- Handshake Mascot Vector -->
+<div class="relative w-full h-full flex items-center justify-center -my-1">
+<svg class="w-[96%] h-auto drop-shadow-md" viewbox="0 0 160 130">
+<!-- Big Handshake illustration above truck -->
+<g transform="translate(48, 16) scale(0.9)">
+<!-- Left Arm sleeve -->
+<rect fill="#15803d" height="18" rx="3" stroke="#000" stroke-width="3" width="22" x="-10" y="8"></rect>
+<!-- Right Arm sleeve -->
+<rect fill="#15803d" height="18" rx="3" stroke="#000" stroke-width="3" width="22" x="68" y="8"></rect>
+<!-- Hands Interlocking -->
+<path d="M 12 12 L 28 20 L 40 14 L 52 20 L 68 12 L 60 28 L 40 36 L 20 28 Z" fill="#fde047" stroke="#000" stroke-width="3.5"></path>
+<path d="M 28 20 L 34 29 M 38 21 L 43 30 M 47 21 L 52 29" stroke="#000" stroke-linecap="round" stroke-width="3"></path>
+</g>
+<!-- Truck green body -->
+<rect fill="#15803d" height="30" rx="5" stroke="#000" stroke-width="4" width="85" x="18" y="68"></rect>
+<rect fill="#4ade80" height="8" width="75" x="23" y="73"></rect>
+<!-- Cabin -->
+<path d="M 90 54 L 124 54 Q 138 54 138 74 L 138 98 L 90 98 Z" fill="#ffffff" stroke="#000" stroke-width="4"></path>
+<text fill="#ffffff" font-family="Fredoka, sans-serif" font-size="9" font-weight="bold" x="52" y="88">buSo</text>
+<rect fill="#15803d" height="15" stroke="#000" stroke-width="3" width="48" x="90" y="83"></rect>
+<!-- Happy eyes -->
+<circle cx="110" cy="66" fill="#fff" r="11" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="112" cy="66" fill="#000" r="5"></circle>
+<circle cx="129" cy="66" fill="#fff" r="10" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="130" cy="66" fill="#000" r="4.5"></circle>
+<!-- Cheerful smile -->
+<path d="M 112 87 Q 118 92 124 87" fill="none" stroke="#000" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Wheels -->
+<circle cx="40" cy="98" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="40" cy="98" fill="#9ca3af" r="5"></circle>
+<circle cx="114" cy="98" fill="#1f2937" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="114" cy="98" fill="#9ca3af" r="5"></circle>
+</svg>
+</div>
+</div>
+<!-- Bottom Banner: 'Audio in arrivo' (No Play Button) -->
+<div class="w-full bg-[#f1f5f9]/95 border-t border-slate-200 py-2 px-3 flex items-center justify-center gap-2">
+<!-- Grey Speaker Icon -->
+<svg class="w-5 h-5 text-slate-500 fill-current" viewbox="0 0 24 24">
+<path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zm-2.5 9.77l-4.5-4h-4v6h4l4.5 4v-12l-4.5 4h-4v4h4l4.5 4v-6z"></path>
+<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"></path>
+</svg>
+<span class="text-xs font-bold text-slate-600 font-sans tracking-tight">
+              Audio in arrivo
+            </span>
+</div>
+</article>
+</div>
+<!-- END: 2x2 Cards Grid -->
+</main>
+<!-- END: Main Scrollable Content -->
+<!-- BEGIN: iOS Bottom Navigation Bar -->
+<nav class="absolute bottom-0 left-0 right-0 h-[78px] bg-white border-t border-slate-200 px-3 pb-3 pt-1 flex items-center justify-around z-50" data-purpose="bottom-tab-bar">
+<!-- Tab 1: Home -->
+<button class="flex flex-col items-center justify-center w-14 py-1 text-slate-700 active:scale-95 transition-transform">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-0.5">Home</span>
+</button>
+<!-- Tab 2: Ascolta (ACTIVE) -->
+<button class="flex flex-col items-center justify-center w-18 px-3.5 py-1 bg-[#dcfce7] rounded-2xl text-[#15803d] active:scale-95 transition-transform">
+<svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M4 14v-3a8 8 0 0116 0v3a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h1m-14 7a2 2 0 01-2-2v-3a2 2 0 012-2h1a2 2 0 012 2v3a2 2 0 01-2 2H5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">Ascolta</span>
+</button>
+<!-- Tab 3: Scopri -->
+<button class="flex flex-col items-center justify-center w-14 py-1 text-slate-700 active:scale-95 transition-transform">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<rect height="14" rx="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-6 9 11)" width="10" x="4" y="4"></rect>
+<rect height="14" rx="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(8 14 11)" width="10" x="9" y="4"></rect>
+</svg>
+<span class="text-[11px] font-bold mt-0.5">Scopri</span>
+</button>
+<!-- Tab 4: Crea -->
+<button class="flex flex-col items-center justify-center w-14 py-1 text-slate-700 active:scale-95 transition-transform">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-0.5">Crea</span>
+</button>
+<!-- Tab 5: FAQ -->
+<button class="flex flex-col items-center justify-center w-14 py-1 text-slate-700 active:scale-95 transition-transform">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m.08 4h.01" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-0.5">FAQ</span>
+</button>
+</nav>
+<!-- END: iOS Bottom Navigation Bar -->
+</div>
+<!-- END: Phone Mockup Frame -->
+</body></html>

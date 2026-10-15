@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Crea la tua modalità - MÖVAT!</title>
+<!-- Tailwind CSS v3 CDN with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            nunito: ['Nunito', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              green: '#229a27',
+              darkGreen: '#0d4e33',
+              lightGreen: '#ebf7ee',
+              lime: '#a5cf38',
+              bgLight: '#eef8ef',
+              borderLight: '#d2e7d7',
+              textMuted: '#8b9ea7'
+            }
+          }
+        }
+      }
+    };
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-decorations">
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f0f7f1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Stylized cartoon outline effect for card */
+    .app-frame {
+      border: 4px solid #1ba332;
+      border-radius: 36px;
+      box-shadow: 0 10px 30px rgba(13, 78, 51, 0.15);
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4 bg-emerald-50/50">
+<!-- BEGIN: MainMobileContainer -->
+<div class="app-frame w-full max-w-[440px] bg-white overflow-hidden flex flex-col relative" data-purpose="mobile-wrapper">
+<!-- BEGIN: TopIllustrationHeader -->
+<header class="relative w-full h-[148px] bg-gradient-to-b from-[#7bd228] via-[#65be1b] to-[#42a812] overflow-hidden flex flex-col items-center justify-between" data-purpose="top-header-banner">
+<!-- Sunburst background rays -->
+<div class="absolute inset-0 opacity-25 pointer-events-none" style="background: repeating-conic-gradient(from 0deg at 50% 120%, #ffffff 0deg 15deg, transparent 15deg 30deg);"></div>
+<!-- Tree silhouettes in background -->
+<div class="absolute inset-x-0 bottom-0 h-24 flex justify-between items-end px-3 opacity-90 pointer-events-none">
+<svg class="w-16 h-20 text-[#1f731a] fill-current" viewbox="0 0 100 120">
+<ellipse cx="50" cy="55" rx="36" ry="48"></ellipse>
+<path d="M44 95 L56 95 L56 120 L44 120 Z" fill="#134710"></path>
+</svg>
+<svg class="w-12 h-16 text-[#24811e] fill-current" viewbox="0 0 100 120">
+<circle cx="50" cy="50" r="38"></circle>
+<path d="M45 80 L55 80 L55 120 L45 120 Z" fill="#134710"></path>
+</svg>
+<div class="w-40"></div>
+<svg class="w-14 h-18 text-[#268420] fill-current" viewbox="0 0 100 120">
+<ellipse cx="50" cy="55" rx="35" ry="45"></ellipse>
+<path d="M44 90 L56 90 L56 120 L44 120 Z" fill="#134710"></path>
+</svg>
+<svg class="w-16 h-22 text-[#1c6e18] fill-current" viewbox="0 0 100 120">
+<ellipse cx="50" cy="50" rx="38" ry="48"></ellipse>
+<path d="M45 92 L55 92 L55 120 L45 120 Z" fill="#134710"></path>
+</svg>
+</div>
+<!-- Vector Mascot & Logo Header -->
+<div class="relative z-10 w-full h-full flex items-center justify-between px-4 pt-1">
+<!-- MÖVAT! Logo Text with Drops and Thick Outline -->
+<div class="relative flex items-center select-none pl-3 -mt-3">
+<!-- Drops graphic -->
+<div class="absolute -top-3 left-10 flex gap-1 items-end pointer-events-none">
+<span class="w-2.5 h-3 bg-white/90 rounded-full inline-block transform -rotate-12 border-2 border-[#195a14]"></span>
+<span class="w-3.5 h-4.5 bg-white rounded-full inline-block border-2 border-[#195a14]"></span>
+<span class="w-2.5 h-3 bg-white/90 rounded-full inline-block transform rotate-12 border-2 border-[#195a14]"></span>
+</div>
+<span class="font-fredoka text-[42px] leading-none tracking-wide text-white drop-shadow-[0_4px_0_#145812]" style="-webkit-text-stroke: 4px #145812; paint-order: stroke fill;">
+            MÖVAT!
+          </span>
+</div>
+<!-- Animated Mascot Van / Truck -->
+<div class="relative -mt-2 pr-1 select-none">
+<svg class="w-32 h-24 drop-shadow-[0_4px_6px_rgba(0,0,0,0.25)]" fill="none" viewbox="0 0 150 110" xmlns="http://www.w3.org/2000/svg">
+<!-- Rear cargo shapes -->
+<path d="M22 42 L48 18 L60 38 L30 52 Z" fill="#e52d27" stroke="#161616" stroke-linejoin="round" stroke-width="4.5"></path>
+<path d="M48 18 L78 14 L85 36 L58 40 Z" fill="#1e70c9" stroke="#161616" stroke-linejoin="round" stroke-width="4.5"></path>
+<path d="M30 46 L82 38 L84 62 L26 64 Z" fill="#f5f5f5" stroke="#161616" stroke-linejoin="round" stroke-width="4.5"></path>
+<!-- Van Body (green) -->
+<rect fill="#2eb023" height="24" rx="4" stroke="#161616" stroke-width="4.5" width="108" x="20" y="60"></rect>
+<!-- Cabin Front (white) -->
+<path d="M82 34 H116 C124 34 130 42 130 52 V84 H82 V34 Z" fill="#ffffff" stroke="#161616" stroke-linejoin="round" stroke-width="4.5"></path>
+<!-- Logo inside side -->
+<text fill="#71b328" font-family="Fredoka, sans-serif" font-size="9" font-weight="bold" x="44" y="56">bumo</text>
+<!-- Eyes on cabin -->
+<circle cx="106" cy="54" fill="white" r="8.5" stroke="#161616" stroke-width="3"></circle>
+<circle cx="107.5" cy="53.5" fill="#161616" r="4.5"></circle>
+<circle cx="123" cy="54" fill="white" r="7.5" stroke="#161616" stroke-width="3"></circle>
+<circle cx="124" cy="53.5" fill="#161616" r="4"></circle>
+<!-- Smile / Bumper -->
+<path d="M126 73 Q132 73 133 76" stroke="#161616" stroke-linecap="round" stroke-width="3.5"></path>
+<rect fill="#2eb023" height="9" rx="2" stroke="#161616" stroke-width="3.5" width="10" x="124" y="74"></rect>
+<!-- Wheels -->
+<circle cx="38" cy="85" fill="#1f232b" r="11" stroke="#161616" stroke-width="4.5"></circle>
+<circle cx="38" cy="85" fill="#ffffff" r="4.5"></circle>
+<circle cx="110" cy="85" fill="#1f232b" r="11" stroke="#161616" stroke-width="4.5"></circle>
+<circle cx="110" cy="85" fill="#ffffff" r="4.5"></circle>
+</svg>
+</div>
+</div>
+</header>
+<!-- END: TopIllustrationHeader -->
+<!-- BEGIN: FormContentSection -->
+<main class="flex-1 overflow-y-auto custom-scrollbar px-5 pt-3 pb-4 bg-white" data-purpose="scrollable-form">
+<!-- Navigation Bar (Back Arrow & Screen Title) -->
+<div class="flex items-center justify-between mb-3.5 relative" data-purpose="header-nav">
+<!-- Back Button -->
+<button aria-label="Torna indietro" class="w-10 h-10 rounded-full bg-[#eaf4ec] hover:bg-[#dbeee0] text-[#134e2c] flex items-center justify-center transition-colors" type="button">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Main Title -->
+<h1 class="text-[19px] font-fredoka text-[#0e3b20] font-extrabold tracking-tight text-center flex-1 pr-10">
+          Crea la tua modalità
+        </h1>
+</div>
+<!-- Stepper / Progress Bar (1 Dettagli, 2 Invia, 3 Conferma) -->
+<div class="flex items-center justify-center max-w-[320px] mx-auto mb-5 px-2" data-purpose="stepper">
+<!-- Step 1 (Active) -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-[#189e24] text-white font-extrabold text-[15px] flex items-center justify-center shadow-sm">
+            1
+          </div>
+<span class="text-[13px] font-bold text-[#189e24] mt-1 font-nunito tracking-tight">Dettagli</span>
+</div>
+<!-- Connecting Line 1-2 -->
+<div class="flex-1 h-[3.5px] bg-[#dbe4dc] mx-2 -mt-5 rounded-full"></div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-[#d8deda] text-[#7d9185] font-extrabold text-[15px] flex items-center justify-center">
+            2
+          </div>
+<span class="text-[13px] font-bold text-[#7d9185] mt-1 font-nunito tracking-tight">Invia</span>
+</div>
+<!-- Connecting Line 2-3 -->
+<div class="flex-1 h-[3.5px] bg-[#dbe4dc] mx-2 -mt-5 rounded-full"></div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-[#d8deda] text-[#7d9185] font-extrabold text-[15px] flex items-center justify-center">
+            3
+          </div>
+<span class="text-[13px] font-bold text-[#7d9185] mt-1 font-nunito tracking-tight">Conferma</span>
+</div>
+</div>
+<!-- Section Title with Lime Accents -->
+<div class="flex items-center justify-center gap-2 mb-4" data-purpose="section-heading">
+<!-- Left accent spark -->
+<div class="flex flex-col items-end gap-1">
+<span class="w-4 h-1.5 bg-[#a3da18] rounded-full transform -rotate-45"></span>
+<span class="w-3 h-1.5 bg-[#a3da18] rounded-full transform -rotate-12 mr-1"></span>
+</div>
+<h2 class="text-[21px] font-fredoka font-extrabold text-[#0d3f22] tracking-normal text-center">
+          Racconta la tua modalità
+        </h2>
+<!-- Right accent spark -->
+<div class="flex flex-col items-start gap-1">
+<span class="w-4 h-1.5 bg-[#a3da18] rounded-full transform rotate-45"></span>
+<span class="w-3 h-1.5 bg-[#a3da18] rounded-full transform rotate-12 ml-1"></span>
+</div>
+</div>
+<!-- BEGIN: InputFormFields -->
+<form class="space-y-3.5" data-purpose="creation-form" onsubmit="event.preventDefault();">
+<!-- Field 1: Nome della modalità -->
+<div data-purpose="input-nome">
+<div class="flex justify-between items-center mb-1">
+<label class="text-[13.5px] font-bold text-[#143d25]">Nome della modalità</label>
+<span class="text-[12px] font-semibold text-[#86978f]">18/50</span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] font-bold text-[14.5px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition" type="text" value="Sorpassi a sorpresa"/>
+</div>
+<!-- Field 2: Breve descrizione -->
+<div data-purpose="input-descrizione">
+<div class="flex justify-between items-center mb-1">
+<label class="text-[13.5px] font-bold text-[#143d25]">Breve descrizione</label>
+<span class="text-[12px] font-semibold text-[#86978f]">35/150</span>
+</div>
+<textarea class="w-full px-3.5 py-2 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] font-semibold text-[14.5px] leading-snug resize-none focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition" rows="2">Scambi e colpi di scena a ogni giro.</textarea>
+</div>
+<!-- Field 3: Giocatori consigliati -->
+<div data-purpose="select-giocatori">
+<label class="block text-[13.5px] font-bold text-[#143d25] mb-1">Giocatori consigliati</label>
+<div class="relative">
+<select class="w-full appearance-none px-3.5 py-2.5 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] font-bold text-[14.5px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition">
+<option selected="">3 – 6</option>
+<option>1 – 2</option>
+<option>2 – 4</option>
+<option>6+</option>
+</select>
+<!-- Custom chevron dropdown icon -->
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#189e24]">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Field 4: Regole aggiuntive (opzionale) -->
+<div data-purpose="select-regole">
+<label class="block text-[13.5px] font-bold text-[#143d25] mb-1">
+            Regole aggiuntive <span class="text-[#849a8d] font-semibold text-[12.5px]">(opzionale)</span>
+</label>
+<div class="relative">
+<select class="w-full appearance-none px-3.5 py-2.5 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#718b7c] font-semibold text-[14.5px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition">
+<option selected="">Aggiungi regole aggiuntive</option>
+<option>Penalità sul tempo</option>
+<option>Carte bonus casuali</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#189e24]">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Field 5: L'hai già provata? -->
+<div data-purpose="select-esperienza">
+<label class="block text-[13.5px] font-bold text-[#143d25] mb-1">L’hai già provata?</label>
+<div class="relative">
+<select class="w-full appearance-none px-3.5 py-2.5 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] font-bold text-[14.5px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition">
+<option selected="">Sì, più volte</option>
+<option>Sì, solo una volta</option>
+<option>No, è un’idea nuova</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#189e24]">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Field 6: Il tuo nickname -->
+<div data-purpose="input-nickname">
+<div class="flex justify-between items-center mb-1">
+<label class="text-[13.5px] font-bold text-[#143d25]">Il tuo nickname</label>
+<span class="text-[12px] font-semibold text-[#86978f]">12/30</span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] font-bold text-[14.5px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition" type="text" value="Ruota libera"/>
+</div>
+<!-- Field 7: Email privata (opzionale) -->
+<div data-purpose="input-email">
+<label class="block text-[13.5px] font-bold text-[#143d25] mb-1">
+            Email privata <span class="text-[#849a8d] font-semibold text-[12.5px]">(opzionale)</span>
+</label>
+<input class="w-full px-3.5 py-2 rounded-xl border border-[#d6e4d9] bg-[#fcfdfc] text-[#123922] placeholder-[#a6b8ae] font-medium text-[14px] focus:ring-2 focus:ring-[#229a27] focus:border-transparent outline-none transition" placeholder="es. tua@email.it" type="email"/>
+</div>
+<!-- Action Buttons (Indietro / Rivedi la proposta) -->
+<div class="flex items-center gap-3 pt-2 pb-1" data-purpose="form-actions">
+<!-- Back button -->
+<button class="flex-1 py-3 px-4 rounded-full bg-[#e8f3ea] text-[#144f2b] font-fredoka font-bold text-[16px] text-center hover:bg-[#d8edd9] transition active:scale-[0.98]" type="button">
+            Indietro
+          </button>
+<!-- Submit / Review button -->
+<button class="flex-[1.25] py-3 px-4 rounded-full bg-[#209a25] text-white font-fredoka font-bold text-[16px] text-center shadow-[0_3px_0_#146917] hover:bg-[#1e8d23] transition active:scale-[0.98]" type="button">
+            Rivedi la proposta
+          </button>
+</div>
+</form>
+<!-- END: InputFormFields -->
+</main>
+<!-- END: FormContentSection -->
+<!-- BEGIN: BottomNavigationBar -->
+<nav class="w-full bg-white border-t border-[#e2ece4] py-2 px-3 flex items-center justify-around select-none" data-purpose="bottom-tab-bar">
+<!-- Tab: Home -->
+<a class="flex flex-col items-center gap-0.5 text-[#5e7769] hover:text-[#189e24] transition" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="currentColor" stroke="none" viewbox="0 0 24 24">
+<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+</svg>
+<span class="text-[11px] font-bold font-nunito">Home</span>
+</a>
+<!-- Tab: Ascolta -->
+<a class="flex flex-col items-center gap-0.5 text-[#5e7769] hover:text-[#189e24] transition" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M4.5 12A7.5 7.5 0 0112 4.5 7.5 7.5 0 0119.5 12v4a2.5 2.5 0 01-2.5 2.5h-1a1 1 0 01-1-1v-4a1 1 0 011-1h2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold font-nunito">Ascolta</span>
+</a>
+<!-- Tab: Scopri -->
+<a class="flex flex-col items-center gap-0.5 text-[#5e7769] hover:text-[#189e24] transition" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold font-nunito">Scopri</span>
+</a>
+<!-- Tab: Crea (Active) -->
+<a class="flex flex-col items-center gap-0.5 bg-[#eaf4ec] px-4 py-1 rounded-2xl text-[#189e24] transition" href="#">
+<div class="relative">
+<svg class="w-6 h-6 stroke-[2.3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -bottom-1 -right-1.5 w-3.5 h-3.5 bg-[#189e24] rounded-full text-white flex items-center justify-center font-bold text-[9px] leading-none">+</span>
+</div>
+<span class="text-[11px] font-extrabold font-nunito">Crea</span>
+</a>
+<!-- Tab: FAQ -->
+<a class="flex flex-col items-center gap-0.5 text-[#5e7769] hover:text-[#189e24] transition" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="currentColor" stroke="none" viewbox="0 0 24 24">
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"></path>
+</svg>
+<span class="text-[11px] font-bold font-nunito">FAQ</span>
+</a>
+</nav>
+<!-- END: BottomNavigationBar -->
+</div>
+<!-- END: MainMobileContainer -->
+</body></html>

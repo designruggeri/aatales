@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Crea la tua modalità - Conferma di invio</title>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            busa: {
+              green: '#2ea72c',
+              darkgreen: '#1a4e23',
+              lightgreen: '#e6f7df',
+              bordergreen: '#3eb833',
+              headergreen: '#9ce008',
+              orangebg: '#fff9e7',
+              orangeborder: '#ffe7a3',
+              orangetext: '#cb7a00',
+              graycard: '#f0f5ee',
+              graybutton: '#e8f2e6'
+            }
+          },
+          fontFamily: {
+            sans: ['"Nunito"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Google Fonts: Nunito for rounded, playful UI typography matching the design -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900;1000&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="base-styling">
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #f5faf3;
+    }
+    /* Pattern background behind mobile device frame */
+    .screen-container {
+      box-shadow: 0 15px 40px -10px rgba(46, 167, 44, 0.25);
+    }
+  </style>
+<style data-purpose="illustration-decorations">
+    .sunburst-bg {
+      background: radial-gradient(circle at center top, #b7f00d 0%, #87d903 50%, #5cb804 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-6 bg-[#f4fbf0]">
+<!-- Outer container simulating device / central screen -->
+<div class="screen-container w-full max-w-[430px] bg-white rounded-[40px] border-[5px] border-[#38b02e] overflow-hidden flex flex-col relative select-none">
+<!-- BEGIN: TopHeaderBanner -->
+<header class="relative w-full h-[105px] sunburst-bg overflow-hidden flex items-start justify-center pt-2" data-purpose="app-header-banner">
+<!-- Sunburst stripes background -->
+<svg class="absolute inset-0 w-full h-full opacity-40 mix-blend-overlay" preserveaspectratio="none" viewbox="0 0 430 110">
+<path d="M215 -10 L160 120 L190 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L100 120 L135 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L30 120 L70 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L-30 80 L-10 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L270 120 L240 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L330 120 L295 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L400 120 L360 120 Z" fill="#ffffff"></path>
+<path d="M215 -10 L460 80 L440 120 Z" fill="#ffffff"></path>
+</svg>
+<!-- Background silhouette trees -->
+<svg class="absolute bottom-0 inset-x-0 w-full h-[55px] opacity-80" fill="none" viewbox="0 0 430 55">
+<!-- Trees on left -->
+<circle cx="28" cy="30" fill="#2d7e19" r="22"></circle>
+<circle cx="58" cy="22" fill="#3b9623" r="24"></circle>
+<circle cx="92" cy="34" fill="#277015" r="20"></circle>
+<rect fill="#1b4d0d" height="18" width="8" x="54" y="38"></rect>
+<!-- Trees on right -->
+<circle cx="340" cy="32" fill="#2d7e19" r="22"></circle>
+<circle cx="376" cy="22" fill="#3b9623" r="25"></circle>
+<circle cx="410" cy="35" fill="#277015" r="18"></circle>
+<rect fill="#1b4d0d" height="18" width="8" x="372" y="38"></rect>
+<!-- Ground curve -->
+<path d="M0 46 Q 215 32 430 46 L430 55 L0 55 Z" fill="#69be14"></path>
+</svg>
+<!-- Header Content: MÖVAT! Logo & Mini Mascot -->
+<div class="relative z-10 flex items-center justify-center gap-2 pt-1">
+<!-- MÖVAT! Cartoon Title -->
+<div class="relative flex items-center tracking-tight">
+<span class="text-[34px] font-black text-white drop-shadow-[0_4px_0_#1b5914] stroke-black" style="-webkit-text-stroke: 1.5px #154d0e; text-shadow: -2px -2px 0 #154d0e, 2px -2px 0 #154d0e, -2px 2px 0 #154d0e, 2px 2px 0 #154d0e, 0 4px 0 #0e3b09;">
+            MÖVAT!
+          </span>
+</div>
+<!-- Mini Header Mascot Truck with Delivery Check -->
+<div class="relative w-24 h-16 -mb-3 ml-1">
+<!-- Delivered checkmark card -->
+<div class="absolute -top-1 left-0 bg-white border-[2.5px] border-black rounded-lg px-2 py-0.5 shadow-sm transform -rotate-6">
+<svg class="w-7 h-5 text-[#2da72b]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<!-- Tiny Truck SVG -->
+<svg class="absolute bottom-1 right-0 w-20 h-14" viewbox="0 0 100 70">
+<!-- Truck Cab/Body -->
+<path d="M10 38 L45 38 L45 15 L78 15 L86 35 L86 52 L10 52 Z" fill="#ffffff" stroke="#000" stroke-linejoin="round" stroke-width="3"></path>
+<!-- Green chassis bar -->
+<path d="M50 42 L84 42 L84 50 L50 50 Z" fill="#2ea72c" stroke="#000" stroke-width="2"></path>
+<!-- Mascot Eyes -->
+<circle cx="58" cy="24" fill="#fff" r="7" stroke="#000" stroke-width="2.5"></circle>
+<circle cx="59" cy="23" fill="#000" r="3.5"></circle>
+<circle cx="72" cy="24" fill="#fff" r="7" stroke="#000" stroke-width="2.5"></circle>
+<circle cx="73" cy="23" fill="#000" r="3.5"></circle>
+<!-- Smile -->
+<path d="M63 32 Q 67 36 71 32" fill="none" stroke="#000" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Wheels -->
+<circle cx="28" cy="52" fill="#1e293b" r="9" stroke="#000" stroke-width="3"></circle>
+<circle cx="28" cy="52" fill="#fff" r="3.5"></circle>
+<circle cx="74" cy="52" fill="#1e293b" r="9" stroke="#000" stroke-width="3"></circle>
+<circle cx="74" cy="52" fill="#fff" r="3.5"></circle>
+</svg>
+</div>
+</div>
+</header>
+<!-- END: TopHeaderBanner -->
+<!-- BEGIN: StepperHeaderSection -->
+<section class="px-5 pt-3 pb-1" data-purpose="stepper-navigation">
+<!-- Back Button & Section Title -->
+<div class="relative flex items-center justify-center min-h-[44px]">
+<button aria-label="Torna indietro" class="absolute left-0 w-9 h-9 rounded-full bg-[#ebf7e8] flex items-center justify-center text-busa-darkgreen hover:bg-[#def0da] transition-colors" type="button">
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<h1 class="text-[19px] font-black tracking-tight text-[#16431e] text-center">
+          Crea la tua modalità
+        </h1>
+</div>
+<!-- 3-Step Wizard Indicator -->
+<div class="mt-2.5 max-w-[320px] mx-auto">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Line Background -->
+<div class="absolute left-6 right-6 top-3.5 h-[3px] bg-[#d7ecd3] -z-0"></div>
+<!-- Completed Line Progress -->
+<div class="absolute left-6 right-6 top-3.5 h-[3px] bg-[#2da72b] -z-0"></div>
+<!-- Step 1 (Completed) -->
+<div class="flex flex-col items-center z-10">
+<div class="w-7 h-7 rounded-full bg-[#2da72b] text-white flex items-center justify-center shadow-sm">
+<svg class="w-4 h-4 stroke-[3.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="text-[12px] font-extrabold text-[#174620] mt-1">Dettagli</span>
+</div>
+<!-- Step 2 (Completed) -->
+<div class="flex flex-col items-center z-10">
+<div class="w-7 h-7 rounded-full bg-[#2da72b] text-white flex items-center justify-center shadow-sm">
+<svg class="w-4 h-4 stroke-[3.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="text-[12px] font-extrabold text-[#174620] mt-1">Invia</span>
+</div>
+<!-- Step 3 (Current / Active) -->
+<div class="flex flex-col items-center z-10">
+<div class="w-7 h-7 rounded-full bg-[#2da72b] text-white font-extrabold text-[13px] flex items-center justify-center shadow-sm">
+              3
+            </div>
+<span class="text-[12px] font-extrabold text-[#174620] mt-1">Conferma</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: StepperHeaderSection -->
+<!-- BEGIN: MainIllustrationArea -->
+<main class="flex-1 flex flex-col items-center px-6 pt-1 pb-4" data-purpose="confirmation-body">
+<!-- Central Graphic / Illustration -->
+<div class="relative w-full max-w-[340px] h-[180px] flex items-center justify-center my-0.5" data-purpose="hero-mascot-illustration">
+<!-- Radiating Energy Sparks/Beams -->
+<div class="absolute -top-1 left-20 w-3 h-8 bg-[#9de515] rounded-full transform -rotate-30"></div>
+<div class="absolute -top-3 left-[155px] w-2.5 h-7 bg-[#9de515] rounded-full transform rotate-3"></div>
+<div class="absolute -top-1 right-20 w-3 h-8 bg-[#9de515] rounded-full transform rotate-35"></div>
+<div class="absolute top-9 right-11 w-2.5 h-6 bg-[#9de515] rounded-full transform rotate-70"></div>
+<!-- Background Trees and Gentle Green Hill -->
+<svg class="absolute bottom-0 w-[320px] h-[135px]" fill="none" viewbox="0 0 320 135">
+<!-- Light green hill floor -->
+<ellipse cx="160" cy="120" fill="#e2f5d7" rx="150" ry="24"></ellipse>
+<!-- Trees Background -->
+<!-- Left side trees -->
+<circle cx="50" cy="85" fill="#44aa32" r="26"></circle>
+<circle cx="78" cy="74" fill="#4fb93c" r="30"></circle>
+<circle cx="102" cy="88" fill="#3c9e2b" r="22"></circle>
+<!-- Right side trees -->
+<circle cx="270" cy="82" fill="#44aa32" r="27"></circle>
+<circle cx="242" cy="74" fill="#4fb93c" r="30"></circle>
+<circle cx="218" cy="88" fill="#3c9e2b" r="22"></circle>
+</svg>
+<!-- Main Character: Busa Truck with Big Checkmark Letter -->
+<div class="relative z-10 w-[230px] h-[155px] mt-2">
+<!-- Gigantic Letter / Envelope with Big Green Tick -->
+<div class="absolute top-2 left-1/2 -translate-x-1/2 -translate-y-1 w-[138px] h-[92px] bg-white border-[3.5px] border-black rounded-[14px] shadow-sm transform -rotate-12 flex items-center justify-center overflow-hidden">
+<!-- Envelope flap lines -->
+<svg class="absolute inset-0 w-full h-full" fill="none" viewbox="0 0 138 92">
+<path d="M2 2 L69 48 L136 2" stroke="#d5e4cf" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<!-- Heavy Bold Green Checkmark inside Envelope -->
+<div class="relative z-10">
+<svg class="w-16 h-16 text-[#2ba829]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.8" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+</div>
+<!-- Cartoon Busa Truck Body -->
+<div class="absolute bottom-1 inset-x-0 h-[88px]">
+<svg class="w-full h-full" fill="none" viewbox="0 0 230 88">
+<!-- Truck Flatbed / Cargo tray -->
+<path d="M12 48 L76 48 L76 56 L12 56 Z" fill="#000"></path>
+<!-- Green cargo platform base -->
+<path d="M15 44 L78 35 L78 48 L15 48 Z" fill="#2da72b" stroke="#000" stroke-linejoin="round" stroke-width="3.5"></path>
+<!-- Truck Cab Shell -->
+<path d="M80 34 L106 34 L106 20 L166 20 L166 60 L80 60 Z" fill="#ffffff" stroke="#000" stroke-linejoin="round" stroke-width="3.5"></path>
+<!-- Front bumper & grill section -->
+<rect fill="#2ea72c" height="15" rx="5" stroke="#000" stroke-width="3" width="45" x="128" y="44"></rect>
+<!-- Headlights -->
+<circle cx="137" cy="51" fill="#fff" r="3.5"></circle>
+<circle cx="164" cy="51" fill="#fff" r="3.5"></circle>
+<!-- "busa" logo label on truck body -->
+<text fill="#2ea72c" font-family="'Nunito', sans-serif" font-size="13" font-weight="900" letter-spacing="-0.5" x="96" y="44">busa</text>
+<!-- Cute Animated Truck Eyes -->
+<!-- Left Eye -->
+<circle cx="132" cy="22" fill="#ffffff" r="13" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="135" cy="20" fill="#000000" r="6"></circle>
+<circle cx="137" cy="18" fill="#ffffff" r="2"></circle>
+<!-- Right Eye -->
+<circle cx="157" cy="23" fill="#ffffff" r="13" stroke="#000" stroke-width="3.5"></circle>
+<circle cx="155" cy="21" fill="#000000" r="6"></circle>
+<circle cx="157" cy="19" fill="#ffffff" r="2"></circle>
+<!-- Smiling Mouth -->
+<path d="M142 34 Q 148 40 154 34" fill="none" stroke="#000" stroke-linecap="round" stroke-width="3"></path>
+<!-- Wheels with Thick Black Outlines -->
+<!-- Rear Wheel Left -->
+<circle cx="34" cy="62" fill="#212a36" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="34" cy="62" fill="#ffffff" r="6" stroke="#000" stroke-width="2"></circle>
+<!-- Rear Wheel Right -->
+<circle cx="52" cy="62" fill="#212a36" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="52" cy="62" fill="#ffffff" r="6" stroke="#000" stroke-width="2"></circle>
+<!-- Front Wheel -->
+<circle cx="138" cy="62" fill="#212a36" r="14" stroke="#000" stroke-width="4"></circle>
+<circle cx="138" cy="62" fill="#ffffff" r="6" stroke="#000" stroke-width="2"></circle>
+<!-- Frontmost Wheel -->
+<circle cx="166" cy="62" fill="#212a36" r="13" stroke="#000" stroke-width="4"></circle>
+<circle cx="166" cy="62" fill="#ffffff" r="5" stroke="#000" stroke-width="2"></circle>
+</svg>
+</div>
+</div>
+</div>
+<!-- END: MainIllustrationArea -->
+<!-- BEGIN: ConfirmationMessage -->
+<div class="w-full text-center mt-0.5" data-purpose="status-text-block">
+<!-- Title with flanking celebratory sparkles -->
+<div class="flex items-center justify-center gap-2">
+<!-- Left spark icon -->
+<div class="flex flex-col gap-1 items-end">
+<span class="w-4 h-2 bg-[#9ee615] rounded-full transform -rotate-45"></span>
+<span class="w-3.5 h-1.5 bg-[#9ee615] rounded-full transform -rotate-12 mr-1"></span>
+</div>
+<h2 class="text-[25px] font-[950] tracking-tight text-[#0f3b19]">
+            Proposta ricevuta!
+          </h2>
+<!-- Right spark icon -->
+<div class="flex flex-col gap-1 items-start">
+<span class="w-4 h-2 bg-[#9ee615] rounded-full transform rotate-45"></span>
+<span class="w-3.5 h-1.5 bg-[#9ee615] rounded-full transform rotate-12 ml-1"></span>
+</div>
+</div>
+<p class="text-[15px] font-bold text-[#4e6c58] mt-1.5 leading-snug max-w-[270px] mx-auto">
+          Il team Busa la controllerà prima della pubblicazione.
+        </p>
+<!-- Status Badge: In attesa di approvazione -->
+<div class="inline-flex items-center gap-2.5 px-6 py-2.5 mt-3.5 rounded-full bg-[#fdf8e6] border-[1.5px] border-[#fde49a]">
+<!-- Clock Icon -->
+<div class="w-6 h-6 rounded-full bg-[#d68500] text-white flex items-center justify-center shadow-xs">
+<svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<polyline points="12 7 12 12 15 15"></polyline>
+</svg>
+</div>
+<span class="text-[15px] font-extrabold text-[#c07400]">
+            In attesa di approvazione
+          </span>
+</div>
+<!-- Email Notification Notice Card -->
+<div class="mt-4 bg-[#f0f5ee] rounded-2xl p-3.5 flex items-center gap-3.5 text-left border border-[#e3ece0]">
+<!-- Email icon container -->
+<div class="text-[#204928] pl-1 flex-shrink-0">
+<svg class="w-7 h-7 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<rect height="16" rx="3" width="20" x="2" y="4"></rect>
+<path d="M22 6L12 13L2 6"></path>
+</svg>
+</div>
+<!-- Notice explanation -->
+<p class="text-[13px] font-extrabold text-[#3a5843] leading-snug">
+            Ti avviseremo via email quando ci sarà un aggiornamento.
+          </p>
+</div>
+</div>
+<!-- END: ConfirmationMessage -->
+<!-- BEGIN: ActionButtons -->
+<div class="w-full mt-4 space-y-2.5" data-purpose="action-buttons-group">
+<!-- Primary Action Button -->
+<button class="w-full py-3 px-4 rounded-full bg-[#2da72b] hover:bg-[#289726] active:scale-[0.99] transition text-white font-black text-[16px] shadow-sm tracking-wide" type="button">
+          Scopri le modalità
+        </button>
+<!-- Secondary Action Button -->
+<button class="w-full py-3 px-4 rounded-full bg-[#e8f2e6] hover:bg-[#dceada] active:scale-[0.99] transition text-[#1b4e23] font-black text-[16px]" type="button">
+          Torna alla Home
+        </button>
+</div>
+<!-- END: ActionButtons -->
+</main>
+<!-- BEGIN: BottomNavigationBar -->
+<nav class="w-full bg-white border-t border-[#e2efe0] px-3 py-2 flex items-center justify-around" data-purpose="mobile-tab-bar">
+<!-- Tab 1: Home -->
+<a class="flex flex-col items-center justify-center text-[#557860] hover:text-[#2da72b] transition-colors py-0.5 px-2" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">Home</span>
+</a>
+<!-- Tab 2: Ascolta -->
+<a class="flex flex-col items-center justify-center text-[#557860] hover:text-[#2da72b] transition-colors py-0.5 px-2" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M3 11a9 9 0 0118 0" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">Ascolta</span>
+</a>
+<!-- Tab 3: Scopri -->
+<a class="flex flex-col items-center justify-center text-[#557860] hover:text-[#2da72b] transition-colors py-0.5 px-2" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">Scopri</span>
+</a>
+<!-- Tab 4: Crea (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#e7f6e3] rounded-2xl px-4 py-1.5 text-[#1b591b] transition-colors" href="#">
+<div class="relative">
+<svg class="w-6 h-6 stroke-[2.4]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-1 -right-1 bg-[#2ea72c] text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[10px] font-black leading-none">+</span>
+</div>
+<span class="text-[11px] font-black mt-0.5 text-[#1b591b]">Crea</span>
+</a>
+<!-- Tab 5: FAQ -->
+<a class="flex flex-col items-center justify-center text-[#557860] hover:text-[#2da72b] transition-colors py-0.5 px-2" href="#">
+<svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-extrabold mt-0.5">FAQ</span>
+</a>
+</nav>
+<!-- END: BottomNavigationBar -->
+</div>
+<!-- Footer caption indicator -->
+<p class="text-center font-black text-[#1b4e23] text-lg tracking-tight mt-3">
+    Conferma di invio
+  </p>
+</body></html>

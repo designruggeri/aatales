@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>MÖVAT! - Scopri - Valutazione modalità</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#2ba835',
+              darkGreen: '#1b4d24',
+              accentGreen: '#32b43b',
+              lightGreen: '#4bd343',
+              darkBg: '#0f3818'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+            chunky: ['Impact', 'Arial Black', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: CustomStyles -->
+<style data-purpose="custom-styling">
+    /* Custom styling for precise reproduction */
+    .comic-font {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+    .text-outline-green {
+      text-shadow: 
+        -1.5px -1.5px 0 #1b4d24,
+        1.5px -1.5px 0 #1b4d24,
+        -1.5px 1.5px 0 #1b4d24,
+        1.5px 1.5px 0 #1b4d24,
+        0px 3px 0 #123318;
+    }
+  </style>
+<!-- END: CustomStyles -->
+</head>
+<body class="bg-[#121b14] flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 select-none">
+<!-- BEGIN: PhoneFrame -->
+<div class="relative w-full max-w-[430px] h-[910px] bg-[#d9eed4] rounded-[48px] overflow-hidden shadow-2xl border-[8px] border-[#207c2a] flex flex-col justify-between" data-purpose="mobile-frame">
+<!-- BEGIN: BackgroundScreenContent -->
+<!-- Content underneath the modal overlay -->
+<div class="absolute inset-0 flex flex-col z-0 overflow-hidden pointer-events-none" data-purpose="underlying-page">
+<!-- Top App Bar / Hero Area -->
+<div class="h-44 bg-gradient-to-b from-[#7bd93f] via-[#63c631] to-[#3ca724] relative px-4 pt-6 flex flex-col justify-between">
+<!-- Sunburst decorative background effect -->
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-200 via-transparent to-transparent"></div>
+<div class="relative z-10 flex items-center justify-between">
+<!-- Back circle button -->
+<div class="w-10 h-10 rounded-full bg-black/20 flex items-center justify-center text-gray-800">
+<svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Logo Header -->
+<div class="flex items-center space-x-2">
+<span class="text-3xl font-black text-white italic tracking-wider text-outline-green drop-shadow-md">MÖVAT!</span>
+</div>
+<!-- Mascot Truck placeholder -->
+<div class="w-14 h-10 bg-white/30 rounded-lg flex items-center justify-center border-2 border-white/40">
+            🚚
+          </div>
+</div>
+</div>
+<!-- Content Sheet (Underneath) -->
+<div class="flex-1 bg-white rounded-t-[32px] -mt-6 p-5 shadow-inner flex flex-col">
+<!-- Title and Share -->
+<div class="flex items-start justify-between mb-1">
+<div>
+<h1 class="text-2xl font-black text-gray-900 leading-tight">Sorpassi a sorpresa</h1>
+<p class="text-xs text-gray-500 font-medium">di Ruota libera</p>
+</div>
+<div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Banner Card Preview -->
+<div class="w-full h-36 bg-gradient-to-r from-emerald-400 to-green-600 rounded-2xl my-3 p-3 flex items-center justify-center text-white font-black text-xl shadow-md border-2 border-green-700">
+          SORPASSI A SORPRESA
+        </div>
+<p class="text-xs text-gray-600 leading-relaxed font-medium mb-3">
+          Colpi di scena e sorpassi inaspettati per una partita sempre diversa!
+        </p>
+<!-- Stats Chips -->
+<div class="flex items-center gap-4 text-xs font-semibold text-gray-700 mb-4">
+<div class="flex items-center gap-1.5">
+<span class="text-base">👥</span> 3–6 giocatori
+          </div>
+<div class="flex items-center gap-1.5">
+<span class="text-base">🎴</span> 6 carte Busa
+          </div>
+<div class="flex items-center gap-1">
+<span class="text-yellow-500 text-sm">★</span> 4,2 · <span class="text-gray-400 font-normal">18 voti</span>
+</div>
+</div>
+<!-- Rules Box -->
+<div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-3 flex items-center gap-3">
+<div class="text-green-600 text-2xl">📄</div>
+<div>
+<div class="text-xs font-bold text-gray-800">Regole aggiuntive</div>
+<div class="text-[11px] text-gray-500">Si usano le regole normali.</div>
+</div>
+</div>
+</div>
+</div>
+<!-- END: BackgroundScreenContent -->
+<!-- BEGIN: BackdropDimmer -->
+<!-- Dark transparent backdrop overlay -->
+<div class="absolute inset-0 bg-black/45 z-10 transition-opacity" data-purpose="backdrop-overlay"></div>
+<!-- END: BackdropDimmer -->
+<!-- BEGIN: BottomSheetModal -->
+<!-- Modal Sheet popping up from bottom -->
+<section class="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-[34px] pt-3 pb-24 px-6 shadow-2xl flex flex-col items-center border-t border-gray-100" data-purpose="rating-modal-sheet">
+<!-- Drag handle bar -->
+<div class="w-12 h-1.5 bg-[#b2b8be] rounded-full mb-3 self-center" data-purpose="drag-handle"></div>
+<!-- Close icon button -->
+<button aria-label="Chiudi modale" class="absolute top-4 right-5 text-gray-700 hover:text-black focus:outline-none p-1" data-purpose="close-modal-button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Modal Title with comic energy bursts -->
+<div class="flex items-center justify-center gap-2 mt-2 mb-6" data-purpose="modal-title-container">
+<!-- Left green burst accents -->
+<svg class="w-6 h-6 text-[#75cf1b]" fill="currentColor" viewbox="0 0 24 24">
+<path d="M4 14C3.4 14 3 13.6 3 13C3 10.5 4.5 8.2 6.8 7.3C7.3 7.1 7.9 7.4 8.1 7.9C8.3 8.4 8 9 7.5 9.2C5.9 9.8 4.8 11.3 4.8 13C4.8 13.6 4.4 14 4 14Z"></path>
+<path d="M8 18C7.5 18 7.1 17.6 7 17.1C6.8 14.7 8 12.3 10.1 11.2C10.6 10.9 11.2 11.1 11.5 11.6C11.8 12.1 11.6 12.7 11.1 13C9.6 13.8 8.7 15.4 8.9 17C9 17.5 8.6 18 8 18Z"></path>
+<path d="M12 21C11.6 21 11.2 20.7 11.1 20.3L9.1 14.3C8.9 13.8 9.2 13.2 9.7 13C10.2 12.8 10.8 13.1 11 13.6L12.9 19.3C13.1 19.8 12.8 20.4 12.3 20.6C12.2 21 12.1 21 12 21Z"></path>
+</svg>
+<h2 class="text-[23px] font-black tracking-tight text-[#0f2e18] font-sans text-center">
+          Come ti sei divertito?
+        </h2>
+<!-- Right green burst accents -->
+<svg class="w-6 h-6 text-[#75cf1b]" fill="currentColor" viewbox="0 0 24 24">
+<path d="M20 14C20.6 14 21 13.6 21 13C21 10.5 19.5 8.2 17.2 7.3C16.7 7.1 16.1 7.4 15.9 7.9C15.7 8.4 16 9 16.5 9.2C18.1 9.8 19.2 11.3 19.2 13C19.2 13.6 19.6 14 20 14Z"></path>
+<path d="M16 18C16.5 18 16.9 17.6 17 17.1C17.2 14.7 16 12.3 13.9 11.2C13.4 10.9 12.8 11.1 12.5 11.6C12.2 12.1 12.4 12.7 12.9 13C14.4 13.8 15.3 15.4 15.1 17C15 17.5 15.4 18 16 18Z"></path>
+<path d="M12 21C12.4 21 12.8 20.7 12.9 20.3L14.9 14.3C15.1 13.8 14.8 13.2 14.3 13C13.8 12.8 13.2 13.1 13 13.6L11.1 19.3C10.9 19.8 11.2 20.4 11.7 20.6C11.8 21 11.9 21 12 21Z"></path>
+</svg>
+</div>
+<!-- Rating Stars Row (4 filled, 1 empty) -->
+<div class="flex items-center justify-center gap-2 mb-3" data-purpose="star-rating-row">
+<!-- Star 1: Filled -->
+<button aria-label="1 stella" class="focus:outline-none transition-transform active:scale-90">
+<svg class="w-12 h-12 text-[#ffb800] fill-current drop-shadow-sm" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" stroke="#f59e0b" stroke-linejoin="round" stroke-width="0.5"></path>
+</svg>
+</button>
+<!-- Star 2: Filled -->
+<button aria-label="2 stelle" class="focus:outline-none transition-transform active:scale-90">
+<svg class="w-12 h-12 text-[#ffb800] fill-current drop-shadow-sm" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" stroke="#f59e0b" stroke-linejoin="round" stroke-width="0.5"></path>
+</svg>
+</button>
+<!-- Star 3: Filled -->
+<button aria-label="3 stelle" class="focus:outline-none transition-transform active:scale-90">
+<svg class="w-12 h-12 text-[#ffb800] fill-current drop-shadow-sm" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" stroke="#f59e0b" stroke-linejoin="round" stroke-width="0.5"></path>
+</svg>
+</button>
+<!-- Star 4: Filled -->
+<button aria-label="4 stelle" class="focus:outline-none transition-transform active:scale-90">
+<svg class="w-12 h-12 text-[#ffb800] fill-current drop-shadow-sm" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" stroke="#f59e0b" stroke-linejoin="round" stroke-width="0.5"></path>
+</svg>
+</button>
+<!-- Star 5: Empty (Grey stroke/fill) -->
+<button aria-label="5 stelle" class="focus:outline-none transition-transform active:scale-90">
+<svg class="w-12 h-12 text-[#f3f4f6] fill-current stroke-[#9ca3af] stroke-[1.4]" stroke-linejoin="round" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+</svg>
+</button>
+</div>
+<!-- Rating Value Text -->
+<div class="text-[17px] font-bold text-gray-900 mb-6 text-center" data-purpose="rating-score-text">
+        4 su 5
+      </div>
+<!-- Action Button: Conferma Voto -->
+<button class="w-full h-14 bg-[#2aa233] hover:bg-[#25912d] active:bg-[#1f7b26] text-white font-extrabold text-[17px] rounded-full shadow-lg shadow-green-700/30 transition-colors flex items-center justify-center mb-3" data-purpose="submit-vote-button">
+        Conferma voto
+      </button>
+<!-- Disclaimer note -->
+<p class="text-[13px] font-medium text-gray-600 text-center tracking-tight" data-purpose="disclaimer-text">
+        Puoi modificare il voto da questo browser.
+      </p>
+</section>
+<!-- END: BottomSheetModal -->
+<!-- BEGIN: BottomNavigation -->
+<!-- Tab Bar at bottom -->
+<nav class="relative z-30 bg-white border-t border-gray-200/80 px-4 py-2.5 flex items-center justify-between shadow-[0_-2px_10px_rgba(0,0,0,0.05)]" data-purpose="bottom-navigation-bar">
+<!-- Tab: Home -->
+<button class="flex flex-col items-center justify-center flex-1 py-1 text-gray-600 hover:text-black">
+<svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-medium mt-1">Home</span>
+</button>
+<!-- Tab: Ascolta -->
+<button class="flex flex-col items-center justify-center flex-1 py-1 text-gray-600 hover:text-black">
+<svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M4 14v-3a8 8 0 0116 0v3a3 3 0 01-3 3h-1m-10 0H5a3 3 0 01-3-3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-medium mt-1">Ascolta</span>
+</button>
+<!-- Tab: Scopri (Active) -->
+<button class="flex flex-col items-center justify-center flex-1 py-1 text-[#2aa233] font-bold">
+<div class="w-7 h-7 rounded-full bg-[#2aa233] text-white flex items-center justify-center shadow-sm">
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.88L8.12 15.88 7.12 11 15.88 8.12 13 16.88z"></path>
+</svg>
+</div>
+<span class="text-[11px] font-bold mt-1 text-[#2aa233]">Scopri</span>
+</button>
+<!-- Tab: Crea -->
+<button class="flex flex-col items-center justify-center flex-1 py-1 text-gray-600 hover:text-black">
+<svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-medium mt-1">Crea</span>
+</button>
+<!-- Tab: FAQ -->
+<button class="flex flex-col items-center justify-center flex-1 py-1 text-gray-600 hover:text-black">
+<svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-medium mt-1">FAQ</span>
+</button>
+</nav>
+<!-- END: BottomNavigation -->
+</div>
+<!-- END: PhoneFrame -->
+<!-- Outer page caption matching screenshot footer label -->
+<footer class="mt-3 text-center" data-purpose="screen-title-footer">
+<span class="text-[#0e3b18] font-black text-xl tracking-tight">Votazione</span>
+</footer>
+</body></html>

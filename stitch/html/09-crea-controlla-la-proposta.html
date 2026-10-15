@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Crea la tua modalità - Controlla la proposta</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Font Fredoka / Nunito for playful game UI typography -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            nunito: ['Nunito', 'sans-serif']
+          },
+          colors: {
+            gameGreen: {
+              400: '#7dd322',
+              500: '#4caf20',
+              600: '#389518',
+              700: '#237311',
+              dark: '#1b4a1b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-styling">
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background-color: #f2f5f1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Pattern background for header sunburst effect */
+    .header-sunburst {
+      background: repeating-conic-gradient(
+        from 0deg,
+        #99e324 0deg 15deg,
+        #82d61b 15deg 30deg
+      );
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-0 sm:py-6 text-slate-800 antialiased selection:bg-green-200">
+<!-- BEGIN: PhoneContainer -->
+<!-- Outer wrapper emulating mobile screen frame on desktop or full on mobile -->
+<div class="w-full max-w-[430px] bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col border-[6px] border-emerald-500 relative min-h-screen sm:min-h-[920px]" data-purpose="mobile-viewport">
+<!-- BEGIN: BannerHeader -->
+<!-- Top playful header with trees, sunburst pattern, and MÖVAT! Bus mascot -->
+<header class="relative w-full h-[125px] overflow-hidden bg-[#88db1f]" data-purpose="playful-banner">
+<!-- Sunburst background rays -->
+<div class="absolute inset-0 header-sunburst opacity-90"></div>
+<!-- Cloud/Bush decorations -->
+<div class="absolute -bottom-4 -left-6 w-24 h-24 bg-[#54a413] rounded-full opacity-80"></div>
+<div class="absolute -bottom-2 left-10 w-20 h-20 bg-[#3e840d] rounded-full"></div>
+<div class="absolute -bottom-6 -right-6 w-28 h-28 bg-[#54a413] rounded-full opacity-80"></div>
+<div class="absolute -bottom-4 right-12 w-20 h-20 bg-[#3e840d] rounded-full"></div>
+<!-- Foreground Illustrated Bus Mascot & Title Graphic -->
+<div class="relative w-full h-full flex items-center justify-between px-4 pt-1 z-10 pointer-events-none">
+<!-- MÖVAT! Logo simulation -->
+<div class="flex flex-col items-start translate-y-1">
+<div class="relative">
+<!-- Splashes decoration -->
+<div class="absolute -top-3 left-4 flex space-x-1">
+<span class="w-2.5 h-3.5 bg-cyan-300 rounded-full rotate-[-20deg]"></span>
+<span class="w-2 h-4 bg-cyan-400 rounded-full"></span>
+<span class="w-2.5 h-3 bg-cyan-300 rounded-full rotate-[20deg]"></span>
+</div>
+<!-- Main Title with heavy border -->
+<h1 class="text-4xl font-black italic tracking-wide text-white drop-shadow-[0_4px_0_#1b4a1b] stroke-black" style="-webkit-text-stroke: 2px #18420e;">
+              MÖVAT!
+            </h1>
+</div>
+</div>
+<!-- Cartoon Bus Mascot with Cards in Payload -->
+<div class="relative w-36 h-24 flex items-end justify-center">
+<div class="relative w-32 h-20">
+<!-- Multi-colored Cards behind truck cab -->
+<div class="absolute top-1 left-2 flex items-end space-x-0.5">
+<div class="w-5 h-10 bg-red-500 rounded-t-sm border-2 border-black rotate-[-12deg]"></div>
+<div class="w-5 h-11 bg-blue-500 rounded-t-sm border-2 border-black"></div>
+<div class="w-5 h-10 bg-amber-400 rounded-t-sm border-2 border-black rotate-[12deg]"></div>
+<div class="w-5 h-9 bg-emerald-500 rounded-t-sm border-2 border-black rotate-[20deg]"></div>
+</div>
+<!-- Bus Body -->
+<div class="absolute bottom-3 left-0 w-28 h-10 bg-white border-2 border-black rounded-lg flex items-center justify-between px-2 shadow-sm">
+<span class="text-[9px] font-black tracking-tighter text-emerald-700">busa</span>
+<!-- Bus Headlight/Eyes -->
+<div class="flex items-center space-x-1">
+<div class="w-4 h-4 bg-white border-2 border-black rounded-full flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-black rounded-full translate-x-0.5"></div>
+</div>
+<div class="w-4 h-4 bg-white border-2 border-black rounded-full flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-black rounded-full translate-x-0.5"></div>
+</div>
+</div>
+</div>
+<!-- Wheels -->
+<div class="absolute bottom-1 left-4 w-5 h-5 bg-black rounded-full border-2 border-gray-400 flex items-center justify-center">
+<div class="w-2 h-2 bg-gray-200 rounded-full"></div>
+</div>
+<div class="absolute bottom-1 right-6 w-5 h-5 bg-black rounded-full border-2 border-gray-400 flex items-center justify-center">
+<div class="w-2 h-2 bg-gray-200 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: BannerHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 bg-white px-4 pt-3 pb-24 flex flex-col items-stretch overflow-y-auto" data-purpose="modalita-form-content">
+<!-- Back button and Screen Title -->
+<div class="flex items-center justify-between relative mb-2">
+<button aria-label="Torna indietro" class="w-9 h-9 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-gameGreen-700 flex items-center justify-center transition shadow-sm" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<h2 class="text-lg font-black text-gameGreen-dark tracking-tight">Crea la tua modalità</h2>
+<div class="w-9"></div> <!-- Empty spacer to balance header flex -->
+</div>
+<!-- BEGIN: Stepper -->
+<div class="flex items-center justify-center w-full px-4 mb-4 mt-1" data-purpose="progress-stepper">
+<!-- Step 1: Dettagli (Completed) -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-[#2c8a14] text-white flex items-center justify-center text-xs font-bold shadow-sm">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[11px] font-bold text-gray-600 mt-1">Dettagli</span>
+</div>
+<div class="w-12 sm:w-16 h-0.5 bg-gray-300 -translate-y-2.5 mx-1"></div>
+<!-- Step 2: Invia (Active) -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-[#2c8a14] text-white flex items-center justify-center text-xs font-bold ring-2 ring-emerald-200 shadow-sm">
+            2
+          </div>
+<span class="text-[11px] font-bold text-[#2c8a14] mt-1">Invia</span>
+</div>
+<div class="w-12 sm:w-16 h-0.5 bg-gray-300 -translate-y-2.5 mx-1"></div>
+<!-- Step 3: Conferma (Upcoming) -->
+<div class="flex flex-col items-center">
+<div class="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">
+            3
+          </div>
+<span class="text-[11px] font-medium text-gray-400 mt-1">Conferma</span>
+</div>
+</div>
+<!-- END: Stepper -->
+<!-- Action Title with decorative spark icons -->
+<div class="flex items-center justify-center space-x-2 my-2">
+<!-- Left ray icon -->
+<span class="text-[#8cd623] text-xl font-black rotate-[-20deg]">\\\</span>
+<h3 class="text-xl font-black text-gameGreen-dark tracking-tight text-center">
+          Controlla la proposta
+        </h3>
+<!-- Right ray icon -->
+<span class="text-[#8cd623] text-xl font-black rotate-[20deg]">///</span>
+</div>
+<!-- BEGIN: ProposalSummaryCard -->
+<div class="border border-gray-200 rounded-xl p-3.5 bg-white shadow-xs text-xs space-y-2 mb-4" data-purpose="details-summary">
+<div class="flex justify-between items-start border-b border-gray-100 pb-1.5">
+<span class="text-gray-500 font-medium w-1/3">Nome della modalità</span>
+<span class="text-gameGreen-dark font-extrabold w-2/3 text-left">Sorpassi a sorpresa</span>
+</div>
+<div class="flex justify-between items-start border-b border-gray-100 pb-1.5">
+<span class="text-gray-500 font-medium w-1/3">Nickname</span>
+<span class="text-gameGreen-dark font-extrabold w-2/3 text-left">Ruota libera</span>
+</div>
+<div class="flex justify-between items-start border-b border-gray-100 pb-1.5">
+<span class="text-gray-500 font-medium w-1/3">Descrizione</span>
+<span class="text-gameGreen-dark font-extrabold w-2/3 text-left leading-tight">Scambi e colpi di scena a ogni giro.</span>
+</div>
+<div class="flex justify-between items-start pt-0.5">
+<span class="text-gray-500 font-medium w-1/3">Giocatori consigliati</span>
+<span class="text-gameGreen-dark font-extrabold w-2/3 text-left">3 – 6</span>
+</div>
+</div>
+<!-- END: ProposalSummaryCard -->
+<!-- BEGIN: CardsUsedSection -->
+<div class="mb-4" data-purpose="cards-selection-list">
+<h4 class="text-xs font-black text-gameGreen-dark uppercase tracking-wider mb-2">
+          Carte utilizzate (6)
+        </h4>
+<!-- Card List Table/Container -->
+<div class="border border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden bg-white shadow-xs text-xs">
+<!-- Card Item 1: Fermo lì! -->
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 bg-red-600 rounded-md border border-red-700 flex items-center justify-center shadow-xs">
+<!-- Stop hand icon -->
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="font-bold text-gray-800">Fermo lì!</span>
+</div>
+<span class="font-bold text-gray-600 text-xs">× 2</span>
+</div>
+<!-- Card Item 2: Svuota colore -->
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 bg-sky-600 rounded-md border border-sky-700 flex items-center justify-center shadow-xs">
+<!-- Paint bucket / Color icon -->
+<svg class="w-4 h-4 text-white" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-bold text-gray-800">Svuota colore</span>
+</div>
+<span class="font-bold text-gray-600 text-xs">× 1</span>
+</div>
+<!-- Card Item 3: L'ultimo paga -->
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 bg-emerald-600 rounded-md border border-emerald-700 flex items-center justify-center shadow-xs">
+<!-- Dollar/Coin icon -->
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="font-bold text-gray-800">L'ultimo paga</span>
+</div>
+<span class="font-bold text-gray-600 text-xs">× 1</span>
+</div>
+<!-- Card Item 4: Affare fatto -->
+<div class="flex items-center justify-between px-3 py-2">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 bg-amber-400 rounded-md border border-amber-500 flex items-center justify-center shadow-xs">
+<!-- Handshake or Star tag icon -->
+<svg class="w-4 h-4 text-white" fill="currentColor" viewbox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+</div>
+<span class="font-bold text-gray-800">Affare fatto</span>
+</div>
+<span class="font-bold text-gray-600 text-xs">× 2</span>
+</div>
+</div>
+<!-- Edit Links Section -->
+<div class="flex items-center justify-center space-x-4 mt-3 text-xs font-bold text-gameGreen-700">
+<button class="flex items-center space-x-1.5 hover:underline" type="button">
+<svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Modifica carte</span>
+</button>
+<span class="h-3.5 w-px bg-gray-300"></span>
+<button class="flex items-center space-x-1.5 hover:underline" type="button">
+<svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Modifica dettagli</span>
+</button>
+</div>
+</div>
+<!-- END: CardsUsedSection -->
+<!-- BEGIN: ConsentAndPrivacy -->
+<div class="space-y-3 mb-6" data-purpose="terms-and-privacy">
+<!-- Checkbox with label -->
+<label class="flex items-start space-x-2.5 cursor-pointer">
+<input checked="" class="mt-0.5 rounded border-gray-300 text-gameGreen-600 focus:ring-gameGreen-500 w-4 h-4 cursor-pointer" type="checkbox"/>
+<span class="text-xs font-semibold text-gray-700 leading-snug">
+            Pubblica con il mio nickname dopo il controllo Busa.
+          </span>
+</label>
+<!-- Privacy / Email Row -->
+<a class="flex items-center justify-between p-2.5 bg-emerald-50/60 hover:bg-emerald-100/50 rounded-xl border border-emerald-100 transition text-xs" href="#privacy">
+<div class="flex items-center space-x-2">
+<svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="font-bold text-gray-700">Email privata · Informativa privacy</span>
+</div>
+<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+<!-- END: ConsentAndPrivacy -->
+<!-- BEGIN: ActionButtons -->
+<div class="flex items-center space-x-3 mt-auto pt-2" data-purpose="step-actions">
+<!-- Back button -->
+<button class="w-1/2 py-2.5 rounded-full border border-gray-300 bg-emerald-50/50 hover:bg-emerald-100/50 text-gameGreen-dark font-extrabold text-sm transition shadow-xs text-center" type="button">
+          Indietro
+        </button>
+<!-- Submit button -->
+<button class="w-1/2 py-2.5 rounded-full bg-[#2a8513] hover:bg-[#237310] text-white font-extrabold text-sm transition shadow-md hover:shadow-lg text-center" type="button">
+          Invia la proposta
+        </button>
+</div>
+<!-- END: ActionButtons -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: BottomNavigation -->
+<nav class="absolute bottom-0 inset-x-0 bg-white border-t border-gray-200 px-2 py-1.5 flex items-center justify-around z-30" data-purpose="tab-navigation">
+<!-- Home Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-emerald-700 w-14 py-1" href="#home">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold mt-0.5">Home</span>
+</a>
+<!-- Ascolta Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-emerald-700 w-14 py-1" href="#ascolta">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold mt-0.5">Ascolta</span>
+</a>
+<!-- Scopri Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-emerald-700 w-14 py-1" href="#scopri">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold mt-0.5">Scopri</span>
+</a>
+<!-- Crea Tab (Active Highlighted) -->
+<a class="flex flex-col items-center justify-center bg-emerald-100/70 text-gameGreen-700 rounded-xl px-2.5 py-1" href="#crea">
+<div class="relative">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-1 -right-1 text-[8px] font-black bg-gameGreen-600 text-white rounded-full w-2.5 h-2.5 flex items-center justify-center">+</span>
+</div>
+<span class="text-[10px] font-black mt-0.5">Crea</span>
+</a>
+<!-- FAQ Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-emerald-700 w-14 py-1" href="#faq">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold mt-0.5">FAQ</span>
+</a>
+</nav>
+<!-- END: BottomNavigation -->
+</div>
+<!-- END: PhoneContainer -->
+<!-- Subtitle for the prototype showcase matching image caption -->
+<p class="mt-4 text-xs font-black tracking-wide text-gameGreen-dark uppercase drop-shadow-xs">
+    Riepilogo e consenso
+  </p>
+</body></html>

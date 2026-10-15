@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mövat! - Sorpassi a sorpresa</title>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'movat-green': '#2ca327',
+            'movat-dark-green': '#197715',
+            'movat-light-green': '#e8f7e6',
+            'movat-lime': '#80c326',
+            'movat-title': '#0f382c',
+            'movat-border': '#34a835'
+          },
+          fontFamily: {
+            sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Font Awesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style data-purpose="base-page-style">
+    /* iOS frame style and layout constraints */
+    body {
+      background-color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mobile-screen {
+      width: 100%;
+      max-width: 412px;
+      height: 844px;
+      background: #ffffff;
+      border: 3.5px solid #28a745;
+      border-radius: 38px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Hide scrollbar for a native app feel */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style data-purpose="cartoon-graphics">
+    /* Comic text outline effects */
+    .comic-title {
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      text-shadow: 
+        -2px -2px 0 #0d4b1a,
+         2px -2px 0 #0d4b1a,
+        -2px  2px 0 #0d4b1a,
+         2px  2px 0 #0d4b1a,
+         0px  3px 0 #0d4b1a;
+    }
+
+    .burst-rays-green {
+      background: repeating-conic-gradient(
+        from 0deg,
+        #79d01b 0deg 15deg,
+        #8fe127 15deg 30deg
+      );
+    }
+
+    .burst-rays-cyan {
+      background: repeating-conic-gradient(
+        from 0deg,
+        #00bcff 0deg 15deg,
+        #3bd4ff 15deg 30deg
+      );
+    }
+
+    .burst-rays-yellow {
+      background: repeating-conic-gradient(
+        from 0deg,
+        #ffc800 0deg 15deg,
+        #ffd633 15deg 30deg
+      );
+    }
+  </style>
+</head>
+<body>
+<!-- BEGIN: PhoneContainer -->
+<div class="mobile-screen">
+<!-- Scrollable content area -->
+<main class="flex-1 overflow-y-auto no-scrollbar relative flex flex-col pb-2">
+<!-- BEGIN: HeroHeader -->
+<header class="relative w-full h-[88px] burst-rays-green overflow-hidden flex items-start justify-between px-4 pt-4 shrink-0" data-purpose="app-header">
+<!-- Landscape Background Elements (Trees & Hills) -->
+<div class="absolute bottom-0 inset-x-0 h-9 flex items-end justify-between px-2 pointer-events-none opacity-90">
+<!-- Stylized trees in background -->
+<div class="w-8 h-8 rounded-full bg-emerald-800 -mb-2"></div>
+<div class="w-12 h-10 rounded-full bg-emerald-700 -mb-3 ml-2"></div>
+<div class="w-10 h-10 rounded-full bg-emerald-800 -mb-3"></div>
+<div class="flex-1"></div>
+<div class="w-12 h-9 rounded-full bg-emerald-700 -mb-2"></div>
+<div class="w-8 h-7 rounded-full bg-emerald-800 -mb-2"></div>
+</div>
+<div class="absolute bottom-0 inset-x-0 h-4 bg-[#76c91e]"></div>
+<!-- Back Button -->
+<button aria-label="Torna indietro" class="relative z-10 w-9 h-9 rounded-full bg-[#f1fbe9] border-[1.5px] border-[#a0d880] flex items-center justify-center text-[#185521] shadow-sm active:scale-95 transition-transform" type="button">
+<i class="fa-solid fa-chevron-left text-sm font-bold"></i>
+</button>
+<!-- Center App Logo MÖVAT! -->
+<div class="relative z-10 flex flex-col items-center pt-0.5">
+<span class="comic-title text-[28px] leading-none tracking-wider select-none font-black" style="font-family: Impact, sans-serif;">
+            MÖVAT!
+          </span>
+</div>
+<!-- Header Truck Mini Icon -->
+<div class="relative z-10 w-16 h-10 shrink-0 self-end mb-1">
+<svg class="w-full h-full drop-shadow-md" viewbox="0 0 100 65">
+<!-- Loaded Cargo Cards -->
+<rect fill="#d9241b" height="28" rx="2" stroke="#111" stroke-width="2.5" transform="rotate(-12 18 10)" width="22" x="18" y="10"></rect>
+<rect fill="#006cd9" height="28" rx="2" stroke="#111" stroke-width="2.5" width="22" x="36" y="6"></rect>
+<rect fill="#75be00" height="26" rx="2" stroke="#111" stroke-width="2.5" transform="rotate(8 52 10)" width="20" x="52" y="10"></rect>
+<!-- Flatbed -->
+<rect fill="#2ea828" height="8" rx="2" stroke="#111" stroke-width="2.5" width="60" x="6" y="32"></rect>
+<!-- Cab -->
+<path d="M 64 24 L 84 24 A 6 6 0 0 1 90 30 L 90 40 L 64 40 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"></path>
+<rect fill="#2ea828" height="6" stroke="#111" stroke-width="2" width="27" x="64" y="36"></rect>
+<!-- Cute Eyes -->
+<circle cx="76" cy="30" fill="#111" r="4.5"></circle>
+<circle cx="74.5" cy="28.5" fill="#fff" r="1.5"></circle>
+<circle cx="85" cy="30" fill="#111" r="4.5"></circle>
+<circle cx="83.5" cy="28.5" fill="#fff" r="1.5"></circle>
+<!-- Wheels -->
+<circle cx="24" cy="42" fill="#111" r="6"></circle>
+<circle cx="24" cy="42" fill="#fff" r="2.5"></circle>
+<circle cx="76" cy="42" fill="#111" r="6"></circle>
+<circle cx="76" cy="42" fill="#fff" r="2.5"></circle>
+</svg>
+</div>
+</header>
+<!-- END: HeroHeader -->
+<!-- BEGIN: ContentBody -->
+<div class="px-4 pt-3 flex-1 flex flex-col bg-white">
+<!-- Title and Author Row -->
+<div class="flex items-start justify-between">
+<div>
+<h1 class="text-[20px] font-extrabold text-[#083023] leading-tight tracking-tight">
+              Sorpassi a sorpresa
+            </h1>
+<p class="text-[13px] text-gray-500 font-medium">di Ruota libera</p>
+</div>
+<!-- Share Header Button -->
+<button aria-label="Condividi" class="w-8 h-8 rounded-full bg-[#f4f7f4] flex items-center justify-center text-gray-700 active:bg-gray-200 transition-colors" type="button">
+<i class="fa-solid fa-share-nodes text-sm"></i>
+</button>
+</div>
+<!-- Big Banner Illustration: Sorpassi a Sorpresa -->
+<div class="relative w-full h-[122px] rounded-2xl overflow-hidden mt-3 border-[2.5px] border-movat-title shadow-sm shrink-0" data-purpose="banner-card">
+<!-- Background Road & Landscape -->
+<div class="absolute inset-0 bg-[#42a8f8] flex flex-col justify-between overflow-hidden">
+<!-- Sky and Sunburst -->
+<div class="absolute inset-0 bg-gradient-to-b from-[#29b6f6] to-[#81d4fa]"></div>
+<!-- Distant hills & foliage -->
+<div class="absolute top-5 inset-x-0 h-16 flex">
+<div class="w-24 h-16 bg-[#43a047] rounded-full -ml-4"></div>
+<div class="w-32 h-16 bg-[#2e7d32] rounded-full -ml-8"></div>
+<div class="w-28 h-16 bg-[#66bb6a] rounded-full -ml-6"></div>
+<div class="w-36 h-20 bg-[#388e3c] rounded-full -ml-6"></div>
+</div>
+<!-- Road / Asphalt -->
+<div class="absolute bottom-0 inset-x-0 h-[48px] bg-[#6c757d] border-t-2 border-green-700 flex flex-col justify-center">
+<!-- Road markings -->
+<div class="w-full border-t border-dashed border-white opacity-80 -mt-1"></div>
+<!-- Curving verge -->
+<div class="absolute bottom-0 left-0 w-28 h-2 bg-[#7cb342]"></div>
+</div>
+</div>
+<!-- Banner Comic Title Badge -->
+<div class="absolute top-2 left-2.5 z-10 max-w-[170px]">
+<h2 class="text-[17px] font-black leading-[1.05] uppercase italic text-white" style="font-family: Impact, sans-serif; text-shadow: -2px -2px 0 #0b4118, 2px -2px 0 #0b4118, -2px 2px 0 #0b4118, 2px 2px 0 #0b4118, 0 3px 0 #0b4118;">
+              SORPASSI<br/>A SORPRESA
+            </h2>
+</div>
+<!-- Warning Road Sign -->
+<div class="absolute top-2 right-4 z-10 flex flex-col items-center">
+<div class="w-10 h-9 bg-white border-[2.5px] border-[#d32f2f] flex items-center justify-center shadow-md" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);">
+<span class="text-black font-black text-xs mt-1.5">!</span>
+</div>
+<div class="w-1.5 h-6 bg-gray-400 -mt-0.5 border border-gray-600"></div>
+</div>
+<!-- Busa Character Truck -->
+<div class="absolute bottom-1 right-8 z-10 w-[145px] h-[72px]">
+<svg class="w-full h-full drop-shadow-md" viewbox="0 0 170 85">
+<!-- Cargo Cards Loaded -->
+<rect fill="#cf2a1d" height="42" rx="3" stroke="#111" stroke-width="3" transform="rotate(-15 25 10)" width="34" x="25" y="10"></rect>
+<rect fill="#0066cc" height="42" rx="3" stroke="#111" stroke-width="3" width="34" x="52" y="6"></rect>
+<rect fill="#72b500" height="40" rx="3" stroke="#111" stroke-width="3" transform="rotate(10 74 12)" width="32" x="74" y="12"></rect>
+<!-- Truck Chassis Bed -->
+<rect fill="#ffffff" height="12" rx="3" stroke="#111" stroke-width="3" width="98" x="6" y="44"></rect>
+<!-- Green Stripe/Bottom -->
+<rect fill="#1fa524" height="6" stroke="#111" stroke-width="2" width="98" x="6" y="50"></rect>
+<!-- Cab Body -->
+<path d="M 100 32 L 136 32 A 10 10 0 0 1 146 42 L 146 58 L 100 58 Z" fill="#ffffff" stroke="#111" stroke-width="3"></path>
+<!-- Green Trim & "busa" writing -->
+<rect fill="#1fa524" height="7" stroke="#111" stroke-width="2" width="46" x="100" y="50"></rect>
+<text fill="#1fa524" font-family="sans-serif" font-size="9" font-weight="900" x="104" y="45">busa</text>
+<!-- Big Cartoon Eyes -->
+<circle cx="120" cy="39" fill="#111" r="7"></circle>
+<circle cx="118" cy="37" fill="#fff" r="2.5"></circle>
+<circle cx="136" cy="39" fill="#111" r="7"></circle>
+<circle cx="134" cy="37" fill="#fff" r="2.5"></circle>
+<!-- Smile -->
+<path d="M 125 47 Q 130 50 135 47" fill="none" stroke="#111" stroke-linecap="round" stroke-width="2"></path>
+<!-- Wheels -->
+<circle cx="34" cy="62" fill="#222" r="10" stroke="#111" stroke-width="2"></circle>
+<circle cx="34" cy="62" fill="#e5e5e5" r="4.5"></circle>
+<circle cx="124" cy="62" fill="#222" r="10" stroke="#111" stroke-width="2"></circle>
+<circle cx="124" cy="62" fill="#e5e5e5" r="4.5"></circle>
+</svg>
+</div>
+</div>
+<!-- Short Description -->
+<p class="text-[13px] text-gray-700 leading-snug mt-2.5 font-normal">
+          Colpi di scena e sorpassi inaspettati<br/>per una partita sempre diversa!
+        </p>
+<!-- Metadata Row (Players, Cards, Rating) -->
+<div class="flex items-center justify-between text-[13px] text-gray-800 font-medium mt-2.5 pb-2">
+<!-- Players -->
+<div class="flex items-center space-x-1.5">
+<i class="fa-solid fa-users text-gray-700 text-sm"></i>
+<span>3–6 giocatori</span>
+</div>
+<!-- Cards Count -->
+<div class="flex items-center space-x-1.5">
+<span class="inline-block w-4 h-4 bg-emerald-800 rounded-sm transform -rotate-12 border border-black shadow-xs"></span>
+<span>6 carte Busa</span>
+</div>
+<!-- Rating -->
+<div class="flex items-center space-x-1">
+<i class="fa-solid fa-star text-amber-400 text-sm"></i>
+<span class="font-bold text-gray-900">4,2</span>
+<span class="text-gray-400">·</span>
+<span class="text-gray-600 font-normal">18 voti</span>
+</div>
+</div>
+<!-- BEGIN: AdditionalRulesBox -->
+<div class="bg-[#f5faf5] border border-[#d8ecd8] rounded-xl p-2.5 flex items-start space-x-2.5 mt-1" data-purpose="extra-rules-card">
+<div class="text-[#209228] text-2xl shrink-0 pt-0.5">
+<i class="fa-regular fa-file-lines"></i>
+</div>
+<div class="flex-1">
+<h3 class="text-[13px] font-bold text-gray-900 leading-tight">Regole aggiuntive</h3>
+<p class="text-[12px] text-gray-600 leading-tight mt-0.5">Si usano le regole normali.</p>
+</div>
+</div>
+<!-- END: AdditionalRulesBox -->
+<!-- BEGIN: ViewSwitchSegment -->
+<div class="bg-[#ebf3ea] p-1 rounded-full flex items-center mt-3 shadow-inner" data-purpose="view-selector">
+<!-- Active: Gallery Button -->
+<button class="flex-1 flex items-center justify-center space-x-1.5 py-1.5 bg-[#2ca327] text-white font-bold text-[13px] rounded-full shadow-sm" type="button">
+<i class="fa-regular fa-image text-sm"></i>
+<span>Gallery</span>
+</button>
+<!-- Inactive: Lista Button -->
+<button class="flex-1 flex items-center justify-center space-x-1.5 py-1.5 text-gray-800 font-bold text-[13px] rounded-full hover:bg-white/40 transition-colors" type="button">
+<i class="fa-solid fa-bars-staggered text-sm"></i>
+<span>Lista</span>
+</button>
+</div>
+<!-- END: ViewSwitchSegment -->
+<!-- BEGIN: CardsGrid -->
+<section aria-label="Carte della variante" class="grid grid-cols-2 gap-2.5 mt-3" data-purpose="cards-grid">
+<!-- Card 1: Traffic Cones (x2) -->
+<article class="relative h-[82px] rounded-xl overflow-hidden border-[1.5px] border-emerald-600 burst-rays-green p-1 flex items-end justify-center shadow-xs">
+<!-- Mini Illustration Cones + Truck -->
+<div class="relative w-full h-full flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 140 70">
+<!-- Two Traffic Cones -->
+<polygon fill="#ff4d00" points="30,48 40,18 46,18 56,48" stroke="#111" stroke-width="2"></polygon>
+<polygon fill="#ffffff" points="34,36 38,24 48,24 52,36" stroke="#111" stroke-width="1.5"></polygon>
+<polygon fill="#ff4d00" points="46,48 54,20 60,20 68,48" stroke="#111" stroke-width="2"></polygon>
+<polygon fill="#ffffff" points="49,38 52,26 62,26 65,38" stroke="#111" stroke-width="1.5"></polygon>
+<!-- Small truck -->
+<rect fill="#fff" height="8" rx="2" stroke="#111" stroke-width="2" width="70" x="42" y="44"></rect>
+<rect fill="#fff" height="18" stroke="#111" stroke-width="2" width="28" x="76" y="32"></rect>
+<rect fill="#2ca327" height="5" width="28" x="76" y="44"></rect>
+<circle cx="86" cy="38" fill="#111" r="4"></circle><circle cx="85" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="96" cy="38" fill="#111" r="4"></circle><circle cx="95" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="56" cy="53" fill="#111" r="6"></circle><circle cx="56" cy="53" fill="#fff" r="2.5"></circle>
+<circle cx="98" cy="53" fill="#111" r="6"></circle><circle cx="98" cy="53" fill="#fff" r="2.5"></circle>
+</svg>
+</div>
+<!-- Multiplier Badge -->
+<span class="absolute bottom-1 right-1.5 bg-white border border-gray-300 rounded-full px-1.5 py-0.2 text-[10px] font-black text-gray-800 shadow-xs">
+              ×2
+            </span>
+</article>
+<!-- Card 2: Wrenches (x1) -->
+<article class="relative h-[82px] rounded-xl overflow-hidden border-[1.5px] border-sky-600 burst-rays-cyan p-1 flex items-end justify-center shadow-xs">
+<!-- Mini Illustration Wrenches + Truck -->
+<div class="relative w-full h-full flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 140 70">
+<!-- Two Wrenches Crossed in background -->
+<path d="M 32 46 L 60 16" stroke="#90a4ae" stroke-linecap="round" stroke-width="8"></path>
+<path d="M 32 46 L 60 16" stroke="#111" stroke-linecap="round" stroke-width="1.5"></path>
+<path d="M 58 46 L 30 16" stroke="#b0bec5" stroke-linecap="round" stroke-width="8"></path>
+<path d="M 58 46 L 30 16" stroke="#111" stroke-linecap="round" stroke-width="1.5"></path>
+<!-- Small truck -->
+<rect fill="#fff" height="8" rx="2" stroke="#111" stroke-width="2" width="70" x="42" y="44"></rect>
+<rect fill="#fff" height="18" stroke="#111" stroke-width="2" width="28" x="76" y="32"></rect>
+<rect fill="#2ca327" height="5" width="28" x="76" y="44"></rect>
+<circle cx="86" cy="38" fill="#111" r="4"></circle><circle cx="85" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="96" cy="38" fill="#111" r="4"></circle><circle cx="95" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="56" cy="53" fill="#111" r="6"></circle><circle cx="56" cy="53" fill="#fff" r="2.5"></circle>
+<circle cx="98" cy="53" fill="#111" r="6"></circle><circle cx="98" cy="53" fill="#fff" r="2.5"></circle>
+</svg>
+</div>
+<!-- Multiplier Badge -->
+<span class="absolute bottom-1 right-1.5 bg-white border border-gray-300 rounded-full px-1.5 py-0.2 text-[10px] font-black text-gray-800 shadow-xs">
+              ×1
+            </span>
+</article>
+<!-- Card 3: Two-Way Arrow Sign (x1) -->
+<article class="relative h-[82px] rounded-xl overflow-hidden border-[1.5px] border-emerald-600 burst-rays-green p-1 flex items-end justify-center shadow-xs">
+<!-- Mini Illustration Arrow Sign + Truck -->
+<div class="relative w-full h-full flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 140 70">
+<!-- Two-way green road sign -->
+<rect fill="#666" height="24" stroke="#111" stroke-width="1.5" width="6" x="36" y="28"></rect>
+<rect fill="#1fa524" height="20" rx="3" stroke="#fff" stroke-width="2" width="36" x="38" y="15"></rect>
+<rect fill="none" height="20" rx="3" stroke="#111" stroke-width="1.5" width="36" x="38" y="15"></rect>
+<!-- Double Arrow icon inside sign -->
+<path d="M 43 25 L 48 21 L 48 23 L 64 23 L 64 21 L 69 25 L 64 29 L 64 27 L 48 27 L 48 29 Z" fill="#ffffff"></path>
+<!-- Small truck -->
+<rect fill="#fff" height="8" rx="2" stroke="#111" stroke-width="2" width="70" x="42" y="44"></rect>
+<rect fill="#fff" height="18" stroke="#111" stroke-width="2" width="28" x="76" y="32"></rect>
+<rect fill="#2ca327" height="5" width="28" x="76" y="44"></rect>
+<circle cx="86" cy="38" fill="#111" r="4"></circle><circle cx="85" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="96" cy="38" fill="#111" r="4"></circle><circle cx="95" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="56" cy="53" fill="#111" r="6"></circle><circle cx="56" cy="53" fill="#fff" r="2.5"></circle>
+<circle cx="98" cy="53" fill="#111" r="6"></circle><circle cx="98" cy="53" fill="#fff" r="2.5"></circle>
+</svg>
+</div>
+<!-- Multiplier Badge -->
+<span class="absolute bottom-1 right-1.5 bg-white border border-gray-300 rounded-full px-1.5 py-0.2 text-[10px] font-black text-gray-800 shadow-xs">
+              ×1
+            </span>
+</article>
+<!-- Card 4: Tow Crane (x2) -->
+<article class="relative h-[82px] rounded-xl overflow-hidden border-[1.5px] border-amber-500 burst-rays-yellow p-1 flex items-end justify-center shadow-xs">
+<!-- Mini Illustration Tow Crane + Truck -->
+<div class="relative w-full h-full flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 140 70">
+<!-- Tow Crane arm -->
+<polygon fill="#f59e0b" points="46,45 68,14 74,18 52,48" stroke="#111" stroke-width="2"></polygon>
+<circle cx="48" cy="46" fill="#475569" r="4" stroke="#111" stroke-width="1.5"></circle>
+<line stroke="#111" stroke-width="2" x1="72" x2="82" y1="16" y2="34"></line>
+<!-- Small truck -->
+<rect fill="#fff" height="8" rx="2" stroke="#111" stroke-width="2" width="70" x="42" y="44"></rect>
+<rect fill="#fff" height="18" stroke="#111" stroke-width="2" width="28" x="76" y="32"></rect>
+<rect fill="#2ca327" height="5" width="28" x="76" y="44"></rect>
+<circle cx="86" cy="38" fill="#111" r="4"></circle><circle cx="85" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="96" cy="38" fill="#111" r="4"></circle><circle cx="95" cy="37" fill="#fff" r="1.5"></circle>
+<circle cx="56" cy="53" fill="#111" r="6"></circle><circle cx="56" cy="53" fill="#fff" r="2.5"></circle>
+<circle cx="98" cy="53" fill="#111" r="6"></circle><circle cx="98" cy="53" fill="#fff" r="2.5"></circle>
+</svg>
+</div>
+<!-- Multiplier Badge -->
+<span class="absolute bottom-1 right-1.5 bg-white border border-gray-300 rounded-full px-1.5 py-0.2 text-[10px] font-black text-gray-800 shadow-xs">
+              ×2
+            </span>
+</article>
+</section>
+<!-- END: CardsGrid -->
+<!-- BEGIN: ActionButtons -->
+<div class="flex items-center space-x-2.5 mt-3 mb-1" data-purpose="bottom-action-buttons">
+<!-- Primary Call to Action: Crea una variante -->
+<button class="flex-1 bg-[#2ca327] hover:bg-[#258d21] active:scale-[0.98] transition-all text-white font-extrabold text-[15px] py-2.5 px-4 rounded-full flex items-center justify-center space-x-2 shadow-md" type="button">
+<i class="fa-solid fa-pencil text-sm"></i>
+<span>Crea una variante</span>
+</button>
+<!-- Share Button Circular -->
+<button aria-label="Condividi variante" class="w-11 h-11 rounded-full bg-[#f4f7f4] border border-gray-200 flex items-center justify-center text-gray-700 active:bg-gray-200 transition-colors shrink-0" type="button">
+<i class="fa-solid fa-share-nodes text-base"></i>
+</button>
+</div>
+<!-- END: ActionButtons -->
+</div>
+<!-- END: ContentBody -->
+</main>
+<!-- BEGIN: BottomNavigation -->
+<nav aria-label="Menu principale" class="h-[64px] border-t border-gray-200 bg-white px-3 flex items-center justify-around shrink-0" data-purpose="tab-bar">
+<!-- Tab 1: Home -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors" href="#home">
+<i class="fa-solid fa-house text-[18px]"></i>
+<span class="text-[10px] mt-1 font-semibold">Home</span>
+</a>
+<!-- Tab 2: Ascolta -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors" href="#ascolta">
+<i class="fa-solid fa-headphones text-[18px]"></i>
+<span class="text-[10px] mt-1 font-semibold">Ascolta</span>
+</a>
+<!-- Tab 3: Scopri (Active) -->
+<a class="flex flex-col items-center justify-center text-[#2ca327] font-bold" href="#scopri">
+<div class="w-6 h-6 rounded-full bg-[#2ca327] text-white flex items-center justify-center text-[12px] shadow-xs">
+<i class="fa-regular fa-compass"></i>
+</div>
+<span class="text-[10px] mt-0.5">Scopri</span>
+</a>
+<!-- Tab 4: Crea -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors" href="#crea">
+<i class="fa-solid fa-pencil text-[18px]"></i>
+<span class="text-[10px] mt-1 font-semibold">Crea</span>
+</a>
+<!-- Tab 5: FAQ -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors" href="#faq">
+<i class="fa-regular fa-comment-dots text-[18px]"></i>
+<span class="text-[10px] mt-1 font-semibold">FAQ</span>
+</a>
+</nav>
+<!-- END: BottomNavigation -->
+</div>
+<!-- END: PhoneContainer -->
+<!-- Subtitle Caption from Snapshot -->
+<footer class="mt-3 text-center">
+<p class="text-[18px] font-black text-[#0c3823] tracking-wide">Carte e regole</p>
+</footer>
+</body></html>

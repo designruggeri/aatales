@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FAQ - Dubbi e risposte</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#22c55e',
+              darkGreen: '#1b5e20',
+              deepGreen: '#14532d',
+              lightGreen: '#86efac',
+              bgGreen: '#a3e635',
+              borderGreen: '#16a34a',
+              pillActive: '#155d27',
+              pillBorder: '#bbf7d0',
+              chevronBg: '#dcfce7',
+              chevronIcon: '#16a34a'
+            }
+          },
+          fontFamily: {
+            sans: ['Nunito', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="custom-typography">
+    body {
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+<style data-purpose="sunburst-background">
+    /* Header sunburst ray background effect */
+    .sunburst {
+      background: radial-gradient(circle at 50% 120%, #a3e635 0%, #84cc16 40%, #65a30d 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .sunburst-rays {
+      position: absolute;
+      inset: -50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.22) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-start min-h-screen p-0 sm:py-6 text-slate-800">
+<!-- BEGIN: PhoneFrame -->
+<div class="relative w-full max-w-[420px] bg-white rounded-[40px] shadow-2xl border-[5px] border-[#16a34a] overflow-hidden flex flex-col min-h-[880px]" data-purpose="mobile-container">
+<!-- BEGIN: HeaderSection -->
+<header class="sunburst h-44 relative flex flex-col justify-between p-4 pb-2 z-0">
+<div class="sunburst-rays"></div>
+<!-- Top Row: Back Button -->
+<div class="relative z-10 flex items-center justify-between pt-1">
+<button aria-label="Torna indietro" class="w-11 h-11 bg-white/95 backdrop-blur rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform" data-purpose="back-button">
+<svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<!-- Header Content: Illustrated Banner & Logo -->
+<div class="relative z-10 flex items-end justify-between px-1 mb-1" data-purpose="header-graphics">
+<!-- Text Logo: MÖVAT! -->
+<div class="flex items-center -mb-2">
+<span class="text-[40px] font-black tracking-wider text-white drop-shadow-[0_3px_2px_rgba(0,0,0,0.4)] stroke-black" style="-webkit-text-stroke: 2px #155d27;">
+            MÖVAT!
+          </span>
+</div>
+<!-- Truck Mascot / Illustrated Element -->
+<div class="relative w-36 h-24 mb-[-2px] flex items-end justify-end">
+<svg class="w-full h-full drop-shadow-md overflow-visible" viewbox="0 0 160 110">
+<!-- Cards Loaded on the Truck -->
+<polygon fill="#ef4444" points="40,25 65,10 82,32 55,48" stroke="#1f2937" stroke-linejoin="round" stroke-width="3"></polygon>
+<polygon fill="#3b82f6" points="65,12 90,8 102,34 77,40" stroke="#1f2937" stroke-linejoin="round" stroke-width="3"></polygon>
+<!-- Truck Bed -->
+<rect fill="#22c55e" height="20" rx="3" stroke="#1f2937" stroke-width="3.5" width="70" x="25" y="48"></rect>
+<!-- Truck Cabin -->
+<path d="M 88 32 L 132 32 C 137 32 140 36 140 42 L 140 68 L 88 68 Z" fill="#ffffff" stroke="#1f2937" stroke-linejoin="round" stroke-width="3.5"></path>
+<!-- Cabin Front Bumper / Grill -->
+<rect fill="#22c55e" height="20" rx="3" stroke="#1f2937" stroke-width="3" width="8" x="135" y="48"></rect>
+<!-- Wheels -->
+<circle cx="50" cy="74" fill="#1f2937" r="13"></circle>
+<circle cx="50" cy="74" fill="#e5e7eb" r="5"></circle>
+<circle cx="120" cy="74" fill="#1f2937" r="13"></circle>
+<circle cx="120" cy="74" fill="#e5e7eb" r="5"></circle>
+<!-- Big Cute Eyes on the Cabin Window -->
+<circle cx="106" cy="46" fill="#ffffff" r="9" stroke="#1f2937" stroke-width="2.5"></circle>
+<circle cx="108" cy="45" fill="#1f2937" r="4.5"></circle>
+<circle cx="106" cy="43" fill="#ffffff" r="1.5"></circle>
+<circle cx="126" cy="46" fill="#ffffff" r="9" stroke="#1f2937" stroke-width="2.5"></circle>
+<circle cx="124" cy="45" fill="#1f2937" r="4.5"></circle>
+<circle cx="123" cy="43" fill="#ffffff" r="1.5"></circle>
+<!-- Cheerful Smile -->
+<path d="M 112 58 Q 118 63 124 58" fill="none" stroke="#1f2937" stroke-linecap="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</header>
+<!-- END: HeaderSection -->
+<!-- BEGIN: MainContent -->
+<main class="relative -mt-6 bg-white rounded-t-[32px] pt-6 px-5 flex-1 z-10 flex flex-col pb-24 shadow-sm" data-purpose="faq-content">
+<!-- Title with Green Accent Marks -->
+<div class="flex items-center justify-center space-x-3 mb-5" data-purpose="page-title">
+<!-- Left Sparks/Rays -->
+<div class="flex flex-col space-y-1 items-end">
+<span class="w-4 h-1.5 bg-[#a3e635] rounded-full rotate-45 transform origin-right"></span>
+<span class="w-3.5 h-1.5 bg-[#84cc16] rounded-full"></span>
+</div>
+<h1 class="text-2xl sm:text-[26px] font-black tracking-tight text-[#0f381e]">
+          Dubbi e risposte
+        </h1>
+<!-- Right Sparks/Rays -->
+<div class="flex flex-col space-y-1 items-start">
+<span class="w-4 h-1.5 bg-[#a3e635] rounded-full -rotate-45 transform origin-left"></span>
+<span class="w-3.5 h-1.5 bg-[#84cc16] rounded-full"></span>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="relative mb-5" data-purpose="search-box">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<svg class="h-5 w-5 text-gray-500 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full pl-11 pr-4 py-3 bg-white border-[1.5px] border-emerald-300 rounded-full text-sm font-semibold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all shadow-sm" placeholder="Cerca una domanda o una carta" type="text"/>
+</div>
+<!-- Category Filter Pills -->
+<div class="flex flex-wrap gap-2 mb-6" data-purpose="category-filters">
+<!-- Tutte (Active) -->
+<button class="px-5 py-1.5 bg-[#175c2e] text-white text-xs font-bold rounded-full shadow-sm hover:opacity-95 active:scale-95 transition-all">
+          Tutte
+        </button>
+<!-- Preparazione -->
+<button class="px-4 py-1.5 bg-white text-gray-700 border border-emerald-200 text-xs font-bold rounded-full hover:bg-emerald-50 active:scale-95 transition-all">
+          Preparazione
+        </button>
+<!-- Regole -->
+<button class="px-4 py-1.5 bg-white text-gray-700 border border-emerald-200 text-xs font-bold rounded-full hover:bg-emerald-50 active:scale-95 transition-all">
+          Regole
+        </button>
+<!-- Carte Busa -->
+<button class="px-4 py-1.5 bg-white text-gray-700 border border-emerald-200 text-xs font-bold rounded-full hover:bg-emerald-50 active:scale-95 transition-all">
+          Carte Busa
+        </button>
+<!-- Modalità -->
+<button class="px-4 py-1.5 bg-white text-gray-700 border border-emerald-200 text-xs font-bold rounded-full hover:bg-emerald-50 active:scale-95 transition-all">
+          Modalità
+        </button>
+</div>
+<!-- FAQ Accordion List -->
+<section aria-label="Domande frequenti" class="space-y-3 flex-1" data-purpose="faq-accordion-list">
+<!-- Accordion Item 1 -->
+<div class="border-[1.5px] border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-xs bg-white cursor-pointer hover:border-emerald-300 transition-colors">
+<span class="font-black text-[15px] text-[#0f381e] tracking-tight pr-3">
+            Come preparo il mazzo?
+          </span>
+<div class="w-8 h-8 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-[#16a34a] stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Item 2 -->
+<div class="border-[1.5px] border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-xs bg-white cursor-pointer hover:border-emerald-300 transition-colors">
+<span class="font-black text-[15px] text-[#0f381e] tracking-tight pr-3">
+            Cosa significa carta uguale?
+          </span>
+<div class="w-8 h-8 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-[#16a34a] stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Item 3 -->
+<div class="border-[1.5px] border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-xs bg-white cursor-pointer hover:border-emerald-300 transition-colors">
+<span class="font-black text-[15px] text-[#0f381e] tracking-tight pr-3">
+            Come propongo una modalità?
+          </span>
+<div class="w-8 h-8 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-[#16a34a] stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Accordion Item 4 -->
+<div class="border-[1.5px] border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-xs bg-white cursor-pointer hover:border-emerald-300 transition-colors">
+<span class="font-black text-[15px] text-[#0f381e] tracking-tight pr-3">
+            Dove ascolto le frasi in dialetto?
+          </span>
+<div class="w-8 h-8 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-[#16a34a] stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- END: FAQ Accordion List -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: BottomNavigationBar -->
+<nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-3 py-2 flex items-center justify-around z-20" data-purpose="bottom-navigation">
+<!-- Home Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-800 transition-colors py-1 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-1 text-gray-600">Home</span>
+</a>
+<!-- Ascolta Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-800 transition-colors py-1 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-1 text-gray-600">Ascolta</span>
+</a>
+<!-- Scopri Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-800 transition-colors py-1 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-1 text-gray-600">Scopri</span>
+</a>
+<!-- Crea Tab -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-800 transition-colors py-1 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11px] font-bold mt-1 text-gray-600">Crea</span>
+</a>
+<!-- FAQ Tab (Active) -->
+<a class="flex flex-col items-center justify-center text-[#16a34a] py-1 relative" href="#">
+<div class="relative">
+<svg class="w-6 h-6 fill-[#22c55e] stroke-[#16a34a] stroke-[1]" viewbox="0 0 24 24">
+<path d="M12 2C6.477 2 2 6.03 2 11c0 2.26 0.932 4.33 2.484 5.92L3 21l4.42-1.326C8.89 20.088 10.41 20.4 12 20.4c5.523 0 10-4.03 10-9.4S17.523 2 12 2z"></path>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[13px] font-black text-white" style="margin-top:-2px;">?</span>
+</div>
+<span class="text-[11px] font-black mt-1 text-[#16a34a]">FAQ</span>
+<!-- Active Indicator bar -->
+<span class="w-6 h-0.5 bg-[#16a34a] rounded-full mt-0.5"></span>
+</a>
+</nav>
+<!-- END: BottomNavigationBar -->
+</div>
+<!-- END: PhoneFrame -->
+<!-- Outer label matching reference mockup footer -->
+<footer class="mt-4 pb-4">
+<p class="text-xl font-extrabold text-[#0f381e] tracking-tight">Categorie e domande</p>
+</footer>
+</body></html>

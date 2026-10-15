@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>MÖVAT! - Gallery delle modalità</title>
+<!-- Tailwind CSS v3 with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Titan One / Baloo 2 / Nunito -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fredoka', 'sans-serif'],
+            sans: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            movat: {
+              green: '#27963c',
+              darkgreen: '#1a6b29',
+              lightgreen: '#65c343',
+              lime: '#8fe038',
+              cardbg: '#ffffff',
+              border: '#d9e2ec',
+              subtext: '#64748b',
+              title: '#0f2f18',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-styling">
+    /* Sunburst / Ray effect for header background */
+    .sunburst-bg {
+      background: radial-gradient(circle at 50% 20%, #a2ea3c 0%, #70cb26 50%, #4da717 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .sunburst-bg::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.22) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      pointer-events: none;
+    }
+    
+    /* Text stroke and custom shadow effects for cartoon logos */
+    .stroke-black-title {
+      -webkit-text-stroke: 1.5px #112613;
+      text-shadow: 0px 3px 0px rgba(0,0,0,0.25);
+    }
+    .banner-stroke {
+      -webkit-text-stroke: 1.2px #10260f;
+      text-shadow: -2px 2px 0px #0b1d0a;
+    }
+
+    /* iOS smooth scroll & hide scrollbars */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="bg-slate-100 flex justify-center items-start min-h-screen text-slate-800 font-sans p-0 sm:py-6 antialiased">
+<!-- BEGIN: Phone Screen Mockup Container -->
+<div class="w-full max-w-[420px] bg-white sm:rounded-[44px] shadow-2xl overflow-hidden flex flex-col min-h-screen sm:min-h-[890px] border border-slate-200 relative" data-purpose="mobile-viewport">
+<!-- BEGIN: Top Sunburst Header -->
+<header class="sunburst-bg pt-4 pb-3 px-4 relative flex items-center justify-between z-10 shadow-sm border-b-2 border-emerald-600/30">
+<!-- Back Circle Button -->
+<button aria-label="Indietro" class="w-10 h-10 rounded-full bg-white/85 active:bg-white shadow-md flex items-center justify-center text-slate-700 z-10 transition-transform active:scale-95" type="button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Center Logo & Character Art -->
+<div class="flex items-center gap-1.5 z-10 pr-2">
+<!-- Logo MÖVAT! Text -->
+<div class="relative flex items-center">
+<span class="font-display font-black text-3xl tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] stroke-black-title select-none">
+            MÖVAT!
+          </span>
+</div>
+<!-- Truck Mascot Graphic -->
+<div class="w-16 h-11 relative flex-shrink-0 drop-shadow-md">
+<svg class="w-full h-full overflow-visible" viewbox="0 0 100 68">
+<!-- Colorful cargo crates -->
+<rect fill="#d82a2a" height="24" rx="2" stroke="#1c2b18" stroke-width="2.5" width="16" x="18" y="10"></rect>
+<rect fill="#1d6fc2" height="28" rx="2" stroke="#1c2b18" stroke-width="2.5" width="16" x="29" y="4"></rect>
+<rect fill="#eab308" height="22" rx="2" stroke="#1c2b18" stroke-width="2.5" width="14" x="40" y="8"></rect>
+<!-- Truck Bed -->
+<path d="M 12 36 L 56 36 L 56 46 L 12 46 Z" fill="#2d832e" stroke="#1c2b18" stroke-width="2.5"></path>
+<!-- Truck Cab -->
+<path d="M 54 22 L 78 22 C 82 22 86 26 87 32 L 88 47 L 54 47 Z" fill="#ffffff" stroke="#1c2b18" stroke-width="2.5"></path>
+<rect fill="#49a930" height="6" stroke="#1c2b18" stroke-width="2" width="34" x="54" y="44"></rect>
+<!-- Eyes on Cab Window -->
+<rect fill="#ffffff" height="13" rx="4" stroke="#1c2b18" stroke-width="2" width="10" x="62" y="26"></rect>
+<rect fill="#ffffff" height="13" rx="4" stroke="#1c2b18" stroke-width="2" width="10" x="74" y="26"></rect>
+<!-- Pupils -->
+<circle cx="68" cy="33" fill="#1c2b18" r="2.5"></circle>
+<circle cx="80" cy="33" fill="#1c2b18" r="2.5"></circle>
+<!-- Wheels -->
+<circle cx="28" cy="48" fill="#1c2b18" r="9"></circle>
+<circle cx="28" cy="48" fill="#ffffff" r="4.5" stroke="#1c2b18" stroke-width="1.5"></circle>
+<circle cx="44" cy="48" fill="#1c2b18" r="9"></circle>
+<circle cx="44" cy="48" fill="#ffffff" r="4.5" stroke="#1c2b18" stroke-width="1.5"></circle>
+<circle cx="76" cy="48" fill="#1c2b18" r="9"></circle>
+<circle cx="76" cy="48" fill="#ffffff" r="4.5" stroke="#1c2b18" stroke-width="1.5"></circle>
+</svg>
+</div>
+</div>
+<!-- Right balancing spacer -->
+<div class="w-10"></div>
+</header>
+<!-- END: Top Sunburst Header -->
+<!-- BEGIN: Main Scrollable Content Area -->
+<main class="flex-1 overflow-y-auto px-4 pt-3.5 pb-24 space-y-4">
+<!-- BEGIN: Section Header Title + Create Button -->
+<div class="flex items-center justify-between gap-2">
+<h1 class="font-display font-extrabold text-[22px] tracking-tight text-[#0f3419]">
+          Modalità dei giocatori
+        </h1>
+<!-- + Crea Button -->
+<button class="inline-flex items-center gap-1 bg-[#279838] hover:bg-[#20802f] active:scale-95 text-white font-display font-bold text-sm px-4 py-1.5 rounded-full shadow transition-all" type="button">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Crea</span>
+</button>
+</div>
+<!-- END: Section Header Title + Create Button -->
+<!-- BEGIN: Search Bar -->
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full pl-9 pr-4 py-1.5 text-sm bg-white border border-slate-200 rounded-full text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#279838] focus:border-transparent transition-all shadow-inner" placeholder="Cerca modalità..." type="search"/>
+</div>
+<!-- END: Search Bar -->
+<!-- BEGIN: Filter Pills -->
+<div class="grid grid-cols-2 gap-2.5 p-1 bg-slate-100/70 rounded-full border border-slate-200/60">
+<button class="py-1.5 text-center font-display font-bold text-sm rounded-full bg-[#279838] text-white shadow-sm transition-all" type="button">
+          Recenti
+        </button>
+<button class="py-1.5 text-center font-display font-bold text-sm rounded-full bg-transparent text-slate-600 hover:text-slate-900 transition-all" type="button">
+          Più votate
+        </button>
+</div>
+<!-- END: Filter Pills -->
+<!-- BEGIN: Card 1 - Sorpassi a sorpresa -->
+<article class="bg-white rounded-2xl border-2 border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.06)] overflow-hidden transition-transform duration-150">
+<!-- Banner Illustration -->
+<div class="relative h-28 bg-gradient-to-r from-sky-400 via-emerald-400 to-lime-300 overflow-hidden flex items-center justify-between px-3">
+<!-- Stylized road & background elements -->
+<div class="absolute inset-0 bg-cover opacity-80 pointer-events-none bg-[radial-gradient(#ffffff_2px,transparent_2px)] [background-size:16px_16px]"></div>
+<!-- Banner Title Art -->
+<div class="relative z-10 drop-shadow-lg leading-none transform -rotate-1">
+<span class="block font-display font-black text-2xl text-yellow-300 banner-stroke tracking-wider">
+              SORPASSI
+            </span>
+<span class="block font-display font-black text-2xl text-white banner-stroke tracking-wider">
+              A SORPRESA
+            </span>
+</div>
+<!-- Illustrated Cartoon Truck and Danger Sign -->
+<div class="relative z-10 flex items-end gap-1">
+<!-- Danger Sign -->
+<div class="w-8 h-12 flex flex-col items-center justify-end drop-shadow">
+<svg class="w-7 h-7" viewbox="0 0 36 36">
+<polygon fill="#ffffff" points="18,3 34,31 2,31" stroke="#c5221f" stroke-width="4.5"></polygon>
+<path d="M 18 12 L 18 20" stroke="#000" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="18" cy="25" fill="#000" r="1.8"></circle>
+</svg>
+<div class="w-1 h-5 bg-slate-400 rounded-full"></div>
+</div>
+<!-- Mini Cartoon Truck -->
+<div class="w-20 h-14">
+<svg class="w-full h-full drop-shadow" viewbox="0 0 100 68">
+<!-- Crates -->
+<rect fill="#d92323" height="24" rx="2" stroke="#12250f" stroke-width="2" width="16" x="20" y="8"></rect>
+<rect fill="#1b65b6" height="28" rx="2" stroke="#12250f" stroke-width="2" width="16" x="30" y="4"></rect>
+<!-- Body -->
+<path d="M 12 34 L 56 34 L 56 46 L 12 46 Z" fill="#2d832e" stroke="#12250f" stroke-width="2"></path>
+<path d="M 54 22 L 78 22 C 82 22 86 26 87 32 L 88 47 L 54 47 Z" fill="#ffffff" stroke="#12250f" stroke-width="2"></path>
+<rect fill="#52bc35" height="6" stroke="#12250f" stroke-width="1.8" width="34" x="54" y="43"></rect>
+<!-- Eyes -->
+<circle cx="68" cy="33" fill="#fff" r="5" stroke="#12250f" stroke-width="1.5"></circle>
+<circle cx="78" cy="33" fill="#fff" r="5" stroke="#12250f" stroke-width="1.5"></circle>
+<circle cx="69" cy="33" fill="#12250f" r="2.5"></circle>
+<circle cx="79" cy="33" fill="#12250f" r="2.5"></circle>
+<!-- Wheels -->
+<circle cx="28" cy="48" fill="#1c2b18" r="8"></circle>
+<circle cx="44" cy="48" fill="#1c2b18" r="8"></circle>
+<circle cx="76" cy="48" fill="#1c2b18" r="8"></circle>
+</svg>
+</div>
+</div>
+</div>
+<!-- Card Content Body -->
+<div class="p-3.5 space-y-2.5">
+<!-- Titles & Author -->
+<div>
+<h2 class="font-display font-extrabold text-base text-slate-900 leading-tight">
+              Sorpassi a sorpresa
+            </h2>
+<p class="text-xs text-slate-500 font-semibold">
+              di <span class="text-slate-700">Ruota libera</span>
+</p>
+</div>
+<!-- Description -->
+<p class="text-xs text-slate-600 leading-relaxed">
+            Colpi di scena e sorpassi inaspettati per una partita sempre diversa!
+          </p>
+<!-- Badges (Players, Cards, Rating) -->
+<div class="flex items-center justify-between text-[11px] font-bold text-slate-700 pt-0.5">
+<!-- Players -->
+<div class="flex items-center gap-1">
+<svg class="w-4 h-4 text-slate-600" fill="currentColor" viewbox="0 0 20 20">
+<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+</svg>
+<span>3–6 giocatori</span>
+</div>
+<!-- Cards Deck -->
+<div class="flex items-center gap-1">
+<span class="w-3.5 h-4 rounded-sm bg-emerald-700 inline-block border border-slate-700"></span>
+<span>6 carte Busa</span>
+</div>
+<!-- Rating -->
+<div class="flex items-center gap-1">
+<span class="text-amber-500 text-sm leading-none">★</span>
+<span>4,2 <span class="text-slate-400 font-normal">· 18 voti</span></span>
+</div>
+</div>
+<!-- Mini 4-Card Preview Grid -->
+<div class="grid grid-cols-4 gap-2 pt-1">
+<!-- Card 1: Traffic Cones (x2) -->
+<div class="relative bg-gradient-to-br from-lime-300 to-emerald-400 rounded-lg p-1 aspect-[4/3] border border-emerald-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-9 h-9 drop-shadow" viewbox="0 0 40 40">
+<polygon fill="#ea580c" points="12,12 18,28 6,28" stroke="#10260f" stroke-width="1.5"></polygon>
+<polygon fill="#f97316" points="20,8 28,28 12,28" stroke="#10260f" stroke-width="1.5"></polygon>
+<polygon fill="#ea580c" points="28,14 34,28 22,28" stroke="#10260f" stroke-width="1.5"></polygon>
+<rect fill="#10260f" height="4" rx="1.5" width="32" x="4" y="27"></rect>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x2</span>
+</div>
+<!-- Card 2: Tools (x1) -->
+<div class="relative bg-gradient-to-br from-sky-300 to-blue-400 rounded-lg p-1 aspect-[4/3] border border-blue-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<path d="M22 6 L26 10 L14 22 L10 18 Z" fill="#94a3b8" stroke="#10260f" stroke-width="1.5"></path>
+<path d="M8 12 L12 8 L24 20 L20 24 Z" fill="#cbd5e1" stroke="#10260f" stroke-width="1.5"></path>
+<circle cx="23" cy="9" fill="#10260f" r="2"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x1</span>
+</div>
+<!-- Card 3: Direction Sign (x1) -->
+<div class="relative bg-gradient-to-br from-lime-200 to-green-400 rounded-lg p-1 aspect-[4/3] border border-emerald-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<rect fill="#15803d" height="12" rx="2" stroke="#10260f" stroke-width="1.5" width="22" x="5" y="8"></rect>
+<path d="M 8 14 L 14 14 M 11 11 L 8 14 L 11 17" stroke="#fff" stroke-linecap="round" stroke-width="2"></path>
+<path d="M 18 14 L 24 14 M 21 11 L 24 14 L 21 17" stroke="#fff" stroke-linecap="round" stroke-width="2"></path>
+<line stroke="#10260f" stroke-width="2" x1="16" x2="16" y1="20" y2="28"></line>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x1</span>
+</div>
+<!-- Card 4: Tow Truck Crane (x2) -->
+<div class="relative bg-gradient-to-br from-amber-200 to-yellow-400 rounded-lg p-1 aspect-[4/3] border border-yellow-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<path d="M6 22 L20 22 L24 14 L20 10 L10 18" fill="none" stroke="#10260f" stroke-width="2"></path>
+<circle cx="10" cy="24" fill="#10260f" r="3"></circle>
+<circle cx="22" cy="24" fill="#10260f" r="3"></circle>
+<polygon fill="#f59e0b" points="12,18 24,8 26,10 14,20" stroke="#10260f" stroke-width="1"></polygon>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x2</span>
+</div>
+</div>
+<!-- Action Button: Scopri le carte -->
+<button class="w-full bg-[#279838] hover:bg-[#20802f] active:scale-[0.99] text-white font-display font-bold text-sm py-2 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow transition-all" type="button">
+<span>Scopri le carte</span>
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</article>
+<!-- END: Card 1 -->
+<!-- BEGIN: Card 2 - Caos in cabina -->
+<article class="bg-white rounded-2xl border-2 border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.06)] overflow-hidden transition-transform duration-150">
+<!-- Banner Illustration with explosion comic style -->
+<div class="relative h-28 bg-gradient-to-r from-emerald-400 via-yellow-300 to-amber-500 overflow-hidden flex items-center justify-between px-3">
+<!-- Comic blast rays -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-200/50 via-transparent to-transparent"></div>
+<!-- Banner Title Art -->
+<div class="relative z-10 drop-shadow-lg leading-none transform -rotate-1">
+<span class="block font-display font-black text-2xl text-yellow-300 banner-stroke tracking-wider">
+              CAOS
+            </span>
+<span class="block font-display font-black text-2xl text-white banner-stroke tracking-wider">
+              IN CABINA
+            </span>
+</div>
+<!-- Explosion burst and truck icon -->
+<div class="relative z-10 flex items-center">
+<!-- Cartoon pop explosion back -->
+<div class="absolute -inset-3 flex items-center justify-center pointer-events-none">
+<svg class="w-24 h-24 text-red-500 fill-current opacity-90 scale-125 drop-shadow" viewbox="0 0 100 100">
+<path d="M50 0 L60 28 L95 18 L76 46 L100 65 L69 70 L68 100 L46 76 L20 95 L28 66 L0 50 L28 35 L16 8 L46 22 Z"></path>
+</svg>
+</div>
+<!-- Mini Truck -->
+<div class="w-20 h-14 relative z-10">
+<svg class="w-full h-full drop-shadow" viewbox="0 0 100 68">
+<rect fill="#1b65b6" height="24" rx="2" stroke="#12250f" stroke-width="2" width="16" x="20" y="8"></rect>
+<rect fill="#d92323" height="28" rx="2" stroke="#12250f" stroke-width="2" width="16" x="30" y="4"></rect>
+<path d="M 12 34 L 56 34 L 56 46 L 12 46 Z" fill="#2d832e" stroke="#12250f" stroke-width="2"></path>
+<path d="M 54 22 L 78 22 C 82 22 86 26 87 32 L 88 47 L 54 47 Z" fill="#ffffff" stroke="#12250f" stroke-width="2"></path>
+<!-- Dizzy/Chaos Eyes -->
+<circle cx="68" cy="33" fill="#fff" r="5" stroke="#12250f" stroke-width="1.5"></circle>
+<circle cx="78" cy="33" fill="#fff" r="5" stroke="#12250f" stroke-width="1.5"></circle>
+<circle cx="68" cy="33" fill="#12250f" r="2.5"></circle>
+<circle cx="79" cy="32" fill="#12250f" r="2.5"></circle>
+<!-- Smile/Confusion -->
+<path d="M 70 40 Q 75 43 78 39" fill="none" stroke="#12250f" stroke-linecap="round" stroke-width="1.5"></path>
+<!-- Wheels -->
+<circle cx="28" cy="48" fill="#1c2b18" r="8"></circle>
+<circle cx="44" cy="48" fill="#1c2b18" r="8"></circle>
+<circle cx="76" cy="48" fill="#1c2b18" r="8"></circle>
+</svg>
+</div>
+</div>
+</div>
+<!-- Card Content Body -->
+<div class="p-3.5 space-y-2.5">
+<!-- Titles & Author -->
+<div>
+<h2 class="font-display font-extrabold text-base text-slate-900 leading-tight">
+              Caos in cabina
+            </h2>
+<p class="text-xs text-slate-500 font-semibold">
+              di <span class="text-slate-700">Strada Matta</span>
+</p>
+</div>
+<!-- Description -->
+<p class="text-xs text-slate-600 leading-relaxed">
+            Tutto può succedere quando la cabina va in confusione!
+          </p>
+<!-- Badges (Players, Cards, Rating) -->
+<div class="flex items-center justify-between text-[11px] font-bold text-slate-700 pt-0.5">
+<!-- Players -->
+<div class="flex items-center gap-1">
+<svg class="w-4 h-4 text-slate-600" fill="currentColor" viewbox="0 0 20 20">
+<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+</svg>
+<span>3–6 giocatori</span>
+</div>
+<!-- Cards Deck -->
+<div class="flex items-center gap-1">
+<span class="w-3.5 h-4 rounded-sm bg-emerald-700 inline-block border border-slate-700"></span>
+<span>6 carte Busa</span>
+</div>
+<!-- Rating -->
+<div class="flex items-center gap-1">
+<span class="text-amber-500 text-sm leading-none">★</span>
+<span>4,2 <span class="text-slate-400 font-normal">· 18 voti</span></span>
+</div>
+</div>
+<!-- Mini 4-Card Preview Grid -->
+<div class="grid grid-cols-4 gap-2 pt-1">
+<!-- Card 1: Horn / Megaphone (x2) -->
+<div class="relative bg-gradient-to-br from-lime-300 to-yellow-400 rounded-lg p-1 aspect-[4/3] border border-amber-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<path d="M8 12 L18 8 L18 24 L8 20 Z" fill="#eab308" stroke="#10260f" stroke-width="1.5"></path>
+<ellipse cx="18" cy="16" fill="#ca8a04" rx="2" ry="8" stroke="#10260f" stroke-width="1.5"></ellipse>
+<path d="M8 14 L5 14 C 4 14 3 15 3 16 L 3 16 C 3 17 4 18 5 18 L 8 18" fill="#eab308" stroke="#10260f" stroke-width="1.5"></path>
+<path d="M22 12 Q26 16 22 20" fill="none" stroke="#10260f" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x2</span>
+</div>
+<!-- Card 2: Question Mystery Card (x1) -->
+<div class="relative bg-gradient-to-br from-rose-400 to-red-500 rounded-lg p-1 aspect-[4/3] border border-red-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<div class="w-7 h-7 bg-white rounded-full flex items-center justify-center font-display font-extrabold text-base text-red-600 border border-slate-800 drop-shadow">
+                ?
+              </div>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x1</span>
+</div>
+<!-- Card 3: Tire / Wheel (x1) -->
+<div class="relative bg-gradient-to-br from-lime-300 to-green-500 rounded-lg p-1 aspect-[4/3] border border-emerald-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<ellipse cx="16" cy="16" fill="#1e293b" rx="10" ry="8" stroke="#0f172a" stroke-width="1.5"></ellipse>
+<ellipse cx="16" cy="16" fill="#64748b" rx="5" ry="4" stroke="#0f172a" stroke-width="1.2"></ellipse>
+<circle cx="16" cy="16" fill="#f8fafc" r="1.5"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x1</span>
+</div>
+<!-- Card 4: Map / Location Pin (x2) -->
+<div class="relative bg-gradient-to-br from-teal-300 to-sky-400 rounded-lg p-1 aspect-[4/3] border border-teal-600/30 flex items-center justify-center overflow-hidden shadow-sm">
+<svg class="w-8 h-8 drop-shadow" viewbox="0 0 32 32">
+<!-- Map Fold -->
+<polygon fill="#fef08a" points="4,8 11,5 18,9 25,6 25,23 18,26 11,22 4,25" stroke="#10260f" stroke-width="1.2"></polygon>
+<!-- Pin -->
+<path d="M 21 11 C 21 8.5 19 6.5 16.5 6.5 C 14 6.5 12 8.5 12 11 C 12 14.5 16.5 19 16.5 19 C 16.5 19 21 14.5 21 11 Z" fill="#e11d48" stroke="#10260f" stroke-width="1.2"></path>
+<circle cx="16.5" cy="11" fill="#fff" r="1.8"></circle>
+</svg>
+<span class="absolute bottom-1 right-1 bg-white/95 text-slate-800 font-display font-extrabold text-[10px] px-1 rounded shadow">x2</span>
+</div>
+</div>
+</div>
+</article>
+<!-- END: Card 2 -->
+</main>
+<!-- END: Main Scrollable Content Area -->
+<!-- BEGIN: Bottom Tab Navigation Bar (iOS 5 Tabs) -->
+<nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200/90 px-3 py-1.5 flex items-center justify-around z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+<!-- Tab 1: Home -->
+<a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors w-14" href="#">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold tracking-tight mt-0.5">Home</span>
+</a>
+<!-- Tab 2: Ascolta -->
+<a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors w-14" href="#">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold tracking-tight mt-0.5">Ascolta</span>
+</a>
+<!-- Tab 3: Scopri (Active) -->
+<a class="flex flex-col items-center justify-center py-1 text-[#279838] transition-colors w-14" href="#">
+<div class="relative">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.68 11.32l-5.66 2.36 2.36-5.66 5.66-2.36-2.36 5.66z"></path>
+</svg>
+</div>
+<span class="text-[10px] font-black tracking-tight mt-0.5">Scopri</span>
+</a>
+<!-- Tab 4: Crea -->
+<a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors w-14" href="#">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold tracking-tight mt-0.5">Crea</span>
+</a>
+<!-- Tab 5: FAQ -->
+<a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors w-14" href="#">
+<svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold tracking-tight mt-0.5">FAQ</span>
+</a>
+</nav>
+<!-- END: Bottom Tab Navigation Bar -->
+</div>
+<!-- END: Phone Screen Mockup Container -->
+</body></html>

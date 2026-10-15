@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>FAQ - Dubbi e risposte</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Font Google: Fredoka & Quicksand per estetica giocosa/friendly -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              green: '#22a038',
+              'green-dark': '#187528',
+              'green-darker': '#103923',
+              'green-bg': '#f3fbf4',
+              'border-chip': '#cde8d5',
+              gray: '#607274',
+              heading: '#0c3527',
+            }
+          },
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            quicksand: ['Quicksand', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-layout">
+    body {
+      background-color: #eaf4ed;
+      font-family: 'Quicksand', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .font-chunky {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    /* Pattern a raggiera giocoso per la testata */
+    .sunburst-bg {
+      background: radial-gradient(circle at 50% 30%, #a2ea28 0%, #76cd13 55%, #5eb408 100%);
+      position: relative;
+    }
+    
+    .sunburst-rays {
+      background: repeating-conic-gradient(
+        from 0deg at 50% 20%,
+        rgba(255, 255, 255, 0.22) 0deg 12deg,
+        transparent 12deg 24deg
+      );
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="flex flex-col items-center justify-start min-h-screen py-4 sm:py-8 px-2 select-none">
+<!-- BEGIN: Phone Frame Container -->
+<main class="w-full max-w-[420px] bg-white rounded-[44px] shadow-2xl border-[6px] border-emerald-600/90 overflow-hidden flex flex-col relative" style="min-height: 870px;">
+<!-- BEGIN: Top Banner Illustration -->
+<header class="relative w-full h-[168px] sunburst-bg overflow-hidden flex-shrink-0" data-purpose="header-illustration">
+<!-- Raggi di luce decorativi -->
+<div class="absolute inset-0 sunburst-rays pointer-events-none"></div>
+<!-- Sagome colline e alberi sullo sfondo -->
+<svg class="absolute bottom-0 left-0 w-full h-24 pointer-events-none" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M-20,100 C60,40 140,80 230,50 C320,20 380,60 420,40 L420,100 Z" fill="#4d9b0f" opacity="0.45"></path>
+<path d="M-10,100 C70,60 170,90 260,65 C340,45 390,75 420,60 L420,100 Z" fill="#35780a"></path>
+<!-- Alberelli stilizzati a sinistra -->
+<circle cx="35" cy="65" fill="#2d6808" r="14"></circle>
+<circle cx="58" cy="72" fill="#225306" r="12"></circle>
+<circle cx="82" cy="78" fill="#2d6808" r="9"></circle>
+<!-- Alberelli a destra -->
+<circle cx="365" cy="55" fill="#225306" r="14"></circle>
+<circle cx="388" cy="62" fill="#1b4504" r="11"></circle>
+</svg>
+<!-- Pulsante Indietro Circolare -->
+<button aria-label="Torna indietro" class="absolute top-5 left-4 z-20 w-11 h-11 bg-white/95 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform text-gray-700" type="button">
+<svg class="w-6 h-6 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Logo MÖVAT! e Mascotte Camioncino -->
+<div class="absolute inset-0 flex items-center justify-center pt-2 px-6">
+<div class="flex items-center space-x-1.5 transform -translate-y-2">
+<!-- Logo MÖVAT! Con stile bubble cartoon 3D -->
+<div class="relative filter drop-shadow-md">
+<span class="font-chunky text-[40px] font-black tracking-tight text-white stroke-black" style="-webkit-text-stroke: 7px #174209; paint-order: stroke fill;">
+              MÖVAT!
+            </span>
+</div>
+<!-- Icona Camioncino Mascotte con occhietti -->
+<div class="relative w-28 h-20 filter drop-shadow-lg -ml-2">
+<svg class="w-full h-full" viewbox="0 0 120 90">
+<!-- Carte colorate nel cassone -->
+<rect fill="#e53935" height="32" rx="4" stroke="#173e10" stroke-width="3" transform="rotate(-15 25 10)" width="22" x="25" y="10"></rect>
+<rect fill="#0288d1" height="34" rx="4" stroke="#173e10" stroke-width="3" transform="rotate(8 42 5)" width="22" x="42" y="5"></rect>
+<rect fill="#fbc02d" height="32" rx="4" stroke="#173e10" stroke-width="3" transform="rotate(22 58 12)" width="22" x="58" y="12"></rect>
+<!-- Corpo Cabina e Cassone Camioncino -->
+<path d="M15,44 L68,44 L68,26 L100,26 C105,26 109,30 110,36 L112,58 C112,63 108,67 103,67 L15,67 Z" fill="#ffffff" stroke="#102b0c" stroke-linejoin="round" stroke-width="4.5"></path>
+<rect fill="#e53935" height="14" opacity="0.9" rx="2" width="44" x="20" y="47"></rect>
+<text fill="#4caf50" font-family="sans-serif" font-size="7" font-weight="900" x="80" y="40">BUSA</text>
+<!-- Occhi della mascotte -->
+<circle cx="86" cy="34" fill="white" r="7" stroke="#102b0c" stroke-width="3"></circle>
+<circle cx="87" cy="34" fill="#102b0c" r="3"></circle>
+<circle cx="103" cy="34" fill="white" r="7" stroke="#102b0c" stroke-width="3"></circle>
+<circle cx="103" cy="34" fill="#102b0c" r="3"></circle>
+<!-- Paraurti & Griglia verde sorridente -->
+<rect fill="#22a038" height="10" rx="4" stroke="#102b0c" stroke-width="2.5" width="28" x="80" y="52"></rect>
+<circle cx="86" cy="57" fill="white" r="1.5"></circle>
+<circle cx="102" cy="57" fill="white" r="1.5"></circle>
+<!-- Ruote nere con cerchione azzurrino -->
+<circle cx="34" cy="68" fill="#263238" r="9" stroke="#102b0c" stroke-width="3"></circle>
+<circle cx="34" cy="68" fill="#b0bec5" r="4"></circle>
+<circle cx="88" cy="68" fill="#263238" r="9" stroke="#102b0c" stroke-width="3"></circle>
+<circle cx="88" cy="68" fill="#b0bec5" r="4"></circle>
+</svg>
+</div>
+</div>
+</div>
+</header>
+<!-- END: Top Banner Illustration -->
+<!-- BEGIN: Main Content Area -->
+<section class="flex-1 bg-white px-5 pt-3 pb-4 flex flex-col items-center -mt-4 rounded-t-[32px] z-10" data-purpose="faq-search-section">
+<!-- Titolo con accenti dinamici verdi ai lati -->
+<div class="flex items-center justify-center space-x-2.5 my-2">
+<!-- Accento sinistro -->
+<div class="flex flex-col space-y-1 items-end rotate-[-18deg]">
+<span class="w-5 h-2 bg-[#84d623] rounded-full"></span>
+<span class="w-3.5 h-1.5 bg-[#84d623] rounded-full mr-1"></span>
+</div>
+<h1 class="font-chunky text-[28px] font-bold text-app-heading tracking-tight leading-none text-center">
+          Dubbi e risposte
+        </h1>
+<!-- Accento destro -->
+<div class="flex flex-col space-y-1 items-start rotate-[18deg]">
+<span class="w-5 h-2 bg-[#84d623] rounded-full"></span>
+<span class="w-3.5 h-1.5 bg-[#84d623] rounded-full ml-1"></span>
+</div>
+</div>
+<!-- Barra di Ricerca Interattiva -->
+<div class="w-full mt-3">
+<div class="relative flex items-center w-full h-[46px] rounded-full border-[1.8px] border-emerald-500/70 bg-white px-4 shadow-sm">
+<!-- Icona Lente d'ingrandimento -->
+<svg class="w-5 h-5 text-emerald-800 stroke-[2.4]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-4.35-4.35M16.65 11a5.65 5.65 0 11-11.3 0 5.65 5.65 0 0111.3 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<!-- Input di testo con valore cercato 'astronave' -->
+<input aria-label="Cerca nelle risposte" class="w-full bg-transparent border-none focus:ring-0 text-app-heading font-semibold text-[16px] px-2.5 py-0 placeholder-gray-400 focus:outline-none" readonly="" type="text" value="astronave"/>
+<!-- Icona X per cancellare la ricerca -->
+<button aria-label="Cancella testo di ricerca" class="text-emerald-900 hover:text-black" type="button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- BEGIN: Chip di Categorie / Filtri -->
+<div class="w-full flex flex-wrap gap-2 pt-3.5 justify-start" data-purpose="category-chips">
+<!-- Pillola Attiva 'Tutte' -->
+<button class="px-5 py-1.5 rounded-full bg-app-green-dark text-white font-chunky text-[14px] font-semibold tracking-wide shadow-sm active:scale-95 transition-all" type="button">
+          Tutte
+        </button>
+<!-- Pillole Inattive -->
+<button class="px-4 py-1.5 rounded-full border border-app-border-chip bg-[#f7fcf8] text-app-heading font-medium text-[13.5px] hover:bg-emerald-50 active:scale-95 transition-all" type="button">
+          Preparazione
+        </button>
+<button class="px-4 py-1.5 rounded-full border border-app-border-chip bg-[#f7fcf8] text-app-heading font-medium text-[13.5px] hover:bg-emerald-50 active:scale-95 transition-all" type="button">
+          Regole
+        </button>
+<button class="px-4 py-1.5 rounded-full border border-app-border-chip bg-[#f7fcf8] text-app-heading font-medium text-[13.5px] hover:bg-emerald-50 active:scale-95 transition-all" type="button">
+          Carte Busa
+        </button>
+<button class="px-4 py-1.5 rounded-full border border-app-border-chip bg-[#f7fcf8] text-app-heading font-medium text-[13.5px] hover:bg-emerald-50 active:scale-95 transition-all" type="button">
+          Modalità
+        </button>
+</div>
+<!-- END: Chip di Categorie / Filtri -->
+<!-- BEGIN: Stato Vuoto / Ricerca Senza Risultati -->
+<div class="flex-1 flex flex-col items-center justify-center text-center mt-6 w-full max-w-[320px]" data-purpose="empty-state">
+<!-- Icona Fumetto Verde con punto di domanda e raggi solari -->
+<div class="relative w-36 h-32 flex items-center justify-center mb-4">
+<!-- Accenti cartoon laterali a sinistra -->
+<div class="absolute -left-3 top-7 flex flex-col items-end space-y-1.5 -rotate-45">
+<span class="w-4 h-1.5 bg-[#88d925] rounded-full"></span>
+<span class="w-3 h-1.5 bg-[#88d925] rounded-full mr-1"></span>
+</div>
+<!-- Fumetto Verde Principale -->
+<svg class="w-28 h-28 drop-shadow-md" fill="none" viewbox="0 0 100 100">
+<!-- Forma nuvoletta/baloon con codino in basso a sinistra -->
+<path d="M50 10C27.9086 10 10 26.5655 10 47C10 57.0601 14.3644 66.1738 21.5794 72.827C21.1449 76.536 19.349 82.2037 14.8524 87.1264C14.0754 87.977 14.7335 89.336 15.8752 89.2618C23.011 88.7981 30.569 85.3989 34.9818 82.1643C39.6703 83.3768 44.7171 84 50 84C72.0914 84 90 67.4345 90 47C90 26.5655 72.0914 10 50 10Z" fill="#209f35"></path>
+<!-- Punto di Domanda Bianco in stile spesso/tondeggiante -->
+<text dominant-baseline="central" fill="#ffffff" font-family="'Fredoka', cursive, sans-serif" font-size="44" font-weight="700" text-anchor="middle" x="50" y="58">?</text>
+</svg>
+<!-- Accenti cartoon laterali a destra -->
+<div class="absolute -right-3 top-7 flex flex-col items-start space-y-1.5 rotate-45">
+<span class="w-4 h-1.5 bg-[#88d925] rounded-full"></span>
+<span class="w-3 h-1.5 bg-[#88d925] rounded-full ml-1"></span>
+</div>
+</div>
+<!-- Messaggio Nessuna Risposta Trovata -->
+<h2 class="font-chunky text-[24px] font-bold text-app-heading leading-tight mb-2 tracking-tight">
+          Nessuna risposta trovata
+        </h2>
+<p class="text-app-gray text-[15px] font-semibold leading-snug px-3 mb-6">
+          Prova un’altra parola o consulta le categorie.
+        </p>
+<!-- Bottone Pillola Verde CTA -->
+<button class="w-full max-w-[270px] h-[50px] bg-app-green hover:bg-emerald-600 active:scale-95 text-white font-chunky text-[17px] font-bold rounded-full shadow-md flex items-center justify-center space-x-2 transition-all" type="button">
+<span>Mostra tutte le FAQ</span>
+<svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<!-- END: Stato Vuoto / Ricerca Senza Risultati -->
+</section>
+<!-- END: Main Content Area -->
+<!-- BEGIN: Bottom Navigation Bar -->
+<nav class="w-full bg-white border-t border-emerald-100/80 px-2 py-2 flex items-center justify-around z-20" data-purpose="bottom-navigation">
+<!-- Tab 1: Home -->
+<a class="flex flex-col items-center justify-center w-14 py-1 text-app-gray hover:text-emerald-700 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 10.5l9-7.5 9 7.5v9.5a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 20v-9.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11.5px] font-semibold mt-1">Home</span>
+</a>
+<!-- Tab 2: Ascolta -->
+<a class="flex flex-col items-center justify-center w-14 py-1 text-app-gray hover:text-emerald-700 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 14v-3a8 8 0 0116 0v3M3 14a2 2 0 012-2h1a2 2 0 012 2v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4zm13 0a2 2 0 012-2h1a2 2 0 012 2v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-4z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11.5px] font-semibold mt-1">Ascolta</span>
+</a>
+<!-- Tab 3: Scopri -->
+<a class="flex flex-col items-center justify-center w-14 py-1 text-app-gray hover:text-emerald-700 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M7 6h10M7 10h10M7 14h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11.5px] font-semibold mt-1">Scopri</span>
+</a>
+<!-- Tab 4: Crea -->
+<a class="flex flex-col items-center justify-center w-14 py-1 text-app-gray hover:text-emerald-700 group" href="#">
+<svg class="w-6 h-6 stroke-[2.2] group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[11.5px] font-semibold mt-1">Crea</span>
+</a>
+<!-- Tab 5: FAQ (Attivo) -->
+<a class="flex flex-col items-center justify-center w-14 py-1 text-app-green group relative" href="#">
+<div class="w-6 h-6 rounded-full bg-app-green text-white flex items-center justify-center shadow-sm">
+<span class="font-chunky text-xs font-bold leading-none mb-0.5">?</span>
+</div>
+<span class="text-[11.5px] font-bold mt-1 text-app-heading">FAQ</span>
+<!-- Indicatore barra attiva verde sotto la tab FAQ -->
+<span class="w-6 h-[3px] bg-app-green rounded-full mt-0.5"></span>
+</a>
+</nav>
+<!-- END: Bottom Navigation Bar -->
+</main>
+<!-- END: Phone Frame Container -->
+<!-- Didascalia screenshot fedele all'anteprima originale -->
+<p class="mt-4 text-center font-chunky text-app-heading text-[19px] font-bold tracking-tight">
+    Ricerca senza risultati
+  </p>
+</body></html>
