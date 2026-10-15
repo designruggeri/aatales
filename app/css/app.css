@@ -457,7 +457,7 @@ mark { background: #f6ff9e; color: inherit; border-radius: 3px; padding: 0 1px; 
 @keyframes up { from { transform: translateY(40px); opacity: .4; } }
 
 /* ---------- Toast ---------- */
-.toast { position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + var(--safe-b) + 16px); transform: translate(-50%, 20px); z-index: 60;
+.toast { position: fixed; left: 50%; top: calc(76px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -12px); z-index: 60;
   background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 999px; font-weight: 700; font-size: 15px; opacity: 0; pointer-events: none; transition: .2s; max-width: 90vw; text-align: center; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
