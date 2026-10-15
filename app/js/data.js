@@ -88,7 +88,8 @@ window.MOVAT_MODES = [
 
 /*
  * FAQ segnaposto: domande e risposte NON ufficiali, da sostituire.
- * cardId (facoltativo) collega la risposta alla carta citata.
+ * cardId (facoltativo) collega la risposta alla carta citata: la risposta compare anche nel dettaglio carta.
+ * showInList: false la mostra solo sulla carta, non nella lista FAQ.
  */
 window.MOVAT_FAQ_CATEGORIES = ['Preparazione', 'Regole generali', 'Carte Busa', 'Modalità di gioco'];
 window.MOVAT_FAQ = [
@@ -104,6 +105,8 @@ window.MOVAT_FAQ = [
     a: ['Risposta segnaposto: qui andrà la spiegazione ufficiale dell’effetto della carta.', 'Esempio: un caso di gioco segnaposto in cui la carta viene giocata.'] },
   { id: 'busa-2', category: 'Carte Busa', q: '[Segnaposto] “Svuota colore” si può combinare con altre carte?', cardId: 'svuota-colore',
     a: ['Risposta segnaposto da sostituire con il testo ufficiale.'] },
+  { id: 'busa-3', category: 'Carte Busa', q: '[Segnaposto] Domanda visibile solo sulla carta “Fermo lì!”', cardId: 'fermo-li', showInList: false,
+    a: ['Esempio di FAQ collegata a una carta che non compare nella lista FAQ: si legge solo aprendo la carta.'] },
   { id: 'mod-1', category: 'Modalità di gioco', q: 'Come propongo una modalità?', action: { label: 'Vai a Crea', href: '#/crea' },
     a: ['Apri Crea, scegli le carte Busa e indica le quantità. Aggiungi nome e descrizione, controlla il riepilogo e invia.', 'La proposta sarà pubblicata in Scopri solo dopo il controllo del team Busa.'] },
   { id: 'mod-2', category: 'Modalità di gioco', q: 'Serve un account per votare una modalità?',

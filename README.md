@@ -33,18 +33,40 @@ Serve **Node.js** (versione 18 o successiva): scaricalo da https://nodejs.org (s
 
 Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati nella cartella `data/`.
 
+### Per la lettura automatica delle carte (una volta sola)
+
+Il caricamento massivo usa Claude per leggere i testi dalle immagini. Servono due cose:
+
+1. Nel Terminale, dalla cartella del progetto, installa il pacchetto di Claude:
+   ```
+   cd server
+   npm install
+   cd ..
+   ```
+   Poi riavvia il server con `node server/server.js`.
+2. Crea una chiave API su **https://platform.claude.com/settings/keys** (servono credito o un piano API) e incollala nel CMS in **Testi e impostazioni → Lettura automatica delle carte**.
+
+Ogni carta letta costa pochi centesimi. Senza chiave puoi comunque caricare tutte le immagini insieme e scrivere i testi a mano.
+
 Se perdi la password, ferma il server, cancella il file `data/admin.json` e riavvialo: verrà generata una nuova password. I contenuti non vengono toccati.
 
 ## Cosa si gestisce dal CMS
 
 - **Panoramica:** le proposte da controllare e un elenco di tutto ciò che è ancora segnaposto.
-- **Carte:** numero, nome, copie (il massimo selezionabile in *Crea*), frase in piacentino, traduzione, **immagine** e **audio** caricati dal computer.
+- **Carte:** numero, nome, copie (il massimo selezionabile in *Crea*), frase in piacentino, traduzione, testo della carta, **immagine** e **audio** caricati dal computer.
+- **Caricamento massivo** (in *Carte*):
+  - selezioni o trascini tante immagini insieme;
+  - Claude legge nome, frase in piacentino, traduzione, testo e numero;
+  - tu controlli i testi e scrivi le copie presenti nel mazzo;
+  - se il numero corrisponde a una carta esistente, viene proposto di aggiornarla.
 - **Modalità:**
   - le proposte inviate dai giocatori arrivano *In attesa* e non sono visibili nell'app;
   - puoi correggerle e poi **approvarle e pubblicarle** oppure **rifiutarle**;
   - puoi creare modalità del team Busa, modificare quelle pubblicate, leggere l'email privata dell'autore e scrivere note interne.
 - **Voti:** media e numero di voti per modalità e ultimi voti ricevuti. Puoi eliminare voti singoli, azzerare una modalità o togliere in un colpo i voti dimostrativi.
-- **FAQ:** domande e risposte, categorie (anche da rinominare), ordine, collegamento alla carta citata e pulsante verso una sezione dell'app.
+- **FAQ:** domande e risposte, categorie (anche da rinominare), ordine e pulsante verso una sezione dell'app.
+  - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
+  - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
 - **Testi e impostazioni:**
   - frase di benvenuto, footer, formato delle carte e informativa privacy;
   - email per le notifiche delle nuove proposte;
@@ -67,9 +89,10 @@ L'app e il CMS girano insieme sullo stesso server Node.js. Servono:
 | `DATA_DIR` | Percorso del disco permanente, per esempio `/var/data` |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Facoltative: se impostate, sostituiscono le credenziali generate al primo avvio |
 | `COOKIE_SECURE=1` | Da usare quando il sito è in HTTPS |
+| `ANTHROPIC_API_KEY` | Facoltativa: chiave di Claude per la lettura delle carte, in alternativa a quella inserita nel CMS |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Facoltative: attivano le email di notifica delle nuove proposte. Richiedono `npm install` nella cartella `server` |
 
-Comando di avvio: `node server/server.js`.
+Comando di installazione: `npm install --prefix server`. Comando di avvio: `node server/server.js`.
 
 ## Senza server
 

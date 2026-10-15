@@ -467,3 +467,16 @@ mark { background: #f6ff9e; color: inherit; border-radius: 3px; padding: 0 1px; 
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 400px) { .mini-cards { gap: 10px; } }
+
+/* Dettaglio carta: testo e FAQ collegate */
+.card-text { margin-top: 16px; background: #fff8e1; border: 1.5px solid #f3dc8a; border-radius: 20px; padding: 14px 16px; }
+.card-text h2, .card-faq h2 { display: flex; align-items: center; gap: 8px; font: 800 13px/1.2 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: #6b5200; }
+.card-text h2 .ms, .card-faq h2 .ms { font-size: 20px; }
+.card-text p { margin-top: 8px; font-weight: 700; font-size: 16px; }
+.card-faq { margin-top: 16px; background: #fff; border: 2px solid var(--green-light); border-radius: 24px; padding: 16px; box-shadow: var(--shadow-1); }
+.card-faq h2 { color: var(--green-dark); }
+.cf-item { margin-top: 12px; padding-top: 12px; border-top: 1.5px dashed var(--stroke); display: grid; gap: 8px; }
+.cf-item:first-of-type { border-top: 0; padding-top: 0; }
+.cf-item h3 { font: 800 17px/1.25 var(--font-head); }
+.cf-item p { color: #33402f; }
+.cf-item .btn { justify-self: start; }

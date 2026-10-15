@@ -90,7 +90,7 @@
   const go = (hash) => { location.hash = hash; };
 
   const SECTIONS = {
-    ascolta: { title: 'Ascolta', icon: 'headphones' },
+    ascolta: { title: 'Guarda', icon: 'playing_cards' },
     scopri: { title: 'Scopri', icon: 'style' },
     crea: { title: 'Crea', icon: 'edit' },
     faq: { title: 'FAQ', icon: 'help' },
@@ -183,7 +183,7 @@
   /* ---------------- HOME ---------------- */
   function viewHome() {
     const links = [
-      ['ascolta', 'Ascolta', 'Le frasi in dialetto delle carte Busa', 'icona-ascolta.png'],
+      ['ascolta', 'Guarda', 'Le carte e ascolta il dialetto', 'icona-guarda.png'],
       ['scopri', 'Scopri', 'Le modalità di gioco create dagli utenti', 'icona-scopri.png'],
       ['crea', 'Crea', 'Le tue modalità di gioco', 'icona-crea.png'],
       ['faq', 'FAQ', 'Le risposte alle domande sul gioco', 'icona-faq.png'],
@@ -282,6 +282,7 @@
     if (!card) return viewNotFound();
     const i = CARDS.indexOf(card);
     const prev = CARDS[i - 1], next = CARDS[i + 1];
+    const cardFaq = FAQ.filter((f) => f.cardId === card.id);
     const back = buildHash('ascolta', { q: query.q });
     const navLink = (c, cls, label, ic) => c
       ? `<a class="${cls}" href="${buildHash('ascolta/' + c.id, { q: query.q })}">${cls === 'prev' ? icon(ic) : ''}<span><small>${label} · #${pad2(c.number)}</small><b>${esc(c.name)}</b></span>${cls === 'next' ? icon(ic) : ''}</a>`
@@ -316,7 +317,19 @@
           </div>` : `
           <div class="player unavailable">${icon('schedule')}<strong>Audio non ancora disponibile</strong>
             <span>Stiamo registrando questa frase: torna a trovarci presto!</span></div>`}
+          ${card.text ? `<section class="card-text" aria-labelledby="ct-title">
+            <h2 id="ct-title">${icon('style')}Testo della carta</h2>
+            ${String(card.text).split(/\n\s*\n|\n/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join('')}
+          </section>` : ''}
         </article>
+        ${cardFaq.length ? `<section class="card-faq" aria-labelledby="cf-title">
+          <h2 id="cf-title">${icon('help')}Dubbi su questa carta</h2>
+          ${cardFaq.map((f) => `<div class="cf-item">
+            <h3>${esc(f.q)}</h3>
+            ${f.a.map((p) => `<p>${esc(p)}</p>`).join('')}
+            ${f.action ? `<a class="btn small" href="${esc(f.action.href)}">${esc(f.action.label)}${icon('chevron_right')}</a>` : ''}
+          </div>`).join('')}
+        </section>` : ''}
         <nav class="prevnext" aria-label="Altre carte">
           ${navLink(prev, 'prev', 'Precedente', 'chevron_left')}
           ${navLink(next, 'next', 'Successiva', 'chevron_right')}
@@ -988,7 +1001,8 @@
       </div>`;
     function draw() {
       const n = norm(state.q);
-      const list = FAQ.filter((f) => (!state.cat || f.category === state.cat) && (!n ||
+      // Le FAQ marcate "solo sulla carta" compaiono nel dettaglio della carta, non qui.
+      const list = FAQ.filter((f) => f.showInList !== false && (!state.cat || f.category === state.cat) && (!n ||
         norm(f.q).includes(n) || f.a.some((p) => norm(p).includes(n)) || (f.cardId && norm(CARD[f.cardId]?.name).includes(n))));
       const $r = document.getElementById('results');
       if (!list.length) {
