@@ -307,10 +307,13 @@ function ratingFor(modeId, key = 'modeId') {
   for (const v of db.votes) if (v[key] === modeId) { sum += v.value; count++; }
   return { ratingSum: sum, ratingCount: count };
 }
+// Testi sotto le 4 voci della Home, modificabili dal CMS.
+const HOME_SUBS = { ascolta: 'Le carte e ascolta il dialetto', scopri: 'Le modalità e carte create dagli utenti', crea: 'Le tue modalità di gioco', faq: 'Le risposte alle domande sul gioco' };
+const homeSubsOf = (s) => Object.fromEntries(Object.keys(HOME_SUBS).map((k) => [k, (s.homeSubs && s.homeSubs[k]) || HOME_SUBS[k]]));
 function publicContent() {
   const s = db.settings;
   return {
-    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
@@ -613,6 +616,9 @@ on('PUT', '/api/admin/settings', async (req) => {
   const s = db.settings;
   if ('welcome' in b) s.welcome = str(b.welcome, 80) || 'Il gioco continua qui!';
   if ('footerText' in b) s.footerText = str(b.footerText, 200);
+  for (const k of Object.keys(HOME_SUBS)) {
+    if (`homeSub_${k}` in b) s.homeSubs = { ...homeSubsOf(s), [k]: str(b[`homeSub_${k}`], 80) || HOME_SUBS[k] };
+  }
   if ('busaLogo' in b) s.busaLogo = str(b.busaLogo, 300);
   if ('cardMaker' in b) s.cardMaker = normCardMaker(b.cardMaker);
   if ('notifyEmails' in b) s.notifyEmails = str(b.notifyEmails, 500);

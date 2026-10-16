@@ -1019,6 +1019,10 @@
       <form class="panel form" id="general" novalidate>
         <h2>Testi generali</h2>
         <div class="field"><label for="welcome">Frase di benvenuto in Home</label><input id="welcome" name="welcome" type="text" maxlength="80" value="${esc(s.welcome)}"></div>
+        <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="label">Testi sotto le voci del menu in Home</legend>
+          ${[['ascolta', 'Guarda', 'Le carte e ascolta il dialetto'], ['scopri', 'Scopri', 'Le modalità e carte create dagli utenti'], ['crea', 'Crea', 'Le tue modalità di gioco'], ['faq', 'FAQ', 'Le risposte alle domande sul gioco']].map(([k, t, d]) =>
+            `<label class="field" style="margin-top:6px"><span class="label" style="font-weight:700">${t}</span><input name="homeSub_${k}" type="text" style="font-weight:500" maxlength="80" value="${esc((s.homeSubs && s.homeSubs[k]) || d)}" placeholder="${esc(d)}"></label>`).join('')}
+          <p class="help">Se lasci un campo vuoto si usa il testo predefinito.</p></fieldset>
         <div class="field"><span class="label">Logo Busa (in fondo alla Home)</span>${uploadField('image', s.busaLogo, { name: 'busaLogo', empty: 'Nessun logo: si usa la scritta “busa” segnaposto' })}
           <p class="help">PNG con sfondo trasparente consigliato, circa 600 px di larghezza. Accettati anche JPG e WEBP.</p></div>
         <div class="field"><label for="footerText">Testo del footer</label><input id="footerText" name="footerText" type="text" maxlength="200" value="${esc(s.footerText)}"></div>

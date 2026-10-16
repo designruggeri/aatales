@@ -67,7 +67,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
   - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
   - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
 - **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
-  - frase di benvenuto, footer, formato delle carte e informativa privacy;
+  - frase di benvenuto, testi sotto le 4 voci del menu in Home, footer, formato delle carte e informativa privacy;
   - email per le notifiche delle nuove proposte;
   - cambio di utente e password.
 - **Backup:** scarica un file con tutti i contenuti o ripristinane uno.

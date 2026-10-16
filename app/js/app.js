@@ -228,11 +228,12 @@
 
   /* ---------------- HOME ---------------- */
   function viewHome() {
+    const subs = CONFIG.homeSubs || {};
     const links = [
-      ['ascolta', 'Guarda', 'Le carte e ascolta il dialetto', 'icona-guarda.png'],
-      ['scopri', 'Scopri', 'Le modalità di gioco create dagli utenti', 'icona-scopri.png'],
-      ['crea', 'Crea', 'Le tue modalità di gioco', 'icona-crea.png'],
-      ['faq', 'FAQ', 'Le risposte alle domande sul gioco', 'icona-faq.png'],
+      ['ascolta', 'Guarda', subs.ascolta || 'Le carte e ascolta il dialetto', 'icona-guarda.png'],
+      ['scopri', 'Scopri', subs.scopri || 'Le modalità e carte create dagli utenti', 'icona-scopri.png'],
+      ['crea', 'Crea', subs.crea || 'Le tue modalità di gioco', 'icona-crea.png'],
+      ['faq', 'FAQ', subs.faq || 'Le risposte alle domande sul gioco', 'icona-faq.png'],
     ];
     return {
       section: null,
@@ -246,7 +247,7 @@
         ${links.map(([k, t, s, img]) => `
           <a class="home-link" href="#/${k}">
             <img src="assets/img/${img}" alt="">
-            <span class="txt"><strong>${t}</strong><span class="sub">${s}</span></span>
+            <span class="txt"><strong>${t}</strong><span class="sub">${esc(s)}</span></span>
             <span class="go">${icon('chevron_right')}</span>
           </a>`).join('')}
       </nav>
