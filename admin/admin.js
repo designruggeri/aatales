@@ -90,7 +90,7 @@
     if (parts[0] === 'login') return go('#/');
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
-    const views = { carte: id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
+    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
     const view = sec ? views[sec] : viewDashboard;
     if (!view) return go('#/');
     const pending = DATA.modes.filter((m) => m.status === 'pending').length;
@@ -183,7 +183,7 @@
     const q = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || '';
     $m.innerHTML = `
       <div class="page-head"><div><h1>Carte</h1><p class="muted">Catalogo delle carte Busa: nomi, copie, frasi in dialetto, immagini e audio.</p></div>
-        <a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div>
+        <div class="row"><a class="btn secondary" href="#/carte/importa">${icon('photo_library')}Caricamento massivo</a><a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div></div>
       <div class="panel">
         <div class="panel-head"><div class="search-box">${icon('search')}<input type="search" id="q" placeholder="Cerca per numero o nome" value="${esc(q)}"></div>
           <span class="muted small">Le “copie” sono il massimo selezionabile nel configuratore Crea.</span></div>
@@ -315,6 +315,185 @@
       const msg = usedIn.length ? `La carta è usata in ${usedIn.length} modalità e verrà tolta anche da lì. Eliminarla definitivamente?` : 'Eliminare definitivamente questa carta?';
       if (!confirm(msg)) return;
       if (await act(e.currentTarget, () => api('DELETE', 'cards/' + c.id + (usedIn.length ? '?force=1' : '')), 'Carta eliminata')) { dirty = false; go('#/carte'); }
+    });
+  }
+
+  /* ---------------- Carte: caricamento massivo ---------------- */
+  // Lo stato resta in memoria finché la pagina del CMS è aperta, anche cambiando sezione.
+  const IMPORT = { rows: [], seq: 0, queue: [], running: 0 };
+  // Ridimensiona l'immagine nel browser prima di caricarla, così l'app resta leggera.
+  function resizeImage(file, maxSide, type, quality) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const ctx = cv.getContext('2d');
+        if (type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        cv.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Immagine non leggibile'))), type, quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Immagine non leggibile')); };
+      img.src = url;
+    });
+  }
+  const blobB64 = (blob) => readFileB64(blob);
+  function guessNumber(name) { const m = String(name).match(/\d+/); return m ? Number(m[0]) : null; }
+  function matchFor(row) { return row.number != null && row.number !== '' ? DATA.cards.find((c) => c.number === Number(row.number)) : null; }
+
+  async function processRow(row) {
+    try {
+      row.status = 'upload'; drawImportRow(row);
+      const forApp = await resizeImage(row.file, 1400, 'image/webp', 0.9);
+      const appType = forApp.type || 'image/png';
+      const up = await api('POST', 'upload', { name: row.file.name, type: appType, data: await blobB64(forApp) });
+      row.image = up.url;
+      const m = matchFor(row);
+      row.action = m ? 'update' : 'create';
+      if (m && !row.copies) row.copies = m.copies;
+      row.status = 'ready';
+    } catch (e) { row.status = 'error'; row.error = e.message; }
+    drawImportRow(row); drawImportBar();
+  }
+  function pumpQueue() {
+    while (IMPORT.running < 2 && IMPORT.queue.length) {
+      const row = IMPORT.queue.shift(); IMPORT.running++;
+      processRow(row).finally(() => { IMPORT.running--; pumpQueue(); });
+    }
+  }
+  const STATUS_LBL = {
+    wait: [icon('schedule'), 'In coda'], upload: [icon('progress_activity', 'spin'), 'Caricamento…'],
+    ready: [icon('edit_note'), 'Da compilare'], error: [icon('error', 'fill'), 'Errore'], saved: [icon('task_alt', 'fill yes'), 'Salvata'],
+  };
+  function rowHtml(r) {
+    const m = matchFor(r);
+    const dup = r.number != null && r.number !== '' && IMPORT.rows.filter((x) => x.status !== 'saved' && x.action !== 'skip' && String(x.number) === String(r.number)).length > 1;
+    const busy = ['wait', 'upload'].includes(r.status);
+    const locked = busy || r.status === 'saved';
+    const missCopies = r.action === 'create' && !(Number(r.copies) >= 1);
+    return `<div class="imp-row ${r.status}" data-row="${r.key}">
+      <div class="imp-thumb">${r.preview ? `<img src="${r.preview}" alt="">` : ''}</div>
+      <div class="imp-body">
+        <div class="row" style="justify-content:space-between">
+          <span class="imp-status">${STATUS_LBL[r.status][0]}${STATUS_LBL[r.status][1]} <span class="muted small">· ${esc(r.file.name)}</span></span>
+          <div class="row">
+            ${r.status === 'error' ? `<button type="button" class="btn secondary sm" data-retry="${r.key}">${icon('refresh')}Riprova</button>` : ''}
+            ${r.status !== 'saved' ? `<button type="button" class="btn ghost sm icon" data-drop="${r.key}" aria-label="Togli dall’elenco">${icon('close')}</button>` : ''}
+          </div>
+        </div>
+        ${r.status === 'error' ? `<p class="notice err small">${icon('error')}${esc(r.error)}</p>` : ''}
+        <fieldset ${locked ? 'disabled' : ''} class="imp-fields">
+          <div class="imp-grid">
+            <div class="field"><label>N.</label><input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-k="number" value="${esc(r.number ?? '')}"></div>
+            <div class="field"><label>Nome</label><input type="text" maxlength="60" data-k="name" value="${esc(r.name || '')}"></div>
+            <div class="field ${missCopies ? 'need' : ''}"><label>Copie nel mazzo</label><input type="number" min="1" max="99" data-k="copies" value="${esc(r.copies || '')}" placeholder="?"></div>
+            <div class="field"><label>Azione</label><select data-k="action">
+              <option value="create" ${r.action === 'create' ? 'selected' : ''}>Crea nuova carta</option>
+              ${m ? `<option value="update" ${r.action === 'update' ? 'selected' : ''}>Aggiorna #${pad2(m.number)} ${esc(m.name)}</option>` : ''}
+              <option value="skip" ${r.action === 'skip' ? 'selected' : ''}>Non importare</option></select></div>
+          </div>
+          <div class="imp-grid-3">
+            <div class="field"><label>Frase in piacentino</label><textarea rows="2" maxlength="300" data-k="dialect">${esc(r.dialect || '')}</textarea></div>
+            <div class="field"><label>Traduzione</label><textarea rows="2" maxlength="300" data-k="translation">${esc(r.translation || '')}</textarea></div>
+            <div class="field"><label>Testo della carta</label><textarea rows="2" maxlength="1500" data-k="text">${esc(r.text || '')}</textarea></div>
+          </div>
+          ${dup ? `<p class="notice warn small">${icon('content_copy')}Ci sono più carte con il numero ${esc(r.number)} in questo caricamento.</p>` : ''}
+          ${m && r.action === 'create' ? `<p class="notice warn small">${icon('warning')}Esiste già la carta #${pad2(m.number)} “${esc(m.name)}”: scegli “Aggiorna” per sostituirla.</p>` : ''}
+        </fieldset>
+      </div>
+    </div>`;
+  }
+  function drawImportRow(r) {
+    const el = document.querySelector(`[data-row="${r.key}"]`);
+    if (el) el.outerHTML = rowHtml(r);
+  }
+  function drawImportBar() {
+    const bar = document.getElementById('imp-bar'); if (!bar) return;
+    const todo = IMPORT.rows.filter((r) => r.status === 'ready' && r.action !== 'skip');
+    const busy = IMPORT.rows.filter((r) => ['wait', 'upload'].includes(r.status)).length;
+    const miss = todo.filter((r) => r.action === 'create' && !(Number(r.copies) >= 1) || !String(r.name || '').trim() || r.number === '' || r.number == null).length;
+    bar.innerHTML = `<span class="muted">${busy ? `${busy} in lavorazione · ` : ''}${todo.length} pronte${miss ? ` · <b style="color:var(--red)">${miss} da completare</b>` : ''}</span>
+      <button class="btn" id="imp-save" ${todo.length && !busy ? '' : 'disabled'}>${icon('save')}Salva ${todo.length || ''} ${todo.length === 1 ? 'carta' : 'carte'}</button>`;
+    document.getElementById('imp-save').onclick = saveImport;
+    dirty = IMPORT.rows.some((r) => r.status !== 'saved');
+  }
+  async function saveImport(e) {
+    const todo = IMPORT.rows.filter((r) => r.status === 'ready' && r.action !== 'skip');
+    const bad = todo.filter((r) => !String(r.name || '').trim() || r.number === '' || r.number == null || (r.action === 'create' && !(Number(r.copies) >= 1)));
+    if (bad.length) { toast(`Completa nome, numero e copie di ${bad.length} ${bad.length === 1 ? 'carta' : 'carte'}`, true); document.querySelector(`[data-row="${bad[0].key}"]`)?.scrollIntoView({ block: 'center' }); return; }
+    const btn = e.currentTarget; btn.disabled = true;
+    let ok = 0;
+    for (const r of todo) {
+      const fields = { number: r.number, name: r.name, dialect: r.dialect || '', translation: r.translation || '', text: r.text || '', image: r.image };
+      try {
+        if (r.action === 'update') {
+          const c = matchFor(r);
+          if (!c) throw new Error('La carta da aggiornare non esiste più');
+          await api('PUT', 'cards/' + c.id, { ...c, ...fields, copies: Number(r.copies) || c.copies });
+        } else await api('POST', 'cards', { ...fields, copies: Number(r.copies), color: '#439626', icon: 'style', audio: '' });
+        r.status = 'saved'; ok++;
+      } catch (er) { r.status = 'error'; r.error = er.message; }
+      drawImportRow(r);
+    }
+    await reload().catch(() => {});
+    IMPORT.rows.forEach((r) => r.status !== 'saved' && drawImportRow(r));
+    drawImportBar();
+    toast(`${ok} ${ok === 1 ? 'carta salvata' : 'carte salvate'}`, ok !== todo.length);
+  }
+
+  async function viewImport($m) {
+    $m.innerHTML = `
+      <a class="crumb" href="#/carte">${icon('arrow_back')}Carte</a>
+      <div class="page-head"><div><h1>Caricamento massivo</h1>
+        <p class="muted">Carica tutte le immagini delle carte insieme, poi compila per ognuna numero, nome, copie nel mazzo, frase, traduzione e testo. Se il nome del file contiene un numero (es. “carta-07.png”) viene usato come numero della carta.</p></div></div>
+      <label class="drop" id="drop">
+        <input type="file" id="files" accept="image/png,image/jpeg,image/webp" multiple hidden>
+        ${icon('add_photo_alternate')}<b>Trascina qui le immagini delle carte</b><span class="muted">oppure clicca per sceglierle (PNG, JPG o WEBP)</span>
+      </label>
+      <div id="rows" class="imp-list"></div>
+      <div class="imp-bar" id="imp-bar"></div>`;
+    const $rows = document.getElementById('rows');
+    $rows.innerHTML = IMPORT.rows.map(rowHtml).join('');
+    drawImportBar();
+    const addFiles = (files) => {
+      const imgs = [...files].filter((f) => /^image\/(png|jpeg|webp)$/.test(f.type));
+      if (!imgs.length) return toast('Seleziona immagini PNG, JPG o WEBP', true);
+      imgs.sort((a, b) => a.name.localeCompare(b.name, 'it', { numeric: true }));
+      for (const file of imgs) {
+        const row = { key: 'r' + ++IMPORT.seq, file, preview: URL.createObjectURL(file), status: 'wait', number: guessNumber(file.name), name: '', dialect: '', translation: '', text: '', copies: '', action: 'create' };
+        IMPORT.rows.push(row); IMPORT.queue.push(row);
+        $rows.insertAdjacentHTML('beforeend', rowHtml(row));
+      }
+      drawImportBar(); pumpQueue();
+    };
+    document.getElementById('files').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+    const $drop = document.getElementById('drop');
+    ['dragenter', 'dragover'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.remove('over'); }));
+    $drop.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+    const rowOf = (el) => IMPORT.rows.find((r) => r.key === el.closest('[data-row]')?.dataset.row);
+    $rows.addEventListener('input', (e) => {
+      const r = rowOf(e.target), k = e.target.dataset.k; if (!r || !k) return;
+      if (k === 'number') e.target.value = e.target.value.replace(/\D/g, '');
+      r[k] = k === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value;
+      // Il numero aggiorna l'abbinamento con le carte esistenti quando si esce dal campo (evento change).
+      if (k === 'copies') { const f = e.target.closest('.field'); f.classList.toggle('need', r.action === 'create' && !(Number(r.copies) >= 1)); }
+      drawImportBar();
+    });
+    $rows.addEventListener('change', (e) => {
+      const k = e.target.dataset.k, r = rowOf(e.target); if (!r) return;
+      if (k === 'action') r.action = e.target.value;
+      else if (k === 'number') { const m = matchFor(r); r.action = m ? 'update' : 'create'; if (m && !r.copies) r.copies = m.copies; }
+      else return;
+      drawImportRow(r); drawImportBar();
+    });
+    $rows.addEventListener('click', (e) => {
+      const rt = e.target.closest('[data-retry]'), dp = e.target.closest('[data-drop]');
+      if (rt) { const r = rowOf(rt); r.status = 'wait'; r.error = ''; drawImportRow(r); IMPORT.queue.push(r); pumpQueue(); }
+      if (dp) { const r = rowOf(dp); if (r.status === 'upload') return toast('Attendi la fine del caricamento', true); IMPORT.rows.splice(IMPORT.rows.indexOf(r), 1); IMPORT.queue = IMPORT.queue.filter((x) => x !== r); dp.closest('[data-row]').remove(); drawImportBar(); }
     });
   }
 

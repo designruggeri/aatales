@@ -37,6 +37,11 @@ Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati n
 
 - **Panoramica:** le proposte da controllare e un elenco di tutto ciò che è ancora segnaposto.
 - **Carte:** numero, nome, copie (il massimo selezionabile in *Crea*), frase in piacentino, traduzione, testo della carta, **immagine** e **audio** caricati dal computer.
+- **Caricamento massivo** (in *Carte*):
+  - selezioni o trascini tante immagini di carte insieme;
+  - per ognuna compili a mano numero, nome, copie nel mazzo, frase, traduzione e testo;
+  - se il nome del file contiene un numero (es. `carta-07.png`) viene usato come numero della carta;
+  - se il numero corrisponde a una carta esistente, viene proposto di aggiornarla mantenendo il suo audio.
 - **Modalità:**
   - le proposte inviate dai giocatori arrivano *In attesa* e non sono visibili nell'app;
   - puoi correggerle e poi **approvarle e pubblicarle** oppure **rifiutarle**;
