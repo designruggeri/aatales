@@ -313,10 +313,15 @@ const homeSubsOf = (s) => Object.fromEntries(Object.keys(HOME_SUBS).map((k) => [
 // Box "Contattaci" in fondo alle FAQ, modificabile dal CMS.
 const CONTACT = { text: 'Non trovi la risposta? Contattaci!', email: 'a.ruggeri@busatrasportisrl.it', subject: 'Ho una domanda riguardo a Movat' };
 const contactOf = (s) => ({ ...CONTACT, ...Object.fromEntries(Object.entries(s.contact || {}).filter(([, v]) => v)) });
+// Grandezza delle carte singole a schermo: % della larghezza disponibile (maker: % dell'altezza dello schermo).
+const CARD_SIZES = { list: [78, 40, 100], detail: [68, 40, 100], preview: [74, 40, 100], ucard: [82, 40, 100], maker: [32, 20, 60] };
+const cardSizesOf = (v = {}) => Object.fromEntries(Object.entries(CARD_SIZES).map(([k, [d, min, max]]) => {
+  const n = Math.round(Number(v && v[k])); return [k, n >= min && n <= max ? n : d];
+}));
 function publicContent() {
   const s = db.settings;
   return {
-    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), cardSizes: cardSizesOf(s.cardSizes), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
@@ -623,6 +628,7 @@ on('PUT', '/api/admin/settings', async (req) => {
     if (`homeSub_${k}` in b) s.homeSubs = { ...homeSubsOf(s), [k]: str(b[`homeSub_${k}`], 80) || HOME_SUBS[k] };
   }
   if ('busaLogo' in b) s.busaLogo = str(b.busaLogo, 300);
+  if ('cardSizes' in b) s.cardSizes = cardSizesOf(b.cardSizes);
   if ('contactText' in b) s.contact = { ...contactOf(s), text: str(b.contactText, 80) || CONTACT.text };
   if ('contactSubject' in b) s.contact = { ...contactOf(s), subject: str(b.contactSubject, 120) || CONTACT.subject };
   if ('contactEmail' in b) {

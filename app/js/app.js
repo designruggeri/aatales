@@ -33,6 +33,9 @@
   const $shell = document.getElementById('app');
 
   document.documentElement.style.setProperty('--card-ratio', CONFIG.cardRatio);
+  // Grandezza delle carte singole, impostata dal CMS
+  Object.entries({ list: 78, detail: 68, preview: 74, ucard: 82, maker: 32, ...(CONFIG.cardSizes || {}) })
+    .forEach(([k, v]) => document.documentElement.style.setProperty('--cs-' + k, v));
 
   /* ---------------- Utility ---------------- */
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

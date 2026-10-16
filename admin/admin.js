@@ -527,6 +527,15 @@
   }
 
   /* ---------------- Carte proposte dai giocatori ---------------- */
+  // Grandezza delle carte singole nell'app: [chiave, titolo, dove, min, max, unità]
+  const CARD_SIZE_DEF = { list: 78, detail: 68, preview: 74, ucard: 82, maker: 32 };
+  const CARD_SIZE_ROWS = [
+    ['list', '1 carta per riga', 'Guarda, Scopri → Carte dei giocatori e scelta delle carte in Crea, con la vista “1 per riga”', 40, 100, '%'],
+    ['detail', 'Scheda della carta', 'Guarda, quando si tocca una carta per vederne frase, audio e testo', 40, 100, '%'],
+    ['preview', 'Anteprima ingrandita', 'Quando si tocca una carta nelle modalità di Scopri o mentre si crea una modalità', 40, 100, '%'],
+    ['ucard', 'Carta dei giocatori', 'Scopri → Carte dei giocatori, quando si apre una carta (e la conferma dopo l’invio)', 40, 100, '%'],
+    ['maker', 'Anteprima in “Crea una carta Busa”', 'Resta in alto mentre si scrive: qui si regola l’altezza, in % dello schermo', 20, 60, '% alt.'],
+  ];
   const cmCfg = (extra = {}) => ({ template: DATA.settings.cardMaker?.template, layout: DATA.settings.cardMaker?.layout, ratio: DATA.settings.cardRatio, base: '/', ...extra });
   function fillCardThumbs($scope) {
     $scope.querySelectorAll('img[data-uc]').forEach(async (img) => {
@@ -1010,6 +1019,7 @@
   /* ---------------- Testi e impostazioni ---------------- */
   function viewSettings($m) {
     const s = DATA.settings;
+    const cs = { ...CARD_SIZE_DEF, ...(s.cardSizes || {}) };
     const cmS = JSON.parse(JSON.stringify(s.cardMaker || { template: '', limits: { title: 22, dialect: 70, translation: 80, text: 200 }, layout: { ...window.MovatCardRender.DEFAULT_LAYOUT } }));
     const RATIOS = [['63x88', 'Poker 63 × 88 mm', 63 / 88], ['57x89', 'Bridge 57 × 89 mm', 57 / 89], ['70x120', 'Tarocco 70 × 120 mm', 70 / 120], ['1x1', 'Quadrata', 1]];
     const curRatio = RATIOS.find(([, , r]) => Math.abs(r - s.cardRatio) < 0.002);
@@ -1038,6 +1048,19 @@
         <div class="field"><label for="notifyEmails">Email per le notifiche delle nuove proposte</label><input id="notifyEmails" name="notifyEmails" type="text" value="${esc(s.notifyEmails)}" placeholder="team@busa.it, altro@busa.it">
           <p class="help">Separale con una virgola. Le email partono solo se sul server è configurato l’invio (vedi la guida).</p></div>
         <div class="row"><button class="btn" type="submit">${icon('save')}Salva</button></div>
+      </form>
+      <form class="panel form" id="sizes" novalidate>
+        <h2>Grandezza delle carte</h2>
+        <p class="muted">Quanto è grande una carta quando nell’app viene mostrata da sola. Muovi un cursore per vederla nell’anteprima del telefono.</p>
+        <div class="split" style="grid-template-columns:minmax(0,1fr) 200px;align-items:start">
+          <div>
+            ${CARD_SIZE_ROWS.map(([k, l, h, min, max, unit]) => `<label class="range-row cs-row" data-cs-row="${k}"><span>${l}<small class="muted" style="display:block;font-weight:600">${h}</small></span>
+              <input type="range" min="${min}" max="${max}" data-cs="${k}" value="${cs[k]}"><output>${cs[k]}${unit}</output></label>`).join('')}
+            <div class="row" style="margin-top:12px"><button class="btn" type="submit">${icon('save')}Salva</button>
+              <button type="button" class="btn secondary" id="cs-reset">${icon('restart_alt')}Valori predefiniti</button></div>
+          </div>
+          <div class="cs-phone" aria-hidden="true"><div class="cs-screen"><small id="cs-label"></small><div class="cs-card" id="cs-card"></div></div></div>
+        </div>
       </form>
       <form class="panel form" id="cardmaker" novalidate>
         <h2>Crea una carta Busa</h2>
@@ -1132,6 +1155,27 @@
       const data = Object.fromEntries(['title', 'dialect', 'translation', 'text'].map((k) => [k, sample(k, v.limits[k])]));
       window.MovatCardRender.render(document.getElementById('cm-prev'), data, { template: v.template, layout: v.layout, ratio: s.cardRatio, base: '/', width: 520 });
     };
+    const $sz = document.getElementById('sizes');
+    let csKey = 'list';
+    const drawCs = () => {
+      const row = CARD_SIZE_ROWS.find((r) => r[0] === csKey), v = Number($sz.querySelector(`[data-cs="${csKey}"]`).value);
+      $sz.querySelectorAll('[data-cs]').forEach((i) => { i.nextElementSibling.textContent = i.value + CARD_SIZE_ROWS.find((r) => r[0] === i.dataset.cs)[5]; });
+      $sz.querySelectorAll('[data-cs-row]').forEach((r) => r.classList.toggle('on', r.dataset.csRow === csKey));
+      document.getElementById('cs-label').textContent = row[1];
+      const $c = document.getElementById('cs-card');
+      // Telefono di prova 360 × 740: larghezza in % dello spazio utile, oppure altezza in % dello schermo
+      if (csKey === 'maker') { $c.style.height = v + '%'; $c.style.width = 'auto'; }
+      else { $c.style.width = v * 0.9 + '%'; $c.style.height = 'auto'; }
+    };
+    $sz.addEventListener('input', (e) => { if (e.target.dataset.cs) { csKey = e.target.dataset.cs; dirty = true; drawCs(); } });
+    $sz.addEventListener('focusin', (e) => { if (e.target.dataset.cs) { csKey = e.target.dataset.cs; drawCs(); } });
+    document.getElementById('cs-reset').onclick = () => { $sz.querySelectorAll('[data-cs]').forEach((i) => { i.value = CARD_SIZE_DEF[i.dataset.cs]; }); dirty = true; drawCs(); };
+    $sz.onsubmit = async (e) => {
+      e.preventDefault();
+      const v = Object.fromEntries([...$sz.querySelectorAll('[data-cs]')].map((i) => [i.dataset.cs, Number(i.value)]));
+      if (await act(e.submitter, () => api('PUT', 'settings', { cardSizes: v }), 'Grandezza delle carte salvata')) { dirty = false; route(); }
+    };
+    drawCs();
     drawCm();
     $cm.addEventListener('input', (e) => { if (e.target.dataset.limit) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3); dirty = true; drawCm(); });
     document.getElementById('cm-long').addEventListener('change', drawCm);

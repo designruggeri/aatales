@@ -70,6 +70,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 - **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
   - frase di benvenuto, testi sotto le 4 voci del menu in Home, footer, formato delle carte e informativa privacy;
   - email per le notifiche delle nuove proposte;
+  - **grandezza delle carte** quando sono mostrate da sole: vista “1 per riga”, scheda della carta in *Guarda*, anteprima ingrandita nelle modalità, carta dei giocatori e anteprima in *Crea una carta Busa*, con un'anteprima su un telefono;
   - cambio di utente e password.
 - **Backup:** scarica un file con tutti i contenuti o ripristinane uno.
 

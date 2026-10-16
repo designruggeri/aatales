@@ -229,3 +229,14 @@ hr { border: 0; border-top: 1px solid var(--stroke-soft); margin: 16px 0; }
 .ip-circle.ip-big::before { left: 50%; top: 8%; bottom: 8%; width: 1px; }
 .ip-circle.ip-big::after { top: 50%; left: 8%; right: 8%; height: 1px; }
 .ip-axes { flex: 1; min-width: 180px; display: grid; gap: 4px; }
+
+/* Grandezza delle carte: anteprima su un telefono */
+.cs-row { display: grid; grid-template-columns: minmax(0, 1fr) 150px 64px; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; padding: 8px; border-radius: 10px; }
+.cs-row input { width: 100%; accent-color: var(--green); }
+.cs-row output { font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+@media (max-width: 700px) { .cs-row { grid-template-columns: minmax(0, 1fr) 64px; } .cs-row > span { grid-column: 1 / -1; } }
+.cs-row.on { background: var(--lime-soft); }
+.cs-phone { width: 180px; margin: 0 auto; padding: 8px; border-radius: 26px; background: #182317; }
+.cs-screen { aspect-ratio: 360 / 740; border-radius: 18px; background: #f8faf5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; overflow: hidden; }
+.cs-screen small { font-weight: 700; color: var(--muted); font-size: 11px; text-align: center; padding: 0 8px; }
+.cs-card { aspect-ratio: var(--card-ratio, .716); border-radius: 8% / 6%; background: linear-gradient(135deg, #6dbb2c, #3f9a22); box-shadow: 0 4px 10px rgba(0,0,0,.2); max-width: 100%; max-height: 80%; }
