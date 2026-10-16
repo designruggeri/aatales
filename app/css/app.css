@@ -581,3 +581,13 @@ html, body { overflow-x: clip; }
   .sq-grid { gap: 6px; }
   .cover-prev { width: 92px; height: 92px; }
 }
+
+/* Crea: giocatori da / + / a */
+.players-row { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+.field .pl-box { display: flex; align-items: center; gap: 8px; margin: 0; font: 800 15px/1 var(--font-body); color: var(--ink-muted); flex: none; }
+.field .pl-box input[type=text] { width: 68px; min-height: 52px; padding: 0 6px; border: 1.5px solid #d1dccb; border-radius: 16px; background: #fff; text-align: center; font: 800 20px/1 var(--font-body); color: var(--ink); }
+.field .pl-box input[type=text]:focus { outline: none; border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(82,174,50,.25); }
+.field .pl-box input[type=text]:disabled { background: #eef1ec; color: #a3ad9f; border-style: dashed; }
+.field.invalid .pl-box input[type=text]:not(:disabled) { border-color: var(--red); background: #fffafa; }
+.plus-toggle { width: 52px; height: 52px; flex: none; border-radius: 16px; border: 1.5px solid var(--stroke); background: #fff; color: var(--green-dark); font: 900 26px/1 var(--font-body); }
+.plus-toggle[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 3px 0 var(--green-dark); }

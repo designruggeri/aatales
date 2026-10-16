@@ -438,6 +438,31 @@
   }
   const modeTotal = (m) => Object.values(m.cards).reduce((a, b) => a + b, 0);
   const modeCardList = (m) => Object.entries(m.cards).filter(([id]) => CARD[id]).map(([id, q]) => ({ card: CARD[id], qty: q })).sort((a, b) => a.card.number - b.card.number);
+  /* Giocatori consigliati: "2" (uguali), "2–5" (da–a) oppure "5+" (5 o più). */
+  function parsePlayers(v) {
+    const t = String(v || '').trim();
+    let m;
+    if ((m = t.match(/^(\d+)\s*(\+|o più)$/))) return { from: m[1], to: '', plus: true };
+    if ((m = t.match(/^(\d+)\s*[–-]\s*(\d+)$/))) return { from: m[1], to: m[2], plus: false };
+    if ((m = t.match(/^(\d+)$/))) return { from: m[1], to: m[1], plus: false };
+    return { from: '', to: '', plus: false };
+  }
+  // Restituisce { value, error } a partire dai due campi "da" / "a" e dal tasto "+".
+  function playersFrom(from, to, plus) {
+    const a = String(from || '').trim(), b = String(to || '').trim();
+    if (!a && !b) return { value: '', error: plus ? 'Inserisci il numero minimo di giocatori prima del “+”.' : '' };
+    if (!a) return { value: '', error: 'Inserisci anche il numero minimo (“da”).' };
+    const na = Number(a);
+    if (!(na >= 1)) return { value: '', error: 'Il numero di giocatori deve essere almeno 1.' };
+    if (plus) return { value: `${na}+`, error: '' };
+    if (!b) return { value: String(na), error: '' };
+    const nb = Number(b);
+    if (nb === na) return { value: String(na), error: '' };
+    if (nb < na) return { value: '', error: 'Il primo numero deve essere più piccolo del secondo.' };
+    return { value: `${na}–${nb}`, error: '' };
+  }
+  const playersLabel = (v) => (!v ? '' : v === '1' ? '1 giocatore' : `${v} giocatori`);
+
   const BANNERS = [['#28c4d8', '#a6e84a'], ['#ffc300', '#ff7a2f'], ['#8a3ffc', '#1292e8'], ['#52ae32', '#d6f55a']];
   // Copertina caricata dall'autore, oppure banner automatico colorato con il camioncino.
   function modeBanner(m, { detail = false } = {}) {
@@ -513,7 +538,7 @@
             <p class="by">di <b>${esc(m.author)}</b></p>
             <p class="desc">${highlight(m.description, state.q)}</p>
             <div class="facts">
-              ${m.players ? `<span>${icon('group')}${esc(m.players)} giocatori</span>` : ''}
+              ${m.players ? `<span>${icon('group')}${esc(playersLabel(m.players))}</span>` : ''}
               <span>${icon('style')}${modeTotal(m)} carte Busa</span>
               ${ratingText(m)}
             </div>
@@ -556,7 +581,7 @@
           <h1>${esc(m.title)}</h1>
           <p class="by" style="margin-top:4px">di <b>${esc(m.author)}</b></p>
           <div class="facts">
-            ${m.players ? `<span>${icon('group')}${esc(m.players)} giocatori</span>` : ''}
+            ${m.players ? `<span>${icon('group')}${esc(playersLabel(m.players))}</span>` : ''}
             <span>${icon('style')}${modeTotal(m)} carte Busa</span>
             <span id="rating-inline">${ratingText(m, true)}</span>
           </div>
@@ -758,7 +783,7 @@
       doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.text(label, x, y + 6);
       doc.setFontSize(12); doc.setTextColor(...DARK); if (value) doc.text(value, x, y + 13.5);
     };
-    fact(0, 'GIOCATORI', m.players || '—');
+    fact(0, 'GIOCATORI', m.players || '—');  // es. "2", "2–5", "5+"
     fact(1, 'CARTE BUSA', String(modeTotal(m)));
     fact(2, 'VALUTAZIONE', '');
     const sx = M + colW * 2 + 4;
@@ -828,11 +853,18 @@
   }
 
   /* ---------------- CREA: bozza persistente ---------------- */
-  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', rules: '', tried: '', nickname: '', email: '', consent: false, cover: '' };
+  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', pFrom: '', pTo: '', pPlus: false, rules: '', tried: '', nickname: '', email: '', consent: false, cover: '' };
   // La copertina resta anche in memoria, nel caso il browser non riesca a salvarla sul dispositivo.
   let coverMem = '';
   const draft = {
-    get() { const d = { ...EMPTY_DRAFT, ...store.get('draft', {}) }; if (!d.cover && coverMem) d.cover = coverMem; return d; },
+    get() {
+      const saved = store.get('draft', {});
+      const d = { ...EMPTY_DRAFT, ...saved };
+      if (!d.cover && coverMem) d.cover = coverMem;
+      // Bozze salvate prima dei campi "da"/"a": li ricava dal testo.
+      if (saved.players && saved.pFrom === undefined) { const p = parsePlayers(saved.players); d.pFrom = p.from; d.pTo = p.plus ? '' : p.to; d.pPlus = p.plus; }
+      return d;
+    },
     update(patch) {
       if ('cover' in patch) coverMem = patch.cover;
       const d = { ...this.get(), ...patch }; store.set('draft', d); return d;
@@ -871,6 +903,8 @@
     else if (d.description.trim().length < 20) e.description = 'Aggiungi qualche dettaglio in più (almeno 20 caratteri).';
     if (!d.nickname.trim()) e.nickname = 'Scegli il nickname che apparirà accanto alla modalità.';
     if (d.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email.trim())) e.email = 'Questo indirizzo email non sembra corretto.';
+    const pl = playersFrom(d.pFrom, d.pTo, d.pPlus);
+    if (pl.error) e.players = pl.error;
     return e;
   }
   function stepper(step) {
@@ -1072,7 +1106,6 @@
         <p class="error" id="e-${key}" ${errs[key] ? '' : 'hidden'}>${icon('error', 'fill')}<span>${esc(errs[key] || '')}</span></p>
       </div>`;
     const attrs = (key, req) => `id="f-${key}" name="${key}" ${req ? 'required aria-required="true"' : ''} aria-describedby="e-${key} h-${key}" ${errs[key] ? 'aria-invalid="true"' : ''}`;
-    const PLAYERS = ['2', '2–3', '2–4', '3–4', '3–5', '3–6', '4–6', '5 o più'];
     const html = `
       <div class="page">
         <h1 class="page-title" style="font-size:26px">Racconta la tua modalità</h1>
@@ -1081,7 +1114,16 @@
         <form class="form" id="form" novalidate style="margin-top:12px">
           ${field('name', 'Nome della modalità', `<input type="text" ${attrs('name', true)} maxlength="60" value="${esc(d.name)}" placeholder="Es. Sorpassi a sorpresa" autocomplete="off">`, { req: true, count: 60 })}
           ${field('description', 'Descrizione', `<textarea ${attrs('description', true)} maxlength="600" placeholder="Come si gioca? Cosa la rende divertente?">${esc(d.description)}</textarea>`, { req: true, count: 600 })}
-          ${field('players', 'Giocatori consigliati', `<select ${attrs('players')}><option value="">Non specificato</option>${PLAYERS.map((p) => `<option ${d.players === p ? 'selected' : ''}>${p}</option>`).join('')}</select>`, { opt: ' (facoltativo)' })}
+          <fieldset class="field ${errs.players ? 'invalid' : ''}" data-field="players">
+            <legend>Giocatori consigliati <span class="opt">(facoltativo)</span></legend>
+            <div class="players-row">
+              <label class="pl-box"><span>Da</span><input id="p-from" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" value="${esc(d.pFrom)}" aria-label="Numero minimo di giocatori" aria-describedby="e-players p-preview" ${errs.players ? 'aria-invalid="true"' : ''}></label>
+              <button type="button" class="plus-toggle" id="p-plus" aria-pressed="${!!d.pPlus}" title="o più" aria-label="Oppure più giocatori (es. 5+)">+</button>
+              <label class="pl-box"><span>a</span><input id="p-to" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" value="${esc(d.pPlus ? '' : d.pTo)}" aria-label="Numero massimo di giocatori" ${d.pPlus ? 'disabled' : ''}></label>
+            </div>
+            <p class="hint" id="p-preview"></p>
+            <p class="error" id="e-players" ${errs.players ? '' : 'hidden'}>${icon('error', 'fill')}<span>${esc(errs.players || '')}</span></p>
+          </fieldset>
           <div class="field" id="cover-field"></div>
           ${field('rules', 'Regole aggiuntive', `<textarea ${attrs('rules')} maxlength="800" placeholder="Eventuali regole speciali da spiegare agli altri giocatori">${esc(d.rules)}</textarea>`, { opt: ' (facoltative)', count: 800 })}
           <fieldset class="field">
@@ -1127,6 +1169,36 @@
       section: 'crea', back: '#/crea/carte', title: 'Crea: dettagli', html,
       mount() {
         drawCover();
+        // Giocatori: "da" / "+" / "a"
+        const $pf = document.getElementById('p-from'), $pt = document.getElementById('p-to'), $pp = document.getElementById('p-plus');
+        const $pe = document.getElementById('e-players'), $pv = document.getElementById('p-preview');
+        const syncPlayers = (showErr) => {
+          const cur = draft.get();
+          const r = playersFrom(cur.pFrom, cur.pTo, cur.pPlus);
+          draft.update({ players: r.value });
+          $pv.innerHTML = r.value ? `Nell’app apparirà: <b>${esc(playersLabel(r.value))}</b>` : 'Puoi lasciarlo vuoto, oppure usare “+” per indicare “o più” (es. 5+).';
+          const err = r.error && (showErr || !$pe.hidden) ? r.error : '';
+          $pe.hidden = !err; $pe.querySelector('span:not(.ms)').textContent = err;
+          $pe.closest('.field').classList.toggle('invalid', !!err);
+          $pf.toggleAttribute('aria-invalid', !!err);
+        };
+        [$pf, $pt].forEach(($i) => $i.addEventListener('input', (e) => {
+          e.stopPropagation();
+          $i.value = $i.value.replace(/\D/g, '').slice(0, 2);
+          draft.update({ [$i === $pf ? 'pFrom' : 'pTo']: $i.value });
+          // Errore subito se il primo numero supera il secondo; gli altri quando si esce dal campo.
+          const cur = draft.get();
+          syncPlayers(!!(cur.pFrom && cur.pTo && !cur.pPlus && Number(cur.pTo) < Number(cur.pFrom)));
+        }));
+        [$pf, $pt].forEach(($i) => $i.addEventListener('change', (e) => { e.stopPropagation(); syncPlayers(true); }));
+        $pp.addEventListener('click', () => {
+          const on = !draft.get().pPlus;
+          draft.update({ pPlus: on });
+          $pp.setAttribute('aria-pressed', on);
+          $pt.disabled = on; if (on) $pt.value = ''; else $pt.value = draft.get().pTo;
+          syncPlayers(false);
+        });
+        syncPlayers(!!errs.players);
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
           const t = e.target; if (!t.name) return;
@@ -1176,7 +1248,7 @@
             <div><dt>Copertina</dt><dd>${d.cover ? `<img class="cover-thumb" src="${d.cover}" alt="Copertina">` : 'Automatica, colorata con il camioncino'}</dd></div>
             <div><dt>Descrizione</dt><dd>${esc(d.description)}</dd></div>
             <div><dt>Nickname pubblico</dt><dd>${esc(d.nickname)}</dd></div>
-            <div><dt>Giocatori consigliati</dt><dd>${esc(d.players || 'Non specificato')}</dd></div>
+            <div><dt>Giocatori consigliati</dt><dd>${esc(playersLabel(d.players) || 'Non specificato')}</dd></div>
             <div><dt>Regole aggiuntive</dt><dd>${esc(d.rules || 'Nessuna')}</dd></div>
             ${d.tried ? `<div><dt>L’hai già provata?</dt><dd>${esc(d.tried)}</dd></div>` : ''}
             <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}</dd></div>

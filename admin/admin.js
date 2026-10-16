@@ -15,6 +15,25 @@
   const fmtAvg = (sum, count) => (count ? (sum / count).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—');
   const asset = (u) => (!u ? '' : /^(https?:)?\//.test(u) ? u : '/' + u);
   const STATUS = { pending: 'In attesa', published: 'Pubblicata', rejected: 'Rifiutata' };
+  // Giocatori: "2", "2–5" oppure "5+" (stesse regole dell'app).
+  function parsePlayers(v) {
+    const t = String(v || '').trim(); let m;
+    if ((m = t.match(/^(\d+)\s*(\+|o più)$/))) return { from: m[1], to: '', plus: true };
+    if ((m = t.match(/^(\d+)\s*[–-]\s*(\d+)$/))) return { from: m[1], to: m[2], plus: false };
+    if ((m = t.match(/^(\d+)$/))) return { from: m[1], to: m[1], plus: false };
+    return { from: '', to: '', plus: false };
+  }
+  function playersFrom(from, to, plus) {
+    const a = String(from || '').trim(), b = String(to || '').trim();
+    if (!a && !b) return { value: '', error: plus ? 'Inserisci il numero minimo prima del “+”.' : '' };
+    if (!a) return { value: '', error: 'Inserisci anche il numero minimo di giocatori.' };
+    const na = Number(a);
+    if (!(na >= 1)) return { value: '', error: 'Il numero di giocatori deve essere almeno 1.' };
+    if (plus) return { value: `${na}+`, error: '' };
+    if (!b || Number(b) === na) return { value: String(na), error: '' };
+    if (Number(b) < na) return { value: '', error: 'Il primo numero di giocatori deve essere più piccolo del secondo.' };
+    return { value: `${na}–${Number(b)}`, error: '' };
+  }
   const statusBadge = (s) => `<span class="badge ${s}">${STATUS[s] || s}</span>`;
   let toastTimer;
   function toast(msg, err) {
@@ -545,8 +564,7 @@
     if (!m) { $m.innerHTML = `<p class="empty">Modalità non trovata. <a href="#/modalita">Torna alle modalità</a></p>`; return; }
     const cards = { ...m.cards };
     const votes = isNew ? [] : DATA.votes.filter((v) => v.modeId === m.id).sort((a, b) => b.at.localeCompare(a.at));
-    const PLAYERS = ['', '2', '2–3', '2–4', '3–4', '3–5', '3–6', '4–6', '5 o più'];
-    if (m.players && !PLAYERS.includes(m.players)) PLAYERS.push(m.players);
+    const pl = parsePlayers(m.players);
     $m.innerHTML = `
       <a class="crumb" href="#/modalita">${icon('arrow_back')}Modalità</a>
       <div class="page-head"><div><h1>${isNew ? 'Nuova modalità' : esc(m.title)}</h1>
@@ -562,7 +580,13 @@
             <div class="field"><label for="description">Descrizione</label><textarea id="description" name="description" maxlength="1000" rows="4">${esc(m.description)}</textarea></div>
             <div class="field"><label for="rules">Regole aggiuntive <span class="opt">(facoltative)</span></label><textarea id="rules" name="rules" maxlength="1500" rows="3">${esc(m.rules)}</textarea></div>
             <div class="grid-2">
-              <div class="field"><label for="players">Giocatori consigliati</label><select id="players" name="players">${PLAYERS.map((p) => `<option value="${esc(p)}" ${p === m.players ? 'selected' : ''}>${p || 'Non specificato'}</option>`).join('')}</select></div>
+              <div class="field"><span class="label">Giocatori consigliati</span>
+                <div class="row" style="flex-wrap:nowrap">
+                  <span class="muted">da</span><input id="p-from" type="text" inputmode="numeric" maxlength="2" value="${esc(pl.from)}" style="width:64px;text-align:center" aria-label="Minimo">
+                  <label class="check" style="font-weight:800"><input type="checkbox" id="p-plus" ${pl.plus ? 'checked' : ''}>+</label>
+                  <span class="muted">a</span><input id="p-to" type="text" inputmode="numeric" maxlength="2" value="${esc(pl.plus ? '' : pl.to)}" style="width:64px;text-align:center" aria-label="Massimo" ${pl.plus ? 'disabled' : ''}>
+                </div>
+                <p class="help" id="p-preview"></p></div>
               <div class="field"><label for="tried">L’ha già provata?</label><select id="tried" name="tried">${['', 'Non ancora', 'Una volta', 'Più volte'].map((p) => `<option value="${p}" ${p === m.tried ? 'selected' : ''}>${p || 'Non indicato'}</option>`).join('')}</select></div>
             </div>
           </div>
@@ -623,8 +647,18 @@
       if (q) cards[c.id] = q; else delete cards[c.id];
       dirty = true; drawQty();
     });
-    const payload = (extra = {}) => ({ ...Object.fromEntries(new FormData($f)), cards, ...extra });
+    const $pf = document.getElementById('p-from'), $pt = document.getElementById('p-to'), $pp = document.getElementById('p-plus'), $pv = document.getElementById('p-preview');
+    const playersNow = () => playersFrom($pf.value, $pt.value, $pp.checked);
+    const showPlayers = () => {
+      const r = playersNow();
+      $pv.innerHTML = r.error ? `<span style="color:var(--red);font-weight:800">${esc(r.error)}</span>` : r.value ? `Nell’app: <b>${r.value === '1' ? '1 giocatore' : r.value + ' giocatori'}</b>` : 'Non specificato';
+    };
+    [$pf, $pt].forEach(($i) => $i.addEventListener('input', () => { $i.value = $i.value.replace(/\D/g, '').slice(0, 2); showPlayers(); }));
+    $pp.addEventListener('change', () => { $pt.disabled = $pp.checked; if ($pp.checked) $pt.value = ''; showPlayers(); });
+    showPlayers();
+    const payload = (extra = {}) => ({ ...Object.fromEntries(new FormData($f)), players: playersNow().value, cards, ...extra });
     const saveWith = async (btn, extra, msg) => {
+      if (playersNow().error) { toast(playersNow().error, true); $pf.focus(); return; }
       const v = payload(extra);
       if (!v.title.trim()) { toast('Inserisci il nome della modalità', true); return; }
       const r = await act(btn, () => (isNew ? api('POST', 'modes', v) : api('PUT', 'modes/' + m.id, v)), msg);
