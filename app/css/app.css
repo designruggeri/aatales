@@ -626,3 +626,28 @@ html, body { overflow-x: clip; }
 .cm-badge .ms { font-size: 14px; }
 /* I campi restano visibili sotto l'anteprima quando si scrive */
 .card-maker .field input, .card-maker .field textarea { scroll-margin-top: calc(min(32vh, 280px) + 110px); scroll-margin-bottom: 150px; }
+
+/* Scheda carta: modalità che la usano */
+.card-modes { margin-top: 16px; background: #fff; border: 1.5px solid var(--stroke); border-radius: 24px; padding: 16px; box-shadow: var(--shadow-1); display: grid; gap: 10px; }
+.card-modes h2 { display: flex; align-items: center; gap: 8px; font: 800 13px/1.2 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--green-dark); }
+.card-modes h2 .ms { font-size: 20px; }
+.cm-list { list-style: none; margin: 0; padding: 0; border: 1.5px solid var(--stroke-soft); border-radius: 16px; overflow: hidden; }
+.cm-list li + li { border-top: 1px solid var(--stroke-soft); }
+.cm-list a { display: flex; align-items: center; gap: 10px; padding: 12px; min-height: 60px; text-decoration: none; color: var(--ink); }
+.cm-list a:active { background: var(--lime-soft); }
+.cm-main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.cm-main > b { font: 800 16px/1.15 var(--font-head); overflow-wrap: anywhere; }
+.cm-main .by { font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.cm-main .rating .ms { font-size: 16px; }
+.cm-qty { flex: none; font: 900 15px/1 var(--font-body); color: var(--green-dark); background: var(--lime-soft); padding: 6px 9px; border-radius: 999px; }
+.cm-list a > .ms { color: var(--green-dark); }
+
+/* Scopri: filtro per carta */
+.active-filter { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 8px 8px 8px 10px; background: var(--lime-soft); border: 1.5px solid var(--green-light); border-radius: 18px; }
+.af-art { width: 34px; flex: none; }
+.af-art .card-art { border-width: 2px; }
+.af-txt { flex: 1; min-width: 0; font-weight: 700; font-size: 14px; }
+.af-txt b { color: var(--green-dark); }
+.af-txt small { display: block; color: var(--ink-muted); font-weight: 700; }
+.hl-card { background: var(--green); color: #fff; border-radius: 999px; padding: 3px 9px; font-weight: 800; font-size: 13px; }
+.mr-cards mark { background: var(--lime-soft); color: var(--green-dark); font-weight: 800; padding: 0 4px; border-radius: 6px; }

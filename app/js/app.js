@@ -344,6 +344,8 @@
     const i = CARDS.indexOf(card);
     const prev = CARDS[i - 1], next = CARDS[i + 1];
     const cardFaq = FAQ.filter((f) => f.cardId === card.id);
+    // Modalità pubblicate (dei giocatori e del team Busa) che usano questa carta, prima le più votate.
+    const usedIn = MODES.filter((m) => m.cards[card.id]).sort((a, b) => ratingOf(b).avg - ratingOf(a).avg || ratingOf(b).count - ratingOf(a).count);
     const back = buildHash('ascolta', { q: query.q });
     const navLink = (c, cls, label, ic) => c
       ? `<a class="${cls}" href="${buildHash('ascolta/' + c.id, { q: query.q })}">${cls === 'prev' ? icon(ic) : ''}<span><small>${label} · #${pad2(c.number)}</small><b>${esc(c.name)}</b></span>${cls === 'next' ? icon(ic) : ''}</a>`
@@ -383,6 +385,19 @@
           <div class="player unavailable">${icon('schedule')}<strong>Audio non ancora disponibile</strong>
             <span>Stiamo registrando questa frase: torna a trovarci presto!</span></div>`}
         </article>
+        <section class="card-modes" aria-labelledby="cm-title">
+          <h2 id="cm-title">${icon('stadia_controller')}Modalità con questa carta</h2>
+          ${usedIn.length ? `
+            <p class="muted small">Usata in ${usedIn.length} ${usedIn.length === 1 ? 'modalità' : 'modalità'}.</p>
+            <ul class="cm-list">${usedIn.slice(0, 5).map((m) => `
+              <li><a href="#/scopri/${esc(m.id)}">
+                <span class="cm-main"><b>${esc(m.title)}</b><span class="by">di <b>${esc(m.author)}</b> · ${ratingText(m)}</span></span>
+                <span class="cm-qty" title="Copie di questa carta nella modalità">×${m.cards[card.id]}</span>${icon('chevron_right')}</a></li>`).join('')}
+            </ul>
+            <a class="btn block secondary" href="${buildHash('scopri', { carta: card.id })}">${icon('filter_alt')}Scopri tutte le modalità${usedIn.length > 5 ? ` (${usedIn.length})` : ''}</a>`
+          : `<p class="muted">Non è ancora usata in nessuna modalità pubblicata.</p>
+            <a class="btn block secondary" href="#/crea/carte">${icon('add_circle')}Crea una modalità</a>`}
+        </section>
         ${cardFaq.length ? `<section class="card-faq" aria-labelledby="cf-title">
           <h2 id="cf-title">${icon('help')}Dubbi su questa carta</h2>
           ${cardFaq.map((f) => `<div class="cf-item">
@@ -481,7 +496,7 @@
 
   /* ---------------- SCOPRI: gallery ---------------- */
   function viewModes(query) {
-    const state = { q: query.q || '', ord: query.ord || 'recenti' };
+    const state = { q: query.q || '', ord: query.ord || 'recenti', carta: CARD[query.carta] ? query.carta : '' };
     let vista = getView('scopri');
     const html = `
       <div class="page">
@@ -500,6 +515,7 @@
           </div>
           ${viewSwitch('scopri', vista)}
         </div>
+        <div id="card-filter"></div>
         <div class="seg" role="group" aria-label="Ordina">
           ${[['recenti', 'Più recenti'], ['valutazione', 'Valutazione più alta'], ['voti', 'Più votate']].map(([k, l]) =>
             `<button type="button" data-ord="${k}" aria-pressed="${state.ord === k}">${l}</button>`).join('')}
@@ -508,7 +524,13 @@
       </div>`;
     function draw() {
       const n = norm(state.q);
-      let list = MODES.filter((m) => !n || norm(m.title).includes(n) || norm(m.description).includes(n));
+      let list = MODES.filter((m) => (!state.carta || m.cards[state.carta]) && (!n || norm(m.title).includes(n) || norm(m.description).includes(n)));
+      const fc = state.carta && CARD[state.carta];
+      document.getElementById('card-filter').innerHTML = fc ? `<div class="active-filter">
+          <span class="af-art">${cardArt(fc, { label: false })}</span>
+          <span class="af-txt">Modalità con la carta <b>${esc(fc.name)}</b><small>${list.length} ${list.length === 1 ? 'modalità' : 'modalità'}</small></span>
+          <button type="button" class="icon-btn" id="clear-card" aria-label="Togli il filtro">${icon('close')}</button></div>` : '';
+      document.getElementById('clear-card')?.addEventListener('click', () => { state.carta = ''; setQuery(state); draw(); });
       list.sort((a, b) => {
         if (state.ord === 'valutazione') return ratingOf(b).avg - ratingOf(a).avg || ratingOf(b).count - ratingOf(a).count;
         if (state.ord === 'voti') return ratingOf(b).count - ratingOf(a).count;
@@ -529,7 +551,7 @@
               <b>${highlight(m.title, state.q)}</b>
               <span class="by">di <b>${esc(m.author)}</b></span>
               <span class="facts">${m.players ? `<span>${icon('group')}${esc(m.players)}</span>` : ''}<span>${icon('style')}${modeTotal(m)} carte</span>${ratingText(m)}</span>
-              <span class="mr-cards">${modeCardList(m).map(({ card, qty }) => `${esc(card.name)} ×${qty}`).join(' · ')}</span>
+              <span class="mr-cards">${modeCardList(m).map(({ card, qty }) => card.id === state.carta ? `<mark>${esc(card.name)} ×${qty}</mark>` : `${esc(card.name)} ×${qty}`).join(' · ')}</span>
             </span>${icon('chevron_right')}</a>`).join('')}</div>`;
         return;
       }
@@ -546,6 +568,7 @@
               ${m.players ? `<span>${icon('group')}${esc(playersLabel(m.players))}</span>` : ''}
               <span>${icon('style')}${modeTotal(m)} carte Busa</span>
               ${ratingText(m)}
+              ${fc ? `<span class="hl-card">${esc(fc.name)} ×${m.cards[fc.id]}</span>` : ''}
             </div>
             <div class="mini-cards" aria-label="Anteprima carte">
               ${shown.map(({ card, qty }) => `<div class="mini" title="${esc(card.name)} ×${qty}">${cardArt(card, { label: false })}<span class="qty">×${qty}</span></div>`).join('')}
