@@ -484,7 +484,11 @@
 
   // Modalità pubblicate dal team Busa: quelle ufficiali del gioco.
   // Icona della modalità (caricata dal CMS) in un cerchio verde Busa, alta quanto titolo + autore.
-  const modeIcon = (m) => (m.icon ? `<span class="mode-icon" aria-hidden="true"><img src="${esc(m.icon)}" alt="" style="width:${Number(m.iconScale) || 70}%;height:${Number(m.iconScale) || 70}%"></span>` : '');
+  const modeIcon = (m) => {
+    if (!m.icon) return '';
+    const sc = Number(m.iconScale) || 70, x = Number(m.iconX) || 0, y = Number(m.iconY) || 0;
+    return `<span class="mode-icon" aria-hidden="true"><img src="${esc(m.icon)}" alt="" style="width:${sc}%;height:${sc}%;left:${x}%;top:${y}%"></span>`;
+  };
   const officialBadge = `<span class="official-badge">${icon('verified', 'fill')}Team Busa</span>`;
   const BANNERS = [['#28c4d8', '#a6e84a'], ['#ffc300', '#ff7a2f'], ['#8a3ffc', '#1292e8'], ['#52ae32', '#d6f55a']];
   // Copertina caricata dall'autore, oppure banner automatico colorato con il camioncino.

@@ -315,7 +315,7 @@ function publicContent() {
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
-      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', icon: m.icon || null, iconScale: m.iconScale || 70, ...ratingFor(m.id),
+      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', icon: m.icon || null, iconScale: m.iconScale || 70, iconX: m.iconX || 0, iconY: m.iconY || 0, ...ratingFor(m.id),
     })),
     userCards: db.userCards.filter((c) => c.status === 'published').map((c) => ({
       id: c.id, title: c.title, dialect: c.dialect, translation: c.translation, text: c.text, author: c.author,
@@ -505,6 +505,8 @@ on('DELETE', '/api/admin/cards/:id', async (req, p) => {
 const STATUSES = ['pending', 'published', 'rejected'];
 // Dimensione dell'icona nel cerchio verde, in % del diametro (30–130, predefinita 70).
 const iconScaleFrom = (v) => { const n = Math.round(Number(v)); return n >= 30 && n <= 130 ? n : 70; };
+// Spostamento dell'icona dal centro del cerchio, in % del diametro (−50…50, predefinito 0).
+const iconOffsetFrom = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-50, Math.min(50, n)) : 0; };
 on('POST', '/api/admin/modes', async (req) => {
   const b = await readJson(req);
   if (!str(b.title, 60)) throw new HttpError(422, 'Il nome della modalità è obbligatorio');
@@ -512,7 +514,7 @@ on('POST', '/api/admin/modes', async (req) => {
   const mode = {
     id: uniqueId(b.title, db.modes), title: str(b.title, 60), author: str(b.author, 30) || 'Team Busa', email: str(b.email, 200),
     players: str(b.players, 20), description: str(b.description, 1000), rules: str(b.rules, 1500), tried: str(b.tried, 20),
-    cards: cleanCards(b.cards), cover: str(b.cover, 300), icon: str(b.icon, 300), iconScale: iconScaleFrom(b.iconScale), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
+    cards: cleanCards(b.cards), cover: str(b.cover, 300), icon: str(b.icon, 300), iconScale: iconScaleFrom(b.iconScale), iconX: iconOffsetFrom(b.iconX), iconY: iconOffsetFrom(b.iconY), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
     createdAt: now(), publishedAt: status === 'published' ? now() : null, updatedAt: now(),
   };
   db.modes.push(mode); await save(); return mode;
@@ -526,6 +528,8 @@ on('PUT', '/api/admin/modes/:id', async (req, p) => {
   }
   if ('cards' in b) m.cards = cleanCards(b.cards);
   if ('iconScale' in b) m.iconScale = iconScaleFrom(b.iconScale);
+  if ('iconX' in b) m.iconX = iconOffsetFrom(b.iconX);
+  if ('iconY' in b) m.iconY = iconOffsetFrom(b.iconY);
   if ('status' in b && STATUSES.includes(b.status) && b.status !== m.status) {
     m.status = b.status;
     if (b.status === 'published' && !m.publishedAt) m.publishedAt = now();

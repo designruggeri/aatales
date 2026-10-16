@@ -61,6 +61,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
   - le proposte inviate dai giocatori arrivano *In attesa* e non sono visibili nell'app;
   - puoi correggerle e poi **approvarle e pubblicarle** oppure **rifiutarle**;
   - puoi creare modalità del team Busa, modificare quelle pubblicate, leggere l'email privata dell'autore e scrivere note interne.
+  - alle modalità del team Busa puoi aggiungere un'**icona** (PNG trasparente) che compare in un cerchio verde accanto al titolo: ne regoli la dimensione e la **posizione**, trascinandola nel cerchio grande, con i cursori o con le frecce della tastiera (*Centra* la riporta al centro).
 - **Voti:** media e numero di voti per modalità e ultimi voti ricevuti. Puoi eliminare voti singoli, azzerare una modalità o togliere in un colpo i voti dimostrativi.
 - **FAQ:** domande e risposte, categorie (anche da rinominare), ordine e pulsante verso una sezione dell'app.
   - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.

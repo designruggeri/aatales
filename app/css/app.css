@@ -665,6 +665,6 @@ html, body { overflow-x: clip; }
 .title-row .tr-text { flex: 1; min-width: 0; display: grid; align-content: center; gap: 2px; }
 .mode-icon { flex: none; align-self: center; height: 100%; min-height: 44px; max-height: 64px; aspect-ratio: 1; border-radius: 50%; background: var(--green); display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 2px 6px rgba(24,35,23,.15); }
 .title-row > .mode-icon { align-self: stretch; height: auto; }
-.mode-icon img { object-fit: contain; display: block; }
+.mode-icon img { object-fit: contain; display: block; position: relative; }
 .mode-head .mode-icon { min-height: 56px; max-height: 76px; }
 .mode-row .tr-text > b { font: 800 18px/1.15 var(--font-head); }

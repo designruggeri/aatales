@@ -692,7 +692,7 @@
 
   function viewMode($m, id) {
     const isNew = id === 'nuova';
-    const m = isNew ? { title: '', author: 'Team Busa', email: '', players: '', description: '', rules: '', tried: '', cards: {}, status: 'published', note: '', icon: '', iconScale: 70, ratingSum: 0, ratingCount: 0 } : DATA.modes.find((x) => x.id === id);
+    const m = isNew ? { title: '', author: 'Team Busa', email: '', players: '', description: '', rules: '', tried: '', cards: {}, status: 'published', note: '', icon: '', iconScale: 70, iconX: 0, iconY: 0, ratingSum: 0, ratingCount: 0 } : DATA.modes.find((x) => x.id === id);
     if (!m) { $m.innerHTML = `<p class="empty">Modalità non trovata. <a href="#/modalita">Torna alle modalità</a></p>`; return; }
     const cards = { ...m.cards };
     const votes = isNew ? [] : DATA.votes.filter((v) => v.modeId === m.id).sort((a, b) => b.at.localeCompare(a.at));
@@ -736,7 +736,7 @@
               <div class="row end" style="margin-top:12px"><button type="button" class="btn danger sm" id="clear-votes">${icon('delete_sweep')}Azzera tutti i voti</button></div>` : '<p class="muted">Nessun voto da mostrare.</p>'}
           </div>`}
         </div>
-        <aside class="sticky">
+        <aside>
           <div class="panel form">
             <div class="field"><label for="status">Stato</label>
               <select id="status" name="status">${Object.entries(STATUS).map(([k, l]) => `<option value="${k}" ${k === m.status ? 'selected' : ''}>${l}</option>`).join('')}</select>
@@ -761,6 +761,20 @@
             <label class="field"><span class="label">Dimensione dell’icona nel cerchio: <output id="ip-val">${m.iconScale || 70}%</output></span>
               <input type="range" id="ip-scale" min="30" max="130" step="1" value="${m.iconScale || 70}" style="width:100%;accent-color:var(--green)"></label>
             <input type="hidden" name="iconScale" value="${m.iconScale || 70}">
+            <div class="field"><span class="label">Posizione dell’icona nel cerchio</span>
+              <div class="ip-move">
+                <span class="ip-circle ip-big" id="ip-drag" title="Trascina l’icona per centrarla"><img id="ip-img2" alt="" draggable="false" hidden></span>
+                <div class="ip-axes">
+                  <label class="field"><span class="label">Orizzontale: <output id="ip-xval">${m.iconX || 0}</output></span>
+                    <input type="range" id="ip-x" min="-50" max="50" step="1" value="${m.iconX || 0}" style="width:100%;accent-color:var(--green)"></label>
+                  <label class="field"><span class="label">Verticale: <output id="ip-yval">${m.iconY || 0}</output></span>
+                    <input type="range" id="ip-y" min="-50" max="50" step="1" value="${m.iconY || 0}" style="width:100%;accent-color:var(--green)"></label>
+                  <button type="button" class="btn ghost" id="ip-center">${icon('center_focus_strong')}Centra</button>
+                </div>
+              </div>
+              <p class="help">Trascina l’icona nel cerchio grande oppure usa i cursori; le frecce della tastiera la spostano di 1 quando il cerchio è selezionato.</p></div>
+            <input type="hidden" name="iconX" value="${m.iconX || 0}">
+            <input type="hidden" name="iconY" value="${m.iconY || 0}">
           </div>
           <div class="panel form">
             <div class="field"><label for="email">Email privata ${icon('lock')}</label><input id="email" name="email" type="email" value="${esc(m.email)}" placeholder="Non indicata">
@@ -785,15 +799,47 @@
     // Anteprima dell'icona nel cerchio verde
     const drawIcon = () => {
       const v = $f.querySelector('input[name=icon]').value, sc = $f.querySelector('input[name=iconScale]').value;
-      const img = document.getElementById('ip-img');
-      img.hidden = !v; if (v) img.src = asset(v);
-      img.style.width = img.style.height = sc + '%';
+      const x = $f.querySelector('input[name=iconX]').value, y = $f.querySelector('input[name=iconY]').value;
+      for (const img of [document.getElementById('ip-img'), document.getElementById('ip-img2')]) {
+        img.hidden = !v; if (v) img.src = asset(v);
+        img.style.width = img.style.height = sc + '%';
+        img.style.left = x + '%'; img.style.top = y + '%';
+      }
       document.getElementById('ip-val').textContent = sc + '%';
+      document.getElementById('ip-x').value = x; document.getElementById('ip-y').value = y;
+      document.getElementById('ip-xval').textContent = x; document.getElementById('ip-yval').textContent = y;
       document.getElementById('ip-title').textContent = $f.querySelector('#title').value || 'Titolo della modalità';
     };
     bindUploads($f, drawIcon);
     document.getElementById('ip-scale').addEventListener('input', (e) => { $f.querySelector('input[name=iconScale]').value = e.target.value; dirty = true; drawIcon(); });
     $f.querySelector('#title').addEventListener('input', drawIcon);
+    // Spostamento dell'icona: trascinamento, cursori, frecce e "Centra"
+    const setOffset = (x, y) => {
+      const cl = (n) => Math.max(-50, Math.min(50, Math.round(n)));
+      $f.querySelector('input[name=iconX]').value = cl(x); $f.querySelector('input[name=iconY]').value = cl(y);
+      dirty = true; drawIcon();
+    };
+    const getOffset = () => [Number($f.querySelector('input[name=iconX]').value) || 0, Number($f.querySelector('input[name=iconY]').value) || 0];
+    document.getElementById('ip-x').addEventListener('input', (e) => setOffset(Number(e.target.value), getOffset()[1]));
+    document.getElementById('ip-y').addEventListener('input', (e) => setOffset(getOffset()[0], Number(e.target.value)));
+    document.getElementById('ip-center').addEventListener('click', () => setOffset(0, 0));
+    const $drag = document.getElementById('ip-drag'); $drag.tabIndex = 0;
+    let drag = null;
+    $drag.addEventListener('pointerdown', (e) => {
+      if (!$f.querySelector('input[name=icon]').value) return;
+      e.preventDefault(); $drag.setPointerCapture(e.pointerId);
+      drag = { px: e.clientX, py: e.clientY, start: getOffset(), size: $drag.getBoundingClientRect().width };
+    });
+    $drag.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      setOffset(drag.start[0] + (e.clientX - drag.px) / drag.size * 100, drag.start[1] + (e.clientY - drag.py) / drag.size * 100);
+    });
+    const endDrag = () => { drag = null; };
+    $drag.addEventListener('pointerup', endDrag); $drag.addEventListener('pointercancel', endDrag);
+    $drag.addEventListener('keydown', (e) => {
+      const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
+      e.preventDefault(); const [x, y] = getOffset(); setOffset(x + d[0], y + d[1]);
+    });
     drawIcon();
     document.getElementById('qty').addEventListener('click', (e) => {
       const b = e.target.closest('[data-q]'); if (!b) return;

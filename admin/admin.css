@@ -219,4 +219,13 @@ hr { border: 0; border-top: 1px solid var(--stroke-soft); margin: 16px 0; }
 .icon-preview .ip-text > b { font: 800 18px/1.15 var(--font-head); }
 .icon-preview .ip-text span { font-size: 13px; color: var(--muted); }
 .ip-circle { align-self: center; width: 56px; height: 56px; border-radius: 50%; background: var(--green); display: grid; place-items: center; overflow: hidden; flex: none; }
-.ip-circle img { object-fit: contain; display: block; }
+.ip-circle img { object-fit: contain; display: block; position: relative; }
+.ip-move { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.ip-circle.ip-big { width: 150px; height: 150px; cursor: grab; touch-action: none; user-select: none; position: relative; }
+.ip-circle.ip-big:active { cursor: grabbing; }
+.ip-circle.ip-big:focus-visible { outline: 3px solid var(--ink, #222); outline-offset: 3px; }
+.ip-circle.ip-big img { pointer-events: none; }
+.ip-circle.ip-big::before, .ip-circle.ip-big::after { content: ''; position: absolute; background: rgba(255,255,255,.45); pointer-events: none; z-index: 1; }
+.ip-circle.ip-big::before { left: 50%; top: 8%; bottom: 8%; width: 1px; }
+.ip-circle.ip-big::after { top: 50%; left: 8%; right: 8%; height: 1px; }
+.ip-axes { flex: 1; min-width: 180px; display: grid; gap: 4px; }
