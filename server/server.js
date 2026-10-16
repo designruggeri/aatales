@@ -23,6 +23,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
+const os = require('node:os');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -582,4 +583,7 @@ server.listen(PORT, () => {
   console.log(`MÖVAT! in esecuzione:`);
   console.log(`  App pubblica  http://localhost:${PORT}/`);
   console.log(`  CMS           http://localhost:${PORT}/admin/`);
+  // Indirizzi per aprire l'app da telefono o tablet collegati alla stessa rete Wi-Fi.
+  const lan = Object.values(os.networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).map((i) => i.address);
+  for (const ip of lan) console.log(`  Dal telefono  http://${ip}:${PORT}/   (stessa rete Wi-Fi)`);
 });

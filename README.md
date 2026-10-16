@@ -31,6 +31,8 @@ Serve **Node.js** (versione 18 o successiva): scaricalo da https://nodejs.org (s
    - l'app: **http://localhost:8000/**
    - il CMS: **http://localhost:8000/admin/**
 
+**Dal telefono:** il telefono deve essere sulla stessa rete Wi-Fi del Mac. Apri l'indirizzo che il Terminale mostra alla riga *Dal telefono* (per esempio `http://192.168.1.23:8000/`). `localhost` funziona solo sul Mac stesso. Se il Mac chiede di consentire a “node” le connessioni in entrata, rispondi **Consenti**.
+
 Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati nella cartella `data/`.
 
 ## Cosa si gestisce dal CMS
