@@ -310,10 +310,13 @@ function ratingFor(modeId, key = 'modeId') {
 // Testi sotto le 4 voci della Home, modificabili dal CMS.
 const HOME_SUBS = { ascolta: 'Le carte e ascolta il dialetto', scopri: 'Le modalità e carte create dagli utenti', crea: 'Le tue modalità di gioco', faq: 'Le risposte alle domande sul gioco' };
 const homeSubsOf = (s) => Object.fromEntries(Object.keys(HOME_SUBS).map((k) => [k, (s.homeSubs && s.homeSubs[k]) || HOME_SUBS[k]]));
+// Box "Contattaci" in fondo alle FAQ, modificabile dal CMS.
+const CONTACT = { text: 'Non trovi la risposta? Contattaci!', email: 'a.ruggeri@busatrasportisrl.it', subject: 'Ho una domanda riguardo a Movat' };
+const contactOf = (s) => ({ ...CONTACT, ...Object.fromEntries(Object.entries(s.contact || {}).filter(([, v]) => v)) });
 function publicContent() {
   const s = db.settings;
   return {
-    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
@@ -620,6 +623,13 @@ on('PUT', '/api/admin/settings', async (req) => {
     if (`homeSub_${k}` in b) s.homeSubs = { ...homeSubsOf(s), [k]: str(b[`homeSub_${k}`], 80) || HOME_SUBS[k] };
   }
   if ('busaLogo' in b) s.busaLogo = str(b.busaLogo, 300);
+  if ('contactText' in b) s.contact = { ...contactOf(s), text: str(b.contactText, 80) || CONTACT.text };
+  if ('contactSubject' in b) s.contact = { ...contactOf(s), subject: str(b.contactSubject, 120) || CONTACT.subject };
+  if ('contactEmail' in b) {
+    const e = str(b.contactEmail, 200);
+    if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw new HttpError(422, 'L’email di contatto non è valida');
+    s.contact = { ...contactOf(s), email: e || CONTACT.email };
+  }
   if ('cardMaker' in b) s.cardMaker = normCardMaker(b.cardMaker);
   if ('notifyEmails' in b) s.notifyEmails = str(b.notifyEmails, 500);
   if ('cardRatio' in b) { const r = Number(b.cardRatio); if (r > 0.3 && r < 3) s.cardRatio = r; }

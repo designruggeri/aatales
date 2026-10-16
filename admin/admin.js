@@ -1023,6 +1023,11 @@
           ${[['ascolta', 'Guarda', 'Le carte e ascolta il dialetto'], ['scopri', 'Scopri', 'Le modalità e carte create dagli utenti'], ['crea', 'Crea', 'Le tue modalità di gioco'], ['faq', 'FAQ', 'Le risposte alle domande sul gioco']].map(([k, t, d]) =>
             `<label class="field" style="margin-top:6px"><span class="label" style="font-weight:700">${t}</span><input name="homeSub_${k}" type="text" style="font-weight:500" maxlength="80" value="${esc((s.homeSubs && s.homeSubs[k]) || d)}" placeholder="${esc(d)}"></label>`).join('')}
           <p class="help">Se lasci un campo vuoto si usa il testo predefinito.</p></fieldset>
+        <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="label">Box “Contattaci” in fondo alle FAQ</legend>
+          <label class="field" style="margin-top:6px"><span class="label" style="font-weight:700">Testo del box</span><input name="contactText" type="text" maxlength="80" style="font-weight:500" value="${esc(s.contact?.text || 'Non trovi la risposta? Contattaci!')}"></label>
+          <label class="field" style="margin-top:6px"><span class="label" style="font-weight:700">Email del destinatario</span><input name="contactEmail" type="email" maxlength="200" style="font-weight:500" value="${esc(s.contact?.email || 'a.ruggeri@busatrasportisrl.it')}"></label>
+          <label class="field" style="margin-top:6px"><span class="label" style="font-weight:700">Oggetto della mail</span><input name="contactSubject" type="text" maxlength="120" style="font-weight:500" value="${esc(s.contact?.subject || 'Ho una domanda riguardo a Movat')}"></label>
+          <p class="help">Toccando il box si apre l’app di posta con destinatario e oggetto già compilati. Se lasci un campo vuoto si usa il valore predefinito.</p></fieldset>
         <div class="field"><span class="label">Logo Busa (in fondo alla Home)</span>${uploadField('image', s.busaLogo, { name: 'busaLogo', empty: 'Nessun logo: si usa la scritta “busa” segnaposto' })}
           <p class="help">PNG con sfondo trasparente consigliato, circa 600 px di larghezza. Accettati anche JPG e WEBP.</p></div>
         <div class="field"><label for="footerText">Testo del footer</label><input id="footerText" name="footerText" type="text" maxlength="200" value="${esc(s.footerText)}"></div>

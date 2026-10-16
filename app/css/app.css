@@ -435,6 +435,13 @@ fieldset.field { border: 0; margin: 0; padding: 0; min-width: 0; }
 .faq-item.open .chev { transform: rotate(180deg); }
 .faq-a { padding: 0 16px 16px; display: grid; gap: 10px; color: #33402f; }
 .faq-a .cat { font: 800 11px/1 var(--font-body); color: var(--ink-muted); text-transform: uppercase; letter-spacing: .06em; }
+.faq-contact { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 14px 16px; border-radius: 20px; background: var(--lime-soft); border: 2px solid var(--green-light); color: var(--green-deep); text-decoration: none; }
+.faq-contact:active { transform: translateY(2px); }
+.faq-contact .fc-ic { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; }
+.faq-contact .fc-txt { flex: 1; min-width: 0; }
+.faq-contact b { display: block; font: 800 18px/1.15 var(--font-head); padding-top: 2px; }
+.faq-contact .fc-txt span { display: block; font: 600 13px/1.3 var(--font-body); color: var(--ink-muted); margin-top: 2px; }
+.faq-contact > .ms:last-child { flex: none; color: var(--green); }
 .faq-card-link { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 16px; background: var(--lime-soft); text-decoration: none; color: var(--ink); }
 .faq-card-link .card-art { width: 46px; border-width: 2px; }
 .faq-card-link b { display: block; font: 800 15px/1.1 var(--font-head); padding-top: 2px; }

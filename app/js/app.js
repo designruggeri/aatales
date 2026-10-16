@@ -1794,6 +1794,11 @@
         </div>
         ${FAQ.some((f) => /segnaposto/i.test(f.q)) ? `<p class="demo-tag" style="margin-top:10px">${icon('construction')}Domande e risposte segnaposto, da sostituire con i testi ufficiali</p>` : ''}
         <div id="results" class="faq-list"></div>
+        ${(() => {
+          const c = { text: 'Non trovi la risposta? Contattaci!', email: 'a.ruggeri@busatrasportisrl.it', subject: 'Ho una domanda riguardo a Movat', ...(CONFIG.contact || {}) };
+          return `<a class="faq-contact" href="mailto:${encodeURIComponent(c.email).replace(/%40/g, '@')}?subject=${encodeURIComponent(c.subject)}">
+            <span class="fc-ic">${icon('mail', 'fill')}</span><span class="fc-txt"><b>${esc(c.text)}</b><span>Scrivici una mail, ti rispondiamo noi.</span></span>${icon('chevron_right')}</a>`;
+        })()}
       </div>`;
     function draw() {
       const n = norm(state.q);

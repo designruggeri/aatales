@@ -66,6 +66,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 - **FAQ:** domande e risposte, categorie (anche da rinominare), ordine e pulsante verso una sezione dell'app.
   - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
   - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
+  - In fondo alle FAQ c'è il box **“Non trovi la risposta? Contattaci!”**: apre l'app di posta con destinatario e oggetto già compilati. Testo, email e oggetto si cambiano in *Testi e impostazioni*.
 - **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
   - frase di benvenuto, testi sotto le 4 voci del menu in Home, footer, formato delle carte e informativa privacy;
   - email per le notifiche delle nuove proposte;
