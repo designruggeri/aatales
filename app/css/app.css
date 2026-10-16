@@ -670,3 +670,13 @@ html, body { overflow-x: clip; }
 .mode-icon img { object-fit: contain; display: block; position: relative; }
 .mode-head .mode-icon { min-height: 56px; max-height: 76px; }
 .mode-row .tr-text > b { font: 800 18px/1.15 var(--font-head); }
+
+/* Verifica antibot (Cloudflare Turnstile): compare solo se serve un'interazione */
+.ts-slot { position: fixed; inset: auto 0 calc(16px + var(--safe-b)) 0; z-index: 90; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+.ts-slot[hidden] { display: none; }
+.ts-card { pointer-events: auto; background: #fff; border: 2px solid var(--green-light); border-radius: 20px; box-shadow: var(--shadow-2); padding: 12px 14px; max-width: 360px; width: 100%; }
+.ts-card p { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: var(--green-deep); margin-bottom: 8px; }
+.vote-err { display: flex; gap: 6px; align-items: flex-start; margin-top: 10px; color: var(--red); font-weight: 700; font-size: 14px; text-align: left; }
+.vote-err[hidden] { display: none; }
+.notify-check[hidden] { display: none; }
+.notify-check .muted { font-weight: 600; font-size: 13px; }

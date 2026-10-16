@@ -97,6 +97,7 @@
     ['modalita', 'stadia_controller', 'Modalità'],
     ['carte-proposte', 'draw', 'Carte proposte'],
     ['voti', 'star', 'Voti'],
+    ['messaggi', 'mail', 'Messaggi'],
     ['faq', 'help', 'FAQ'],
     ['impostazioni', 'tune', 'Testi e impostazioni'],
     ['backup', 'cloud_download', 'Backup'],
@@ -113,15 +114,17 @@
     if (DATA && stale) { stale = false; try { await reload(); ME = { ...ME, ...(await api('GET', 'me')) }; } catch { /* si usano i dati già caricati */ } }
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
-    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, 'carte-proposte': id ? viewUserCardAdmin : viewUserCardsAdmin, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
+    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, 'carte-proposte': id ? viewUserCardAdmin : viewUserCardsAdmin, voti: viewVotes, messaggi: viewMessages, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
     const view = sec ? views[sec] : viewDashboard;
     if (!view) return go('#/');
     const pending = DATA.modes.filter((m) => m.status === 'pending').length;
     const pendingCards = (DATA.userCards || []).filter((c) => c.status === 'pending').length;
+    const newMsgs = (DATA.messages || []).filter((m) => m.status === 'new').length;
+    const secSt = ME.security || {};
     $root.innerHTML = `<div class="layout">
       <nav class="side" aria-label="Sezioni del CMS">
         <a class="brand" href="#/"><img src="/assets/img/logo-movat.png" alt="MÖVAT!"><span>CMS</span></a>
-        ${NAV.map(([k, ic, l]) => `<a class="nav-link" href="#/${k}" ${(sec || '') === k ? 'aria-current="page"' : ''}>${icon(ic)}<span class="lbl">${l}</span>${k === 'modalita' && pending ? `<span class="badge count" title="Proposte in attesa">${pending}</span>` : ''}${k === 'carte-proposte' && pendingCards ? `<span class="badge count" title="Carte in attesa">${pendingCards}</span>` : ''}</a>`).join('')}
+        ${NAV.map(([k, ic, l]) => `<a class="nav-link" href="#/${k}" ${(sec || '') === k ? 'aria-current="page"' : ''}>${icon(ic)}<span class="lbl">${l}</span>${k === 'modalita' && pending ? `<span class="badge count" title="Proposte in attesa">${pending}</span>` : ''}${k === 'carte-proposte' && pendingCards ? `<span class="badge count" title="Carte in attesa">${pendingCards}</span>` : ''}${k === 'messaggi' && newMsgs ? `<span class="badge count" title="Messaggi nuovi">${newMsgs}</span>` : ''}</a>`).join('')}
         <div class="bottom">
           <a class="nav-link" href="/" target="_blank" rel="noopener">${icon('open_in_new')}<span class="lbl">Apri l’app</span></a>
           <a class="nav-link" href="#" id="logout">${icon('logout')}<span class="lbl">Esci</span></a>
@@ -134,7 +137,9 @@
       e.preventDefault(); await api('POST', 'logout', {}).catch(() => {}); ME = null; DATA = null; go('#/login');
     };
     const $main = document.getElementById('main');
-    view($main, id);
+    const secBanner = secSt.antibot === 'misconfigured' ? `<div class="notice warn" style="margin-bottom:16px;border-color:var(--red)">${icon('gpp_bad')}<span><b>Antibot non configurato in produzione:</b> voti, proposte e messaggi vengono rifiutati finché non imposti <code>TURNSTILE_SITE_KEY</code> e <code>TURNSTILE_SECRET_KEY</code> sul server. <a href="#/impostazioni?sezione=protezioni">Dettagli</a></span></div>`
+        : secSt.antibot === 'off' ? `<div class="notice" style="margin-bottom:16px">${icon('science')}<span>Modalità sviluppo: l’antibot Turnstile non è configurato e i controlli antibot vengono saltati. In produzione sono obbligatori. <a href="#/impostazioni?sezione=protezioni">Dettagli</a></span></div>` : '';
+    Promise.resolve(view($main, id)).then(() => { if (secBanner && document.body.contains($main)) $main.insertAdjacentHTML('afterbegin', secBanner); });
     window.scrollTo(0, 0);
   }
 
@@ -189,7 +194,8 @@
         <a class="stat ${pending.length ? 'warn' : ''}" href="${pending.length && pending.every((x) => x.kind === 'Carta') ? '#/carte-proposte?filtro=pending' : '#/modalita?filtro=pending'}"><b>${pending.length}</b><span>Proposte da controllare</span></a>
         <a class="stat" href="#/modalita?filtro=published"><b>${published.length}</b><span>Modalità pubblicate</span></a>
         <a class="stat" href="#/carte"><b>${DATA.cards.length}</b><span>Carte nel catalogo</span></a>
-        <a class="stat" href="#/voti"><b>${DATA.votes.length}</b><span>Voti ricevuti</span></a>
+        <a class="stat" href="#/voti"><b>${DATA.votes.filter((v) => !v.excluded).length}</b><span>Voti validi</span></a>
+        <a class="stat ${DATA.messages.some((x) => x.status === 'new') ? 'warn' : ''}" href="#/messaggi"><b>${DATA.messages.filter((x) => x.status === 'new').length}</b><span>Messaggi nuovi</span></a>
       </div>
       <div class="panel" style="margin-top:16px">
         <div class="panel-head"><h2>Proposte in attesa</h2><div class="row"><a class="btn secondary sm" href="#/modalita?filtro=pending">Modalità</a><a class="btn secondary sm" href="#/carte-proposte?filtro=pending">Carte</a></div></div>
@@ -585,7 +591,6 @@
     const c = DATA.userCards.find((x) => x.id === id);
     if (!c) { $m.innerHTML = `<p class="empty">Carta non trovata. <a href="#/carte-proposte">Torna alle carte proposte</a></p>`; return; }
     const L = DATA.settings.cardMaker.limits;
-    const votes = DATA.votes.filter((v) => v.cardId === c.id).sort((a, b) => b.at.localeCompare(a.at));
     const tf = (k, label, rows) => `<div class="field"><label for="${k}">${label}</label>
       ${rows ? `<textarea id="${k}" name="${k}" maxlength="${L[k]}" rows="${rows}">${esc(c[k] || '')}</textarea>` : `<input id="${k}" name="${k}" type="text" maxlength="${L[k]}" value="${esc(c[k] || '')}">`}
       <p class="help" style="text-align:right"><span data-cnt="${k}">${(c[k] || '').length}</span>/${L[k]}</p></div>`;
@@ -594,6 +599,7 @@
       <div class="page-head"><div><h1>${esc(c.title)}</h1>
         <p class="muted">${statusBadge(c.status)} · ${c.source === 'demo' ? 'Carta di esempio' : 'Proposta da un giocatore'} il ${fmtDate(c.createdAt)}</p></div></div>
       ${c.status === 'pending' ? `<div class="notice warn" style="margin-bottom:16px">${icon('pending_actions')}<span>Questa carta non è visibile nell’app. Controllala, correggi eventuali errori e poi pubblicala o rifiutala.</span></div>` : ''}
+      ${proposalInfo(c, 'carte-proposte')}
       <form class="split" id="f" novalidate>
         <div>
           <div class="panel form">
@@ -611,12 +617,7 @@
             ${c.note ? `<div class="field"><span class="label">Note del giocatore</span><p class="notice">${icon('chat')}<span>${esc(c.note)}</span></p></div>` : ''}
             <div class="field"><label for="adminNote">Note interne</label><textarea id="adminNote" name="adminNote" rows="2" placeholder="Visibili solo nel CMS">${esc(c.adminNote || '')}</textarea></div>
           </div>
-          <div class="panel">
-            <div class="panel-head"><h2>Voti</h2><span class="muted">${c.ratingCount ? `Media ${fmtAvg(c.ratingSum, c.ratingCount)} su 5 · ${c.ratingCount} voti` : 'Ancora nessun voto'}</span></div>
-            ${votes.length ? `<div class="table-wrap"><table><tbody>${votes.map((v) => `<tr><td><span class="stars">${'★'.repeat(v.value)}</span><span class="muted">${'★'.repeat(5 - v.value)}</span></td>
-              <td class="muted small">${v.demo ? '<span class="badge demo">Demo</span>' : esc(v.deviceId.slice(0, 10)) + '…'}</td><td class="muted small">${fmtDate(v.at)}</td>
-              <td style="text-align:right"><button type="button" class="btn danger sm icon" data-del-vote="${esc(v.id)}" aria-label="Elimina voto">${icon('delete')}</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nessun voto da mostrare.</p>'}
-          </div>
+          ${votesSummaryPanel(c, 'card:' + c.id)}
         </div>
         <aside class="sticky">
           <div class="panel"><canvas id="uc-prev" style="width:100%;border-radius:12px;display:block"></canvas>
@@ -655,10 +656,6 @@
       if (!confirm('Eliminare definitivamente questa carta e i suoi voti?')) return;
       if (await act(e.currentTarget, () => api('DELETE', 'user-cards/' + c.id), 'Carta eliminata')) { dirty = false; go('#/carte-proposte'); }
     });
-    $m.querySelectorAll('[data-del-vote]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm('Eliminare questo voto?')) return;
-      if (await act(b, () => api('DELETE', 'votes/' + b.dataset.delVote), 'Voto eliminato')) route();
-    }));
   }
 
   /* ---------------- Modalità ---------------- */
@@ -704,13 +701,13 @@
     const m = isNew ? { title: '', author: 'Team Busa', email: '', players: '', description: '', rules: '', tried: '', cards: {}, status: 'published', note: '', icon: '', iconScale: 70, iconX: 0, iconY: 0, ratingSum: 0, ratingCount: 0 } : DATA.modes.find((x) => x.id === id);
     if (!m) { $m.innerHTML = `<p class="empty">Modalità non trovata. <a href="#/modalita">Torna alle modalità</a></p>`; return; }
     const cards = { ...m.cards };
-    const votes = isNew ? [] : DATA.votes.filter((v) => v.modeId === m.id).sort((a, b) => b.at.localeCompare(a.at));
     const pl = parsePlayers(m.players);
     $m.innerHTML = `
       <a class="crumb" href="#/modalita">${icon('arrow_back')}Modalità</a>
       <div class="page-head"><div><h1>${isNew ? 'Nuova modalità' : esc(m.title)}</h1>
         ${isNew ? '<p class="muted">Creata dal team Busa: puoi pubblicarla subito.</p>' : `<p class="muted">${statusBadge(m.status)} · ${m.source === 'utente' ? 'Proposta da un giocatore' : m.source === 'demo' ? 'Modalità di esempio' : 'Creata dal team Busa'} il ${fmtDate(m.createdAt)}</p>`}</div></div>
       ${!isNew && m.status === 'pending' ? `<div class="notice warn" style="margin-bottom:16px">${icon('pending_actions')}<span>Questa proposta non è visibile nell’app. Controllala, correggi eventuali errori e poi pubblicala o rifiutala.</span></div>` : ''}
+      ${isNew ? '' : proposalInfo(m, 'modalita')}
       <form class="split" id="f" novalidate>
         <div>
           <div class="panel form">
@@ -735,15 +732,7 @@
             <div class="panel-head"><h2>Carte Busa</h2><span class="badge" id="tot"></span></div>
             <div class="qty-grid" id="qty"></div>
           </div>
-          ${isNew ? '' : `<div class="panel">
-            <div class="panel-head"><h2>Voti</h2><span class="muted">${m.ratingCount ? `Media ${fmtAvg(m.ratingSum, m.ratingCount)} su 5 · ${m.ratingCount} voti` : 'Ancora nessun voto'}</span></div>
-            ${votes.length ? `<div class="table-wrap"><table><thead><tr><th>Voto</th><th>Dispositivo</th><th>Data</th><th></th></tr></thead><tbody>
-              ${votes.map((v) => `<tr><td><span class="stars">${'★'.repeat(v.value)}</span><span class="muted">${'★'.repeat(5 - v.value)}</span></td>
-                <td class="muted small">${v.demo ? '<span class="badge demo">Demo</span>' : esc(v.deviceId.slice(0, 10)) + '…'}</td><td class="muted small">${fmtDate(v.at)}</td>
-                <td style="text-align:right"><button type="button" class="btn danger sm icon" data-del-vote="${esc(v.id)}" aria-label="Elimina voto">${icon('delete')}</button></td></tr>`).join('')}
-              </tbody></table></div>
-              <div class="row end" style="margin-top:12px"><button type="button" class="btn danger sm" id="clear-votes">${icon('delete_sweep')}Azzera tutti i voti</button></div>` : '<p class="muted">Nessun voto da mostrare.</p>'}
-          </div>`}
+          ${isNew ? '' : votesSummaryPanel(m, 'mode:' + m.id)}
         </div>
         <aside>
           <div class="panel form">
@@ -881,45 +870,194 @@
       if (!confirm('Eliminare definitivamente questa modalità e i suoi voti?')) return;
       if (await act(e.currentTarget, () => api('DELETE', 'modes/' + m.id), 'Modalità eliminata')) { dirty = false; go('#/modalita'); }
     });
-    $m.querySelectorAll('[data-del-vote]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm('Eliminare questo voto?')) return;
-      if (await act(b, () => api('DELETE', 'votes/' + b.dataset.delVote), 'Voto eliminato')) route();
-    }));
-    document.getElementById('clear-votes')?.addEventListener('click', async (e) => {
-      if (!confirm(`Eliminare tutti i ${votes.length} voti di questa modalità?`)) return;
-      if (await act(e.currentTarget, () => api('POST', 'votes/clear', { modeId: m.id }), 'Voti azzerati')) route();
-    });
+
+  }
+
+  // Riquadro voti nelle schede di modalità e carte: riepilogo e collegamento alla revisione dei voti.
+  function votesSummaryPanel(item, key) {
+    const vs = votesOf(key), sig = voteSignals(vs).length, ex = vs.filter((v) => v.excluded).length;
+    return `<div class="panel">
+      <div class="panel-head"><h2>Voti</h2><span class="muted">${item.ratingCount ? `Media ${fmtAvg(item.ratingSum, item.ratingCount)} su 5 · ${item.ratingCount} voti validi` : 'Ancora nessun voto valido'}${ex ? ` · ${ex} esclusi` : ''}</span></div>
+      ${vs.length ? distBars(vs) : ''}
+      ${item.votingSuspended ? `<p class="notice warn">${icon('pause_circle')}<span>Votazioni sospese.</span></p>` : ''}
+      ${sig ? `<p class="notice warn">${icon('flag')}<span>${sig} ${sig === 1 ? 'segnale' : 'segnali'} da verificare.</span></p>` : ''}
+      <div class="row" style="margin-top:10px"><a class="btn secondary sm" href="#/voti/${esc(key)}">${icon('fact_check')}Controlla i voti, escludi o sospendi</a></div></div>`;
+  }
+  const NOTIFY = { none: ['Nessuna notifica richiesta', ''], pending: ['In attesa di conferma: nessuna email verrà inviata finché l’indirizzo non è confermato', 'pending'], verified: ['Indirizzo confermato: riceverà un’email quando la proposta viene pubblicata o rifiutata', 'published'], unavailable: ['Notifiche richieste ma email non configurate sul server', ''], expired: ['Conferma scaduta: nessuna notifica', ''], off: ['Notifiche disattivate dalla persona', 'rejected'] };
+  function proposalInfo(x, base) {
+    const [txt, cls] = NOTIFY[x.notifyStatus] || NOTIFY.none;
+    const dups = x.possibleDuplicates || [];
+    return `${dups.length ? `<div class="notice warn" style="margin-bottom:16px">${icon('content_copy')}<span><b>Possibile duplicato</b> (solo una segnalazione, controlla tu): ${dups.map((d) => `<a href="#/${base}/${esc(d.id)}">${esc(d.title)}</a> ${statusBadge(d.status)}${d.sameBrowser ? ' <span class="muted">stesso browser</span>' : ''}`).join(', ')}</span></div>` : ''}
+      ${x.source === 'utente' && x.email ? `<p class="help"><span class="badge ${cls}">${icon('mail')}</span> ${esc(txt)}</p>` : ''}
+      ${x.browserTag ? `<p class="help">Browser <code>${esc(x.browserTag)}</code>${x.networkTag ? ` · rete <code>${esc(x.networkTag)}</code>` : ''} (etichette anonime, cancellate dopo ${ME.security?.retentionDays || 30} giorni)</p>` : ''}`;
   }
 
   /* ---------------- Voti ---------------- */
-  function viewVotes($m) {
+  // Contenuti votabili: modalità e carte dei giocatori. Chiave "mode:<id>" o "card:<id>".
+  const voteTargets = () => [
+    ...DATA.modes.map((x) => ({ key: 'mode:' + x.id, kind: 'Modalità', item: x, href: '#/modalita/' + x.id })),
+    ...DATA.userCards.map((x) => ({ key: 'card:' + x.id, kind: 'Carta', item: x, href: '#/carte-proposte/' + x.id })),
+  ];
+  const votesOf = (key) => DATA.votes.filter((v) => (v.cardId ? 'card:' + v.cardId : 'mode:' + v.modeId) === key);
+  const dayOf = (iso) => String(iso || '').slice(0, 10);
+  /*
+   * Segnali da verificare: aiutano la revisione, non sono prove di abuso.
+   * Nessun voto viene escluso automaticamente (persone diverse possono condividere la stessa rete Wi-Fi).
+   */
+  function voteSignals(votes) {
+    const out = [];
+    const valid = votes.filter((v) => !v.excluded && !v.demo);
+    // Picchi: giorni con molti più voti del solito per questo contenuto.
+    const perDay = {};
+    valid.forEach((v) => { const d = dayOf(v.createdAt || v.at); perDay[d] = (perDay[d] || 0) + 1; });
+    const counts = Object.values(perDay).sort((a, b) => a - b);
+    const median = counts.length ? counts[Math.floor(counts.length / 2)] : 0;
+    Object.entries(perDay).forEach(([d, n]) => { if (n >= Math.max(5, median * 3)) out.push({ icon: 'trending_up', text: `Picco: ${n} voti il ${new Date(d).toLocaleDateString('it-IT')} (di solito ${median} al giorno).` }); });
+    // Raffiche: 5 o più voti nuovi in 10 minuti.
+    const times = valid.map((v) => Date.parse(v.createdAt || v.at)).sort((a, b) => a - b);
+    for (let i = 0, j = 0; j < times.length; j++) {
+      while (times[j] - times[i] > 600e3) i++;
+      if (j - i + 1 >= 5) { out.push({ icon: 'bolt', text: `Raffica: ${j - i + 1} voti in 10 minuti (${new Date(times[i]).toLocaleString('it-IT')}).` }); break; }
+    }
+    // Stessa rete: 3 o più voti validi dalla stessa rete (può essere una Wi-Fi condivisa).
+    const perNet = {};
+    valid.forEach((v) => { if (v.networkTag) (perNet[v.networkTag] = perNet[v.networkTag] || []).push(v); });
+    Object.entries(perNet).forEach(([n, l]) => { if (l.length >= 3) out.push({ icon: 'lan', net: n, text: `${l.length} voti dalla stessa rete (${n}), media ${fmtAvg(l.reduce((a, v) => a + v.value, 0), l.length)}. Può essere una Wi-Fi condivisa.` }); });
+    // Modifiche ripetute dello stesso voto.
+    valid.filter((v) => v.changes >= 3).forEach((v) => out.push({ icon: 'edit_note', text: `Il browser ${v.voterTag} ha cambiato il voto ${v.changes} volte.` }));
+    return out;
+  }
+  const distribution = (votes) => { const d = [0, 0, 0, 0, 0]; votes.forEach((v) => { if (!v.excluded) d[v.value - 1]++; }); return d; };
+  function distBars(votes) {
+    const d = distribution(votes), max = Math.max(1, ...d);
+    return `<div class="dist">${[5, 4, 3, 2, 1].map((n) => `<div class="dist-row"><span>${n} ★</span><span class="bar"><span style="width:${(d[n - 1] / max) * 100}%"></span></span><b>${d[n - 1]}</b></div>`).join('')}</div>`;
+  }
+
+  function viewVotes($m, id) {
+    if (id) return viewVoteTarget($m, id);
     const demo = DATA.votes.filter((v) => v.demo).length;
-    const rows = DATA.modes.filter((x) => x.ratingCount || x.status === 'published').sort((a, b) => b.ratingCount - a.ratingCount);
-    const recent = [...DATA.votes].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 30);
-    const title = (id) => DATA.modes.find((x) => x.id === id)?.title || id;
+    const rows = voteTargets().map((t) => {
+      const vs = votesOf(t.key);
+      return { ...t, total: vs.length, excluded: vs.filter((v) => v.excluded).length, signals: voteSignals(vs).length };
+    }).filter((t) => t.total || t.item.status === 'published').sort((a, b) => b.signals - a.signals || b.total - a.total);
+    // Browser con molti voti in poco tempo su contenuti diversi.
+    const perVoter = {};
+    DATA.votes.filter((v) => !v.demo && v.voterTag).forEach((v) => (perVoter[v.voterTag] = perVoter[v.voterTag] || []).push(Date.parse(v.createdAt || v.at)));
+    const busy = Object.entries(perVoter).filter(([, l]) => { l.sort((a, b) => a - b); for (let i = 0, j = 0; j < l.length; j++) { while (l[j] - l[i] > 3600e3) i++; if (j - i + 1 >= 10) return true; } return false; });
     $m.innerHTML = `
-      <div class="page-head"><div><h1>Voti</h1><p class="muted">Voti anonimi dati dai giocatori alle modalità pubblicate. Ogni dispositivo ha un solo voto per modalità e può modificarlo.</p></div>
+      <div class="page-head"><div><h1>Voti</h1><p class="muted">Voti anonimi: uno per browser e contenuto, modificabile. Puoi escludere un voto dalla media indicando il motivo e ripristinarlo in qualsiasi momento.</p></div>
         ${demo ? `<button class="btn danger" id="clear-demo">${icon('delete_sweep')}Elimina i ${demo} voti dimostrativi</button>` : ''}</div>
-      <div class="panel"><div class="panel-head"><h2>Per modalità</h2></div>
-        <div class="table-wrap"><table><thead><tr><th>Modalità</th><th>Media</th><th>Voti</th><th>Di cui demo</th><th></th></tr></thead><tbody>
-        ${rows.map((x) => `<tr class="clickable" data-href="#/modalita/${esc(x.id)}"><td><span class="title">${esc(x.title)}</span> ${statusBadge(x.status)}</td>
-          <td class="num">${x.ratingCount ? `<span class="stars">★</span> ${fmtAvg(x.ratingSum, x.ratingCount)}` : '—'}</td><td class="num">${x.ratingCount}</td>
-          <td class="num">${DATA.votes.filter((v) => v.modeId === x.id && v.demo).length}</td><td style="text-align:right">${icon('chevron_right', 'muted')}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Ancora nessun voto.</td></tr>'}
-        </tbody></table></div></div>
-      <div class="panel"><div class="panel-head"><h2>Ultimi voti</h2></div>
-        <div class="table-wrap"><table><thead><tr><th>Modalità</th><th>Voto</th><th>Data</th><th></th></tr></thead><tbody>
-        ${recent.map((v) => `<tr><td>${esc(title(v.modeId))} ${v.demo ? '<span class="badge demo">Demo</span>' : ''}</td><td><span class="stars">${'★'.repeat(v.value)}</span></td>
-          <td class="muted small">${fmtDate(v.at)}</td><td style="text-align:right"><button class="btn danger sm icon" data-del-vote="${esc(v.id)}" aria-label="Elimina voto">${icon('delete')}</button></td></tr>`).join('') || '<tr><td colspan="4" class="empty">Ancora nessun voto.</td></tr>'}
+      <div class="notice" style="margin-bottom:16px">${icon('info')}<span>I segnali indicano attività da controllare, non prove di abuso: persone diverse possono condividere la stessa rete Wi-Fi e un voto basso non è un abuso. Senza account non si può garantire “una persona, un voto”.</span></div>
+      ${busy.length ? `<div class="notice warn" style="margin-bottom:16px">${icon('person_alert')}<span>${busy.length} ${busy.length === 1 ? 'browser ha' : 'browser hanno'} dato 10 o più voti in un’ora: ${busy.map(([t]) => `<code>${esc(t)}</code>`).join(', ')}.</span></div>` : ''}
+      <div class="panel"><div class="panel-head"><h2>Per contenuto</h2></div>
+        <div class="table-wrap"><table><thead><tr><th>Contenuto</th><th>Media</th><th>Voti validi</th><th>Esclusi</th><th>Segnali</th><th></th></tr></thead><tbody>
+        ${rows.map((t) => `<tr class="clickable" data-href="#/voti/${esc(t.key)}"><td><span class="badge">${t.kind}</span> <span class="title">${esc(t.item.title)}</span> ${statusBadge(t.item.status)} ${t.item.votingSuspended ? '<span class="badge rejected">Votazioni sospese</span>' : ''}</td>
+          <td class="num">${t.item.ratingCount ? `<span class="stars">★</span> ${fmtAvg(t.item.ratingSum, t.item.ratingCount)}` : '—'}</td><td class="num">${t.item.ratingCount}</td>
+          <td class="num">${t.excluded || ''}</td><td>${t.signals ? `<span class="badge pending">${icon('flag')}${t.signals}</span>` : ''}</td><td style="text-align:right">${icon('chevron_right', 'muted')}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Ancora nessun voto.</td></tr>'}
         </tbody></table></div></div>`;
     bindRows($m);
     document.getElementById('clear-demo')?.addEventListener('click', async (e) => {
       if (!confirm('Eliminare tutti i voti dimostrativi? Resteranno solo quelli veri dei giocatori.')) return;
       if (await act(e.currentTarget, () => api('POST', 'votes/clear', { demoOnly: true }), 'Voti dimostrativi eliminati')) route();
     });
-    $m.querySelectorAll('[data-del-vote]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm('Eliminare questo voto?')) return;
-      if (await act(b, () => api('DELETE', 'votes/' + b.dataset.delVote), 'Voto eliminato')) route();
+  }
+
+  function viewVoteTarget($m, key) {
+    const t = voteTargets().find((x) => x.key === key);
+    if (!t) { $m.innerHTML = `<p class="empty">Contenuto non trovato. <a href="#/voti">Torna ai voti</a></p>`; return; }
+    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+    const netFilter = params.get('rete') || '';
+    const all = votesOf(key).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const list = netFilter ? all.filter((v) => v.networkTag === netFilter) : all;
+    const signals = voteSignals(all);
+    // Attività degli ultimi 30 giorni (voti nuovi per giorno).
+    const days = [...Array(30)].map((_, i) => dayOf(new Date(Date.now() - (29 - i) * 86400e3).toISOString()));
+    const perDay = Object.fromEntries(days.map((d) => [d, 0]));
+    all.forEach((v) => { const d = dayOf(v.createdAt || v.at); if (d in perDay) perDay[d]++; });
+    const maxDay = Math.max(1, ...Object.values(perDay));
+    const it = t.item;
+    $m.innerHTML = `
+      <a class="crumb" href="#/voti">${icon('arrow_back')}Voti</a>
+      <div class="page-head"><div><h1>${esc(it.title)}</h1><p class="muted">${t.kind} · ${statusBadge(it.status)} · ${it.ratingCount ? `Media ${fmtAvg(it.ratingSum, it.ratingCount)} su 5 · ${it.ratingCount} voti validi` : 'Nessun voto valido'}${all.some((v) => v.excluded) ? ` · ${all.filter((v) => v.excluded).length} esclusi` : ''}</p></div>
+        <div class="row"><a class="btn secondary" href="${esc(t.href)}">${icon('open_in_new')}Apri ${t.kind === 'Carta' ? 'la carta' : 'la modalità'}</a>
+          <button class="btn ${it.votingSuspended ? '' : 'danger'}" id="suspend">${icon(it.votingSuspended ? 'play_circle' : 'pause_circle')}${it.votingSuspended ? 'Riattiva le votazioni' : 'Sospendi le votazioni'}</button></div></div>
+      ${it.votingSuspended ? `<div class="notice warn" style="margin-bottom:16px">${icon('pause_circle')}<span>Votazioni sospese: nell’app media e voti restano visibili, ma non si possono dare o modificare voti.</span></div>` : ''}
+      <div class="split" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div class="panel"><div class="panel-head"><h2>Distribuzione delle stelle</h2><span class="muted small">solo voti validi</span></div>${distBars(all)}</div>
+        <div class="panel"><div class="panel-head"><h2>Nuovi voti, ultimi 30 giorni</h2></div>
+          <div class="spark" role="img" aria-label="Voti al giorno negli ultimi 30 giorni">${days.map((d) => `<span title="${new Date(d).toLocaleDateString('it-IT')}: ${perDay[d]}" style="height:${Math.max(3, (perDay[d] / maxDay) * 100)}%" class="${perDay[d] ? 'on' : ''}"></span>`).join('')}</div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Segnali da verificare</h2></div>
+        ${signals.length ? signals.map((x) => `<div class="notice warn">${icon(x.icon)}<span>${esc(x.text)}${x.net ? ` <a href="#/voti/${esc(key)}?rete=${esc(x.net)}">Mostra solo questi voti</a>` : ''}</span></div>`).join('') : `<p class="muted">${icon('task_alt')} Nessuna attività insolita.</p>`}</div>
+      <div class="panel"><div class="panel-head"><h2>Tutti i voti ${netFilter ? `dalla rete ${esc(netFilter)} <a class="btn secondary sm" href="#/voti/${esc(key)}">Mostra tutti</a>` : ''}</h2></div>
+        <div class="table-wrap"><table><thead><tr><th>Voto</th><th>Browser</th><th>Rete</th><th>Primo voto</th><th>Ultima modifica</th><th>Stato</th><th></th></tr></thead><tbody>
+        ${list.map((v) => `<tr class="${v.excluded ? 'excluded' : ''}"><td><span class="stars">${'★'.repeat(v.value)}</span><span class="muted">${'★'.repeat(5 - v.value)}</span></td>
+          <td class="muted small"><code>${esc(v.voterTag)}</code>${v.demo ? ' <span class="badge demo">Demo</span>' : ''}</td>
+          <td class="muted small">${v.networkTag ? `<a href="#/voti/${esc(key)}?rete=${esc(v.networkTag)}"><code>${esc(v.networkTag)}</code></a>` : '—'}</td>
+          <td class="muted small">${fmtDate(v.createdAt || v.at)}</td><td class="muted small">${v.changes ? `${fmtDate(v.at)} (${v.changes} ${v.changes === 1 ? 'modifica' : 'modifiche'})` : '—'}</td>
+          <td class="small">${v.excluded ? `<span class="badge rejected">Escluso</span><div class="muted">${esc(v.excluded.reason)} · ${esc(v.excluded.by || '')}, ${fmtDate(v.excluded.at)}</div>` : '<span class="badge published">Valido</span>'}
+            ${(v.history || []).length ? `<details class="muted"><summary>Storico</summary>${v.history.map((h) => `<div>${h.action === 'exclude' ? 'Escluso' : 'Ripristinato'} il ${fmtDate(h.at)} da ${esc(h.by || '')}: ${esc(h.reason)}</div>`).join('')}</details>` : ''}</td>
+          <td style="text-align:right">${v.excluded ? `<button class="btn secondary sm" data-restore="${esc(v.id)}">${icon('undo')}Ripristina</button>` : `<button class="btn danger sm" data-exclude="${esc(v.id)}">${icon('block')}Escludi</button>`}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">Nessun voto.</td></tr>'}
+        </tbody></table></div>
+        <p class="help" style="margin-top:8px">Browser e rete sono etichette brevi e anonime: servono solo a riconoscere voti dallo stesso browser o dalla stessa rete. L’indirizzo IP non viene salvato, e l’etichetta della rete si cancella dopo ${ME.security?.retentionDays || 30} giorni.</p></div>`;
+    $m.querySelectorAll('[data-exclude]').forEach((b) => b.addEventListener('click', async () => {
+      const reason = prompt('Perché escludi questo voto dalla media? (resterà registrato e potrai ripristinarlo)');
+      if (!reason || !reason.trim()) return;
+      if (await act(b, () => api('POST', `votes/${encodeURIComponent(b.dataset.exclude)}/exclude`, { reason: reason.trim() }), 'Voto escluso dalla media')) route();
     }));
+    $m.querySelectorAll('[data-restore]').forEach((b) => b.addEventListener('click', async () => {
+      const reason = prompt('Perché ripristini questo voto?');
+      if (!reason || !reason.trim()) return;
+      if (await act(b, () => api('POST', `votes/${encodeURIComponent(b.dataset.restore)}/restore`, { reason: reason.trim() }), 'Voto ripristinato')) route();
+    }));
+    document.getElementById('suspend').addEventListener('click', async (e) => {
+      const on = !it.votingSuspended;
+      if (on && !confirm('Sospendere le votazioni? Media e voti restano visibili, ma nessuno potrà votare finché non le riattivi.')) return;
+      const path = (t.kind === 'Carta' ? 'user-cards/' : 'modes/') + encodeURIComponent(it.id);
+      if (await act(e.currentTarget, () => api('PUT', path, { votingSuspended: on }), on ? 'Votazioni sospese' : 'Votazioni riattivate')) route();
+    });
+  }
+
+  /* ---------------- Messaggi (modulo contatti) ---------------- */
+  const MSG_STATUS = { new: 'Nuovo', read: 'Letto', answered: 'Risposto', archived: 'Archiviato' };
+  const MSG_TOPIC = { domanda: 'Domanda sul gioco', segnalazione: 'Segnalazione', altro: 'Altro' };
+  function viewMessages($m, id) {
+    if (id) return viewMessage($m, id);
+    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+    const filtro = params.get('filtro') || 'aperti';
+    const list = DATA.messages.filter((x) => (filtro === 'tutti' ? true : filtro === 'archiviati' ? x.status === 'archived' : x.status !== 'archived'))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    $m.innerHTML = `
+      <div class="page-head"><div><h1>Messaggi</h1><p class="muted">Domande e segnalazioni inviate dal modulo contatti dell’app. Sono visibili solo qui. Si cancellano da soli dopo ${ME.security?.messageRetentionDays || 365} giorni.</p></div></div>
+      <div class="tabs" role="group" aria-label="Filtra">${[['aperti', 'Da gestire'], ['archiviati', 'Archiviati'], ['tutti', 'Tutti']].map(([k, l]) => `<a class="tab" href="#/messaggi?filtro=${k}" aria-pressed="${filtro === k}">${l}</a>`).join('')}</div>
+      <div class="panel"><div class="table-wrap"><table><thead><tr><th>Messaggio</th><th>Argomento</th><th>Risposta</th><th>Stato</th><th>Data</th><th></th></tr></thead><tbody>
+      ${list.map((x) => `<tr class="clickable" data-href="#/messaggi/${esc(x.id)}"><td><span class="title">${esc(x.message.slice(0, 90))}${x.message.length > 90 ? '…' : ''}</span></td>
+        <td class="small">${esc(MSG_TOPIC[x.topic] || x.topic)}</td><td class="small">${x.wantsReply ? icon('reply') + ' Chiesta' : '<span class="muted">No</span>'}</td>
+        <td><span class="badge ${x.status === 'new' ? 'pending' : ''}">${MSG_STATUS[x.status] || x.status}</span></td><td class="muted small">${fmtDate(x.createdAt)}</td><td style="text-align:right">${icon('chevron_right', 'muted')}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Nessun messaggio.</td></tr>'}
+      </tbody></table></div></div>`;
+    bindRows($m);
+  }
+  async function viewMessage($m, id) {
+    const x = DATA.messages.find((m) => m.id === id);
+    if (!x) { $m.innerHTML = `<p class="empty">Messaggio non trovato. <a href="#/messaggi">Torna ai messaggi</a></p>`; return; }
+    if (x.status === 'new') { try { await api('PUT', 'messages/' + encodeURIComponent(x.id), { status: 'read' }); x.status = 'read'; } catch { /* resta "nuovo" */ } }
+    // Il testo dell'utente è mostrato come testo semplice (mai come HTML).
+    $m.innerHTML = `
+      <a class="crumb" href="#/messaggi">${icon('arrow_back')}Messaggi</a>
+      <div class="page-head"><div><h1>${esc(MSG_TOPIC[x.topic] || 'Messaggio')}</h1><p class="muted">Ricevuto il ${fmtDate(x.createdAt)} · <span class="badge">${MSG_STATUS[x.status]}</span>${x.browserTag ? ` · browser <code>${esc(x.browserTag)}</code>` : ''}</p></div></div>
+      <div class="split">
+        <div class="panel"><p class="msg-text">${esc(x.message)}</p></div>
+        <aside><div class="panel form">
+          <div class="field"><span class="label">Risposta</span>${x.wantsReply ? `<p>La persona chiede una risposta a <b>${esc(x.email)}</b> <span class="muted">(indirizzo non verificato)</span>.</p>
+            <a class="btn" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Risposta dal team MÖVAT!')}">${icon('reply')}Rispondi con la tua posta</a>` : `<p class="muted">Nessuna risposta richiesta${x.email ? `; email indicata: ${esc(x.email)}` : ''}.</p>`}</div>
+          <div class="field"><label for="note">Note interne</label><textarea id="note" rows="3">${esc(x.adminNote || '')}</textarea></div>
+          <div class="row"><select id="st">${Object.entries(MSG_STATUS).map(([k, l]) => `<option value="${k}" ${k === x.status ? 'selected' : ''}>${l}</option>`).join('')}</select>
+            <button class="btn" id="save">${icon('save')}Salva</button></div>
+          <button class="btn danger" id="del">${icon('delete')}Elimina il messaggio</button>
+        </div></aside>
+      </div>`;
+    document.getElementById('save').onclick = async (e) => { if (await act(e.currentTarget, () => api('PUT', 'messages/' + encodeURIComponent(x.id), { status: document.getElementById('st').value, adminNote: document.getElementById('note').value }), 'Messaggio aggiornato')) route(); };
+    document.getElementById('del').onclick = async (e) => { if (confirm('Eliminare definitivamente questo messaggio?') && await act(e.currentTarget, () => api('DELETE', 'messages/' + encodeURIComponent(x.id)), 'Messaggio eliminato')) go('#/messaggi'); };
   }
 
   /* ---------------- FAQ ---------------- */
@@ -1049,6 +1187,26 @@
           <p class="help">Separale con una virgola. Le email partono solo se sul server è configurato l’invio (vedi la guida).</p></div>
         <div class="row"><button class="btn" type="submit">${icon('save')}Salva</button></div>
       </form>
+      <form class="panel form" id="protect" novalidate>
+        <h2>Protezioni e classifica</h2>
+        <p class="muted">Limiti per gli invii anonimi dall’app (nessun account). Gli altri limiti e le chiavi si impostano sul server: vedi la guida nel README.</p>
+        <div class="grid-2">
+          <div class="field"><label for="proposalsPerDay">Proposte al giorno per browser</label><input id="proposalsPerDay" name="proposalsPerDay" type="text" inputmode="numeric" maxlength="2" value="${esc(s.proposalsPerDay || 3)}">
+            <p class="help">Modalità e carte contate insieme (da 1 a 50).</p></div>
+          <div class="field"><label for="rankMinVotes">Voti minimi per la classifica</label><input id="rankMinVotes" name="rankMinVotes" type="text" inputmode="numeric" maxlength="3" value="${esc(s.rankMinVotes || 5)}">
+            <p class="help">Sotto questa soglia i contenuti restano visibili ma non entrano nell’ordinamento “Valutazione più alta”.</p></div>
+        </div>
+        ${(() => { const st = ME.security || {}; const row = (ok, l, d) => `<li>${icon(ok ? 'check_circle' : 'error', ok ? 'fill' : '')} <b>${l}</b> ${d}</li>`;
+          return `<ul class="sec-status">
+            ${row(st.antibot === 'on', 'Antibot Cloudflare Turnstile:', st.antibot === 'on' ? 'attivo.' : st.antibot === 'misconfigured' ? 'mancano le chiavi: in produzione gli invii sono bloccati.' : 'non configurato (sviluppo: controlli saltati).')}
+            ${row(st.mail !== 'off', 'Email:', st.mail === 'smtp' ? 'attive (SMTP).' : st.mail === 'outbox' ? 'solo prova (scritte in data/outbox.log).' : 'non configurate: le proposte arrivano, le notifiche no.')}
+            ${row(st.publicUrl, 'Indirizzo pubblico (PUBLIC_URL):', st.publicUrl ? 'impostato.' : 'non impostato (serve in produzione per i link nelle email).')}
+            ${row(true, 'Cookie anonimo del browser:', `dura ${st.anonIdDays || 180} giorni.`)}
+            ${row(true, 'Dati tecnici:', `etichette di rete e browser cancellate dopo ${st.retentionDays || 30} giorni; messaggi dopo ${st.messageRetentionDays || 365}.`)}
+            ${row(true, 'Proxy fidati:', `${st.trustProxyHops || 0}.`)}
+          </ul>`; })()}
+        <div class="row"><button class="btn" type="submit">${icon('save')}Salva</button></div>
+      </form>
       <form class="panel form" id="sizes" novalidate>
         <h2>Grandezza delle carte</h2>
         <p class="muted">Quanto è grande una carta quando nell’app viene mostrata da sola. Muovi un cursore per vederla nell’anteprima del telefono.</p>
@@ -1155,6 +1313,16 @@
       const data = Object.fromEntries(['title', 'dialect', 'translation', 'text'].map((k) => [k, sample(k, v.limits[k])]));
       window.MovatCardRender.render(document.getElementById('cm-prev'), data, { template: v.template, layout: v.layout, ratio: s.cardRatio, base: '/', width: 520 });
     };
+    const $pr = document.getElementById('protect');
+    $pr.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3); dirty = true; });
+    $pr.onsubmit = async (e) => {
+      e.preventDefault();
+      const ppd = Number($pr.proposalsPerDay.value), rmv = Number($pr.rankMinVotes.value);
+      if (!(ppd >= 1 && ppd <= 50)) return toast('Proposte al giorno: da 1 a 50', true);
+      if (!(rmv >= 1 && rmv <= 100)) return toast('Voti minimi: da 1 a 100', true);
+      if (await act(e.submitter, () => api('PUT', 'settings', { proposalsPerDay: ppd, rankMinVotes: rmv }), 'Impostazioni salvate')) { dirty = false; route(); }
+    };
+    if (new URLSearchParams(location.hash.split('?')[1] || '').get('sezione') === 'protezioni') setTimeout(() => $pr.scrollIntoView(), 0);
     const $sz = document.getElementById('sizes');
     let csKey = 'list';
     const drawCs = () => {

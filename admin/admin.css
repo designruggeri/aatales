@@ -240,3 +240,20 @@ hr { border: 0; border-top: 1px solid var(--stroke-soft); margin: 16px 0; }
 .cs-screen { aspect-ratio: 360 / 740; border-radius: 18px; background: #f8faf5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; overflow: hidden; }
 .cs-screen small { font-weight: 700; color: var(--muted); font-size: 11px; text-align: center; padding: 0 8px; }
 .cs-card { aspect-ratio: var(--card-ratio, .716); border-radius: 8% / 6%; background: linear-gradient(135deg, #6dbb2c, #3f9a22); box-shadow: 0 4px 10px rgba(0,0,0,.2); max-width: 100%; max-height: 80%; }
+
+/* Voti: distribuzione, attività, voti esclusi */
+.dist { display: grid; gap: 6px; }
+.dist-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 36px; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+.dist-row .bar { height: 10px; border-radius: 6px; background: var(--lime-soft); overflow: hidden; }
+.dist-row .bar span { display: block; height: 100%; background: var(--green); border-radius: 6px; }
+.dist-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.spark { display: flex; align-items: flex-end; gap: 3px; height: 90px; }
+.spark span { flex: 1; background: var(--stroke); border-radius: 3px 3px 0 0; min-height: 3px; }
+.spark span.on { background: var(--green); }
+tr.excluded td { opacity: .6; }
+tr.excluded td:last-child, tr.excluded td:nth-last-child(2) { opacity: 1; }
+.msg-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.5; }
+.sec-status { list-style: none; padding: 0; margin: 4px 0 12px; display: grid; gap: 6px; font-size: 14px; }
+.sec-status li { display: flex; gap: 6px; align-items: flex-start; }
+.sec-status .ms { color: var(--green); }
+.sec-status .ms:not(.fill) { color: var(--red); }

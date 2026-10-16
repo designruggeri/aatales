@@ -17,6 +17,13 @@
       API = true;
     }
   } catch { /* nessun server: modalità dimostrativa */ }
+  // Voti già dati da questo browser, confermati dal server (cookie anonimo, nessun account).
+  let MY_VOTES = {};
+  if (API) {
+    try { const r = await fetch('api/my-votes', { cache: 'no-store', credentials: 'same-origin' }); if (r.ok) MY_VOTES = (await r.json()).votes || {}; } catch { /* si riprova al prossimo caricamento */ }
+    // Il vecchio codice dispositivo scelto dal browser non serve più.
+    try { localStorage.removeItem('movat:device'); } catch { /* storage non disponibile */ }
+  }
 
   const CONFIG = window.MOVAT_CONFIG;
   const CARDS = [...window.MOVAT_CARDS].sort((a, b) => a.number - b.number);
@@ -132,6 +139,7 @@
       case 'scopri': out = sub === 'carte' ? (parts[2] ? viewUserCard(parts[2]) : viewUserCards(query)) : sub ? viewMode(sub, query) : viewModes(query); break;
       case 'crea': out = sub ? viewCreate(sub, query) : viewCreateChooser(); break;
       case 'faq': out = viewFaq(query); break;
+      case 'contatti': out = viewContact(); break;
       case 'privacy': out = viewPrivacy(); break;
       default: out = viewNotFound();
     }
@@ -349,7 +357,7 @@
     const prev = CARDS[i - 1], next = CARDS[i + 1];
     const cardFaq = FAQ.filter((f) => f.cardId === card.id);
     // Modalità pubblicate (dei giocatori e del team Busa) che usano questa carta, prima le più votate.
-    const usedIn = MODES.filter((m) => m.cards[card.id]).sort((a, b) => ratingOf(b).avg - ratingOf(a).avg || ratingOf(b).count - ratingOf(a).count);
+    const usedIn = MODES.filter((m) => m.cards[card.id]).sort(byRating);
     const back = buildHash('ascolta', { q: query.q });
     const navLink = (c, cls, label, ic) => c
       ? `<a class="${cls}" href="${buildHash('ascolta/' + c.id, { q: query.q })}">${cls === 'prev' ? icon(ic) : ''}<span><small>${label} · #${pad2(c.number)}</small><b>${esc(c.name)}</b></span>${cls === 'next' ? icon(ic) : ''}</a>`
@@ -443,16 +451,87 @@
     };
   }
 
-  /* ---------------- Voti (senza account, salvati sul dispositivo) ---------------- */
-  const votes = store.get('votes', {});
-  // Codice casuale del dispositivo: permette di modificare il proprio voto senza account.
-  let deviceId = store.get('device', null);
-  if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2) + Date.now().toString(36); store.set('device', deviceId); }
+  /* ---------------- Invii al server (voti, proposte, contatti) ---------------- */
+  // Errore con un messaggio già adatto alle persone (mai dettagli tecnici).
+  class SendError extends Error { constructor(msg, extra = {}) { super(msg); Object.assign(this, extra); } }
+  const newKey = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).replace(/[^A-Za-z0-9_-]/g, '');
+  async function apiPost(url, body, { idem } = {}) {
+    let res;
+    try {
+      res = await fetch(url, { method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Movat-App': '1', ...(idem ? { 'Idempotency-Key': idem } : {}) }, body: JSON.stringify(body) });
+    } catch { throw new SendError('Connessione assente o instabile: controlla la rete e riprova.', { network: true }); }
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new SendError(out.error && res.status < 500 || out.code ? out.error : 'Il server non risponde come dovrebbe. Riprova tra poco.', { status: res.status, code: out.code, details: out.details });
+    return out;
+  }
+  /* Cloudflare Turnstile: lo script si carica solo quando serve e la verifica parte solo al momento dell'invio.
+     Di solito è invisibile; se serve un'interazione compare un piccolo riquadro in basso. */
+  const TS = { key: CONFIG.turnstileSiteKey || null, loading: null, id: null };
+  function loadTurnstile() {
+    if (!API || !TS.key) return Promise.resolve();
+    if (window.turnstile) return Promise.resolve();
+    if (!TS.loading) TS.loading = loadScript('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit').catch((e) => { TS.loading = null; throw e; });
+    return TS.loading;
+  }
+  function tsSlot() {
+    let el = document.getElementById('ts-slot');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'ts-slot'; el.className = 'ts-slot'; el.hidden = true;
+      el.innerHTML = `<div class="ts-card" role="dialog" aria-label="Verifica"><p>${icon('verified_user')}Un attimo: confermiamo che non sei un robot.</p><div class="ts-box"></div></div>`;
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+  async function antibotToken(action) {
+    if (!API || !TS.key) return undefined; // antibot non attivo (solo in sviluppo): il server lo sa e non lo chiede
+    try { await loadTurnstile(); } catch { throw new SendError('Non riusciamo a caricare la verifica antibot. Controlla la connessione e riprova.'); }
+    const slot = tsSlot(), box = slot.querySelector('.ts-box');
+    if (TS.id != null) { try { window.turnstile.remove(TS.id); } catch { /* già rimosso */ } TS.id = null; }
+    box.innerHTML = '';
+    return new Promise((resolve, reject) => {
+      let done = false;
+      const end = (fn, v) => { if (done) return; done = true; clearTimeout(timer); slot.hidden = true; fn(v); };
+      const fail = () => end(reject, new SendError('La verifica antibot non è riuscita. Riprova.', { code: 'antibot' }));
+      const timer = setTimeout(fail, 90000);
+      TS.id = window.turnstile.render(box, {
+        sitekey: TS.key, action, appearance: 'interaction-only', language: 'it', 'refresh-expired': 'manual',
+        callback: (t) => end(resolve, t),
+        'error-callback': () => { fail(); return true; }, 'expired-callback': fail, 'timeout-callback': fail,
+        'before-interactive-callback': () => { slot.hidden = false; }, 'after-interactive-callback': () => { slot.hidden = true; },
+      });
+    });
+  }
+  // Identificativo anonimo assegnato dal server (cookie HttpOnly) prima del primo invio della pagina.
+  let session = null;
+  const ensureSession = () => (session ||= apiPost('api/session', {}).catch((e) => { session = null; throw e; }));
+  // Invio protetto: token antibot appena prima dell'invio; se è scaduto o rifiutato si riprova una volta da soli.
+  async function protectedPost(url, body, action, opts) {
+    await ensureSession();
+    try { return await apiPost(url, { ...body, turnstile: await antibotToken(action) }, opts); }
+    catch (e) {
+      if (e.code !== 'antibot') throw e;
+      return apiPost(url, { ...body, turnstile: await antibotToken(action) }, opts);
+    }
+  }
+
+  /* ---------------- Voti (senza account: un voto per browser, modificabile) ---------------- */
+  // Senza server (demo) i voti restano solo su questo dispositivo.
+  const localVotes = store.get('votes', {});
+  const voteKey = (key) => (String(key).startsWith('carta:') ? 'card:' + String(key).slice(6) : 'mode:' + key);
   function ratingOf(mode, key = mode.id) {
-    const mine = votes[key];
-    // Con il server i totali includono già il voto di questo dispositivo.
+    const mine = API ? MY_VOTES[voteKey(key)] : localVotes[key];
+    // Con il server i totali sono calcolati dal server e includono già il voto di questo browser.
     const sum = mode.ratingSum + (API ? 0 : mine || 0), count = mode.ratingCount + (API || !mine ? 0 : 1);
     return { avg: count ? sum / count : 0, count, mine };
+  }
+  // Classifica per valutazione: entrano solo i contenuti con almeno N voti validi; gli altri restano visibili dopo.
+  const RANK_MIN = Number(CONFIG.rankMinVotes) || 5;
+  function byRating(a, b) {
+    const ra = ratingOf(a), rb = ratingOf(b), ia = ra.count >= RANK_MIN, ib = rb.count >= RANK_MIN;
+    if (ia !== ib) return ia ? -1 : 1;
+    if (!ia) return String(b.date).localeCompare(String(a.date));
+    return rb.avg - ra.avg || rb.count - ra.count;
   }
   function ratingText(mode, long = false, key) {
     const r = ratingOf(mode, key);
@@ -532,10 +611,12 @@
           ${[['recenti', 'Più recenti'], ['valutazione', 'Valutazione più alta'], ['voti', 'Più votate']].map(([k, l]) =>
             `<button type="button" data-ord="${k}" aria-pressed="${state.ord === k}">${l}</button>`).join('')}
         </div>
+        <p class="muted" id="rank-note" style="font-size:13px;font-weight:600;margin-top:8px" hidden>In classifica le modalità con almeno ${RANK_MIN} voti; le altre seguono, dalle più recenti.</p>
         <div id="results" style="margin-top:16px"></div>
       </div>`;
     function draw() {
       const n = norm(state.q);
+      document.getElementById('rank-note').hidden = state.ord !== 'valutazione';
       let list = MODES.filter((m) => (!state.carta || m.cards[state.carta]) && (!n || norm(m.title).includes(n) || norm(m.description).includes(n)));
       const fc = state.carta && CARD[state.carta];
       document.getElementById('card-filter').innerHTML = fc ? `<div class="active-filter">
@@ -544,7 +625,7 @@
           <button type="button" class="icon-btn" id="clear-card" aria-label="Togli il filtro">${icon('close')}</button></div>` : '';
       document.getElementById('clear-card')?.addEventListener('click', () => { state.carta = ''; setQuery(state); draw(); });
       list.sort((a, b) => {
-        if (state.ord === 'valutazione') return ratingOf(b).avg - ratingOf(a).avg || ratingOf(b).count - ratingOf(a).count;
+        if (state.ord === 'valutazione') return byRating(a, b);
         if (state.ord === 'voti') return ratingOf(b).count - ratingOf(a).count;
         return b.date.localeCompare(a.date);
       });
@@ -700,13 +781,21 @@
     };
   }
 
-  // Riquadro di votazione (modalità o carte dei giocatori). key: chiave del voto salvato sul dispositivo.
+  // Riquadro di votazione (modalità o carte dei giocatori): scelta delle stelle e conferma con un pulsante.
+  // Il voto si aggiorna nell'interfaccia solo dopo la conferma del server.
   function voteBox(m, { key, body, inline, what = 'modalità' }) {
-   const drawVote = (editing) => {
+    const drawVote = (editing, errMsg = '') => {
       const r = ratingOf(m, key);
       const $v = document.getElementById('vote');
+      if (!$v) return;
       if (inline) document.getElementById(inline).innerHTML = ratingText(m, true, key);
       const summary = r.count ? `${fmtNum(r.avg)} su 5 · ${r.count} ${r.count === 1 ? 'voto' : 'voti'}` : 'Ancora nessun voto';
+      if (m.votingOpen === false) {
+        $v.innerHTML = `<h2 id="vote-title">Valutazioni</h2><p class="summary">${summary}</p>
+          ${r.mine ? `<p class="voted">${icon('check_circle', 'fill')}Hai dato ${r.mine} ${r.mine === 1 ? 'stella' : 'stelle'}</p>` : ''}
+          <p class="muted" style="font-size:14px;margin-top:8px;font-weight:600">${icon('pause_circle')} Le votazioni sono momentaneamente sospese.</p>`;
+        return;
+      }
       if (r.mine && !editing) {
         $v.innerHTML = `<h2 id="vote-title">Grazie per il tuo voto!</h2>
           <p class="summary">${summary}</p>
@@ -716,7 +805,7 @@
         document.getElementById('edit-vote').onclick = () => drawVote(true);
         return;
       }
-      let pick = r.mine || 0;
+      let pick = editing && typeof editing === 'number' ? editing : r.mine || 0;
       $v.innerHTML = `<h2 id="vote-title">${what === 'carta' ? 'Ti piace questa carta? Valutala!' : 'Hai provato questa modalità? Valutala!'}</h2>
         <p class="summary">${summary}</p>
         <div class="stars" role="radiogroup" aria-label="Il tuo voto da 1 a 5 stelle">
@@ -724,25 +813,31 @@
         </div>
         <button class="btn block" id="send-vote" ${pick ? '' : 'disabled'}>${pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle'}</button>
         ${editing ? `<button class="btn ghost small" id="cancel-vote" style="margin-top:10px">Annulla</button>` : ''}
-        <p class="muted" style="font-size:13px;margin-top:10px;font-weight:600">Nessun account: il voto resta su questo dispositivo.</p>`;
+        <p class="vote-err" role="alert" ${errMsg ? '' : 'hidden'}>${icon('error', 'fill')}<span>${esc(errMsg)}</span></p>
+        <p class="muted" style="font-size:13px;margin-top:10px;font-weight:600">Nessun account: il voto è legato a questo browser e puoi modificarlo quando vuoi.</p>`;
       const paint = () => {
         $v.querySelectorAll('[data-star]').forEach((b) => { const n = +b.dataset.star; b.classList.toggle('on', n <= pick); b.setAttribute('aria-checked', n === pick); });
         const sb = document.getElementById('send-vote');
         sb.disabled = !pick; sb.textContent = pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle';
       };
       paint();
-      $v.querySelectorAll('[data-star]').forEach((b) => b.addEventListener('click', () => { pick = +b.dataset.star; paint(); }));
+      $v.querySelectorAll('[data-star]').forEach((b) => b.addEventListener('click', () => { pick = +b.dataset.star; paint(); loadTurnstile().catch(() => {}); }));
       document.getElementById('send-vote').onclick = async () => {
+        const sb = document.getElementById('send-vote');
+        const wasEdit = !!r.mine;
         if (API) {
-          const sb = document.getElementById('send-vote'); sb.disabled = true;
+          sb.disabled = true; sb.innerHTML = icon('progress_activity', 'spin') + 'Invio…';
           try {
-            const r = await fetch('api/votes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, deviceId, value: pick }) });
-            if (!r.ok) throw new Error();
-            const d = await r.json(); m.ratingSum = d.ratingSum; m.ratingCount = d.ratingCount;
-          } catch { sb.disabled = false; toast('Voto non inviato: controlla la connessione e riprova.'); return; }
-        }
-        votes[key] = pick; store.set('votes', votes);
-        toast(editing ? 'Voto aggiornato' : 'Voto registrato, grazie!');
+            const d = await protectedPost('api/votes', { ...body, value: pick }, 'vote');
+            m.ratingSum = d.ratingSum; m.ratingCount = d.ratingCount; MY_VOTES[voteKey(key)] = d.mine;
+          } catch (e) {
+            if (e.code === 'voting-suspended') m.votingOpen = false;
+            // La scelta resta: basta premere di nuovo il pulsante.
+            drawVote(pick, e.message || 'Voto non inviato. Riprova.');
+            return;
+          }
+        } else { localVotes[key] = pick; store.set('votes', localVotes); }
+        toast(wasEdit ? 'Voto aggiornato' : 'Voto registrato, grazie!');
         drawVote(false);
       };
       const c = document.getElementById('cancel-vote'); if (c) c.onclick = () => drawVote(false);
@@ -898,7 +993,7 @@
   }
 
   /* ---------------- CREA: bozza persistente ---------------- */
-  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', pFrom: '', pTo: '', pPlus: false, rules: '', tried: '', nickname: '', email: '', consent: false, cover: '' };
+  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', pFrom: '', pTo: '', pPlus: false, rules: '', tried: '', nickname: '', email: '', notify: false, consent: false, cover: '', idem: '' };
   // La copertina resta anche in memoria, nel caso il browser non riesca a salvarla sul dispositivo.
   let coverMem = '';
   const draft = {
@@ -951,6 +1046,24 @@
     const pl = playersFrom(d.pFrom, d.pTo, d.pPlus);
     if (pl.error) e.players = pl.error;
     return e;
+  }
+  // Notifiche via email: solo se richieste e dopo la conferma dell'indirizzo.
+  const notifyCheck = (d) => `<label class="check notify-check" ${d.email.trim() ? '' : 'hidden'}>
+      <input type="checkbox" name="notify" id="f-notify" ${d.notify ? 'checked' : ''}>
+      <span>Avvisami via email quando il team Busa avrà controllato la proposta. <span class="muted">Ti chiederemo di confermare l’indirizzo; niente newsletter.</span></span></label>`;
+  function bindNotify($f, dr) {
+    const $n = $f.querySelector('#f-notify'), $e = $f.querySelector('[name=email]');
+    if (!$n || !$e) return;
+    $n.addEventListener('change', () => dr.update({ notify: $n.checked }));
+    $e.addEventListener('input', () => { $n.closest('label').hidden = !$e.value.trim(); });
+  }
+  // Messaggi d'errore dei campi restituiti dal server (es. carta non più disponibile).
+  const errList = (e) => (e.details ? `<ul style="margin:6px 0 0 18px">${Object.values(e.details).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
+  function sendFailBox(e) {
+    const offline = e.network;
+    return `<div class="alert" role="alert">${icon(offline ? 'wifi_off' : 'error')}<div><b>Invio non riuscito.</b><br>${esc(e.message || 'Riprova tra poco.')}${errList(e)}
+      <br>I dati che hai inserito sono al sicuro.
+      <div><button class="btn danger small" id="retry">${icon('refresh')}Riprova l’invio</button></div></div></div>`;
   }
   function stepper(step) {
     const steps = [['carte', 'Carte'], ['dettagli', 'Dettagli'], ['riepilogo', 'Invia']];
@@ -1183,7 +1296,8 @@
             </div>
           </fieldset>
           ${field('nickname', 'Nickname pubblico', `<input type="text" ${attrs('nickname', true)} maxlength="30" value="${esc(d.nickname)}" placeholder="Es. Ruota libera" autocomplete="nickname">`, { req: true, hint: 'Apparirà accanto alla modalità quando sarà pubblicata.' })}
-          ${field('email', `Email <span class="private-badge">${icon('lock')}Privata</span>`, `<input type="email" ${attrs('email')} value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email">`, { opt: ' (facoltativa)', hint: 'Solo per eventuali aggiornamenti sulla tua proposta. Non sarà mai pubblicata.' })}
+          ${field('email', `Email <span class="private-badge">${icon('lock')}Privata</span>`, `<input type="email" ${attrs('email')} value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email">`, { opt: ' (facoltativa)', hint: 'Non sarà mai pubblicata. Puoi inviare la proposta anche senza.' })}
+          ${notifyCheck(d)}
           <p class="muted" style="font-size:13px;font-weight:600"><span class="req" style="color:var(--red)">*</span> Campo obbligatorio</p>
         </form>
         <div class="sticky-action two">
@@ -1251,7 +1365,7 @@
         syncPlayers(!!errs.players);
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
-          const t = e.target; if (!t.name) return;
+          const t = e.target; if (!t.name || t.type === 'checkbox') return;
           draft.update({ [t.name]: t.value });
           const c = $view.querySelector(`[data-count="${t.name}"]`); if (c) c.textContent = t.value.length;
           // Rimuove l'errore appena il campo diventa valido.
@@ -1260,7 +1374,8 @@
             wrap.classList.remove('invalid'); t.removeAttribute('aria-invalid'); document.getElementById('e-' + t.name).hidden = true;
           }
         });
-        $f.addEventListener('change', (e) => { if (e.target.name) draft.update({ [e.target.name]: e.target.value }); });
+        $f.addEventListener('change', (e) => { if (e.target.name && e.target.type !== 'checkbox') draft.update({ [e.target.name]: e.target.value }); });
+        bindNotify($f, draft);
         $view.querySelectorAll('[data-tried]').forEach((b) => b.addEventListener('click', () => {
           const v = draft.get().tried === b.dataset.tried ? '' : b.dataset.tried;
           draft.update({ tried: v });
@@ -1301,7 +1416,7 @@
             <div><dt>Giocatori consigliati</dt><dd>${esc(playersLabel(d.players) || 'Non specificato')}</dd></div>
             <div><dt>Regole aggiuntive</dt><dd>${esc(d.rules || 'Nessuna')}</dd></div>
             ${d.tried ? `<div><dt>L’hai già provata?</dt><dd>${esc(d.tried)}</dd></div>` : ''}
-            <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}</dd></div>
+            <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}${d.email ? `<br><span class="muted" style="font-size:14px">${d.notify ? 'Notifiche richieste: ti chiederemo di confermare l’indirizzo.' : 'Nessuna notifica richiesta.'}</span>` : ''}</dd></div>
           </dl>
         </section>
         <section class="review-block">
@@ -1312,7 +1427,7 @@
           </ul>
           <p class="muted" style="font-size:13px;font-weight:600;margin-top:8px">Più le carte del mazzo di base, incluse automaticamente.</p>
         </section>
-        <div class="notice">${icon('lock')}<span>La tua email resta privata: la usiamo solo per aggiornarti sulla proposta e <b>non sarà mai pubblicata</b>.</span></div>
+        <div class="notice">${icon('lock')}<span>La proposta resta privata finché il team Busa non la controlla. ${d.email ? 'La tua email <b>non sarà mai pubblicata</b> e la useremo solo per la proposta.' : ''}</span></div>
         <label class="check" id="consent-wrap">
           <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''} aria-describedby="consent-err">
           <span>Acconsento alla pubblicazione della proposta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}">informativa privacy</a>.</span>
@@ -1324,16 +1439,16 @@
           <button class="btn" id="send">${icon('send')}Invia la proposta</button>
         </div>
       </div>`;
-    async function submit(payload) {
+    async function submit(payload, idem) {
       // Simulazione di errore per la demo: aggiungere ?simula=errore all'URL del riepilogo.
-      if (query.simula === 'errore' || !navigator.onLine) { await new Promise((r) => setTimeout(r, 900)); throw new Error('rete'); }
-      if (!CONFIG.submitUrl) { await new Promise((r) => setTimeout(r, 1100)); return; }
-      const res = await fetch(CONFIG.submitUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (query.simula === 'errore' || !navigator.onLine) { await new Promise((r) => setTimeout(r, 900)); throw new SendError('Connessione assente o instabile: controlla la rete e riprova.', { network: true }); }
+      if (!API) { await new Promise((r) => setTimeout(r, 1100)); return { ok: true, notify: 'none' }; }
+      return protectedPost('api/proposals', payload, 'proposal', { idem });
     }
     return {
       section: 'crea', back: '#/crea/dettagli', title: 'Crea: riepilogo', html,
       mount() {
+        loadTurnstile().catch(() => {});
         const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
         $c.addEventListener('change', () => {
           draft.update({ consent: $c.checked });
@@ -1343,21 +1458,22 @@
           if (!$c.checked) {
             document.getElementById('consent-wrap').classList.add('invalid'); document.getElementById('consent-err').hidden = false; $c.focus(); return;
           }
-          const cur = draft.get();
+          // La stessa chiave per tutti i tentativi di questa proposta: un doppio clic o un nuovo tentativo non crea doppioni.
+          let cur = draft.get();
+          if (!cur.idem) cur = draft.update({ idem: newKey() });
           $send.disabled = true; $send.innerHTML = icon('progress_activity', 'spin') + 'Invio in corso…'; $state.innerHTML = '';
           try {
-            await submit({
+            const email = cur.email.trim();
+            const out = await submit({
               title: cur.name.trim(), description: cur.description.trim(), players: cur.players, rules: cur.rules.trim(), tried: cur.tried,
-              nickname: cur.nickname.trim(), email: cur.email.trim() || null, cards: cur.cards, startedFrom: cur.start, consent: true,
+              nickname: cur.nickname.trim(), email: email || null, notify: !!(email && cur.notify), cards: cur.cards, startedFrom: cur.start, consent: true,
               cover: cur.cover ? { type: 'image/jpeg', data: cur.cover.split(',')[1] } : null,
-              status: 'in_attesa', submittedAt: new Date().toISOString(),
-            });
-            draft.clear(); store.set('lastSent', { name: cur.name.trim(), email: !!cur.email.trim() });
+            }, cur.idem);
+            draft.clear(); store.set('lastSent', { name: cur.name.trim(), notify: out.notify || 'none', notifyMessage: out.notifyMessage || '', receipt: out.receipt || '' });
             go('#/crea/inviata');
-          } catch {
+          } catch (e) {
             $send.disabled = false; $send.innerHTML = icon('refresh') + 'Riprova';
-            $state.innerHTML = `<div class="alert" role="alert">${icon('wifi_off')}<div><b>Invio non riuscito.</b><br>Controlla la connessione e riprova: i dati che hai inserito sono al sicuro.
-              <div><button class="btn danger small" id="retry">${icon('refresh')}Riprova l’invio</button></div></div></div>`;
+            $state.innerHTML = sendFailBox(e);
             document.getElementById('retry').onclick = () => {
               if (query.simula === 'errore') { history.replaceState(null, '', '#/crea/riepilogo'); query.simula = ''; }
               $send.click();
@@ -1374,21 +1490,36 @@
     const html = `
       <div class="page confirm">
         <div class="burst"><img src="assets/img/camioncino.png" alt=""></div>
-        <h1>Proposta ricevuta!</h1>
-        <p>Il team Busa la controllerà prima della pubblicazione.</p>
+        <h1>Proposta inviata!</h1>
+        <p>Il team Busa la controllerà prima di pubblicarla.</p>
         ${last ? `<p class="muted" style="font-size:15px">“${esc(last.name)}” è in viaggio verso il nostro magazzino.</p>` : ''}
         <ol class="steps">
           <li>${icon('check_circle', 'fill')}Proposta inviata</li>
           <li>${icon('fact_check')}Controllo del team Busa</li>
           <li>${icon('public')}Pubblicazione in Scopri con il tuo nickname</li>
         </ol>
-        ${last?.email ? `<p class="muted" style="font-size:14px;margin-bottom:16px">Ti scriveremo all’email indicata quando ci saranno novità.</p>` : ''}
+        ${notifyNote(last)}
         <div style="display:grid;gap:12px">
           <a class="btn block" href="#/scopri">${icon('style')}Scopri altre modalità</a>
           <a class="btn block secondary" href="#/crea/carte">${icon('add')}Crea un’altra modalità</a>
         </div>
       </div>`;
-    return { section: 'crea', title: 'Proposta ricevuta', html };
+    return { section: 'crea', title: 'Proposta inviata', html, mount: () => bindResend(last) };
+  }
+  // Stato delle notifiche email dopo l'invio, con la possibilità di richiedere di nuovo la conferma.
+  function notifyNote(last) {
+    if (!last || !last.notifyMessage) return '';
+    const canResend = last.receipt && ['verification-sent', 'limit', 'failed'].includes(last.notify);
+    return `<div class="notice" style="margin-bottom:16px;text-align:left">${icon(last.notify === 'verification-sent' ? 'mark_email_unread' : 'info')}<span>${esc(last.notifyMessage)}
+      ${canResend ? `<br><button class="btn ghost small" id="resend" style="margin-top:8px">${icon('send')}Invia di nuovo l’email di conferma</button>` : ''}</span></div>`;
+  }
+  function bindResend(last) {
+    const b = document.getElementById('resend'); if (!b) return;
+    b.onclick = async () => {
+      b.disabled = true;
+      try { const out = await apiPost('api/email/resend', { receipt: last.receipt }); toast(out.message); }
+      catch (e) { toast(e.message); b.disabled = false; }
+    };
   }
 
   /* ---------------- Carte Busa create dai giocatori ---------------- */
@@ -1555,7 +1686,7 @@
   }
 
   /* CREA: carta Busa */
-  const EMPTY_CARD = { title: '', dialect: '', translation: '', text: '', nickname: '', email: '', note: '', consent: false };
+  const EMPTY_CARD = { title: '', dialect: '', translation: '', text: '', nickname: '', email: '', notify: false, note: '', consent: false, idem: '' };
   const cardDraft = {
     get() { return { ...EMPTY_CARD, ...store.get('draftCard', {}) }; },
     update(p) { const d = { ...this.get(), ...p }; store.set('draftCard', d); return d; },
@@ -1657,7 +1788,8 @@
         ${cardStepper('carta-dettagli')}
         <form class="form" id="form" novalidate>
           ${cfield(d, errs, 'nickname', 'Nickname pubblico', `<input id="f-nickname" name="nickname" type="text" maxlength="30" value="${esc(d.nickname)}" placeholder="Es. Ruota libera" autocomplete="nickname">`, { req: true, hint: 'Apparirà accanto alla carta quando sarà pubblicata.' })}
-          ${cfield(d, errs, 'email', `Email <span class="private-badge">${icon('lock')}Privata</span>`, `<input id="f-email" name="email" type="email" value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email">`, { opt: ' (facoltativa)', hint: 'Solo per eventuali aggiornamenti sulla tua proposta. Non sarà mai pubblicata.' })}
+          ${cfield(d, errs, 'email', `Email <span class="private-badge">${icon('lock')}Privata</span>`, `<input id="f-email" name="email" type="email" value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email">`, { opt: ' (facoltativa)', hint: 'Non sarà mai pubblicata. Puoi inviare la carta anche senza.' })}
+          ${notifyCheck(d)}
           ${cfield(d, errs, 'note', 'Note per il team Busa', `<textarea id="f-note" name="note" maxlength="600" rows="3" placeholder="Come ti è venuta l’idea? Come si gioca?">${esc(d.note)}</textarea>`, { opt: ' (facoltative, non pubblicate)', count: 600 })}
         </form>
         <div class="sticky-action two">
@@ -1670,10 +1802,11 @@
       mount() {
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
-          const t = e.target; if (!t.name) return;
+          const t = e.target; if (!t.name || t.type === 'checkbox') return;
           cardDraft.update({ [t.name]: t.value });
           const c = $view.querySelector(`[data-count="${t.name}"]`); if (c) c.textContent = t.value.length;
         });
+        bindNotify($f, cardDraft);
         $f.addEventListener('submit', (e) => e.preventDefault());
         document.getElementById('review').onclick = () => {
           if (Object.keys(validateCardDetails(cardDraft.get())).length) {
@@ -1708,7 +1841,7 @@
           <div class="head"><h2>Dettagli</h2><a class="btn ghost small" href="#/crea/carta-dettagli">${icon('edit')}Modifica</a></div>
           <dl>
             <div><dt>Nickname pubblico</dt><dd>${esc(d.nickname)}</dd></div>
-            <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}</dd></div>
+            <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}${d.email ? `<br><span class="muted" style="font-size:14px">${d.notify ? 'Notifiche richieste: ti chiederemo di confermare l’indirizzo.' : 'Nessuna notifica richiesta.'}</span>` : ''}</dd></div>
             ${d.note ? `<div><dt>Note per il team Busa</dt><dd>${esc(d.note)}</dd></div>` : ''}
           </dl>
         </section>
@@ -1723,31 +1856,32 @@
           <button class="btn" id="send">${icon('send')}Invia la proposta</button>
         </div>
       </div>`;
-    async function submit(payload) {
-      if (query.simula === 'errore' || !navigator.onLine) { await new Promise((r) => setTimeout(r, 900)); throw new Error('rete'); }
-      if (!API) { await new Promise((r) => setTimeout(r, 1000)); return; }
-      const res = await fetch('api/card-proposals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+    async function submit(payload, idem) {
+      if (query.simula === 'errore' || !navigator.onLine) { await new Promise((r) => setTimeout(r, 900)); throw new SendError('Connessione assente o instabile: controlla la rete e riprova.', { network: true }); }
+      if (!API) { await new Promise((r) => setTimeout(r, 1000)); return { ok: true, notify: 'none' }; }
+      return protectedPost('api/card-proposals', payload, 'card_proposal', { idem });
     }
     return {
       section: 'crea', back: '#/crea/carta-dettagli', title: 'Crea una carta: riepilogo', html,
       mount() {
         window.MovatCardRender.render(document.getElementById('rv-canvas'), d, cardCfg({ width: 600 }));
+        loadTurnstile().catch(() => {});
         const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
         $c.addEventListener('change', () => { cardDraft.update({ consent: $c.checked }); if ($c.checked) { document.getElementById('consent-wrap').classList.remove('invalid'); document.getElementById('consent-err').hidden = true; } });
         $send.onclick = async () => {
           if (!$c.checked) { document.getElementById('consent-wrap').classList.add('invalid'); document.getElementById('consent-err').hidden = false; $c.focus(); return; }
-          const cur = cardDraft.get();
+          let cur = cardDraft.get();
+          if (!cur.idem) cur = cardDraft.update({ idem: newKey() });
           $send.disabled = true; $send.innerHTML = icon('progress_activity', 'spin') + 'Invio in corso…'; $state.innerHTML = '';
           try {
-            await submit({ title: cur.title.trim(), dialect: cur.dialect.trim(), translation: cur.translation.trim(), text: cur.text.trim(),
-              nickname: cur.nickname.trim(), email: cur.email.trim() || null, note: cur.note.trim(), consent: true });
-            store.set('lastSentCard', { title: cur.title.trim(), email: !!cur.email.trim(), data: { title: cur.title, dialect: cur.dialect, translation: cur.translation, text: cur.text } });
+            const email = cur.email.trim();
+            const out = await submit({ title: cur.title.trim(), dialect: cur.dialect.trim(), translation: cur.translation.trim(), text: cur.text.trim(),
+              nickname: cur.nickname.trim(), email: email || null, notify: !!(email && cur.notify), note: cur.note.trim(), consent: true }, cur.idem);
+            store.set('lastSentCard', { title: cur.title.trim(), notify: out.notify || 'none', notifyMessage: out.notifyMessage || '', receipt: out.receipt || '', data: { title: cur.title, dialect: cur.dialect, translation: cur.translation, text: cur.text } });
             cardDraft.clear(); go('#/crea/carta-inviata');
-          } catch {
+          } catch (e) {
             $send.disabled = false; $send.innerHTML = icon('refresh') + 'Riprova';
-            $state.innerHTML = `<div class="alert" role="alert">${icon('wifi_off')}<div><b>Invio non riuscito.</b><br>Controlla la connessione e riprova: i dati che hai inserito sono al sicuro.
-              <div><button class="btn danger small" id="retry">${icon('refresh')}Riprova l’invio</button></div></div></div>`;
+            $state.innerHTML = sendFailBox(e);
             document.getElementById('retry').onclick = () => { if (query.simula === 'errore') { history.replaceState(null, '', '#/crea/carta-riepilogo'); query.simula = ''; } $send.click(); };
           }
         };
@@ -1761,20 +1895,128 @@
       section: 'crea', title: 'Proposta ricevuta', html: `
       <div class="page confirm">
         ${last?.data ? `<div class="ucard-detail small"><canvas id="done-canvas"></canvas></div>` : `<div class="burst"><img src="assets/img/camioncino.png" alt=""></div>`}
-        <h1>Proposta ricevuta!</h1>
-        <p>Il team Busa controllerà la tua carta prima della pubblicazione.</p>
+        <h1>Proposta inviata!</h1>
+        <p>Il team Busa controllerà la tua carta prima di pubblicarla.</p>
         <ol class="steps">
           <li>${icon('check_circle', 'fill')}Carta inviata</li>
           <li>${icon('fact_check')}Controllo del team Busa</li>
           <li>${icon('public')}Pubblicazione in Scopri con il tuo nickname</li>
         </ol>
-        ${last?.email ? `<p class="muted" style="font-size:14px;margin-bottom:16px">Ti scriveremo all’email indicata quando ci saranno novità.</p>` : ''}
+        ${notifyNote(last)}
         <div style="display:grid;gap:12px">
           <a class="btn block" href="#/scopri/carte">${icon('style')}Guarda le carte dei giocatori</a>
           <a class="btn block secondary" href="#/crea/carta">${icon('add')}Crea un’altra carta</a>
         </div>
       </div>`,
-      mount() { if (last?.data) window.MovatCardRender.render(document.getElementById('done-canvas'), last.data, cardCfg({ width: 600 })); },
+      mount() { if (last?.data) window.MovatCardRender.render(document.getElementById('done-canvas'), last.data, cardCfg({ width: 600 })); bindResend(last); },
+    };
+  }
+
+  /* ---------------- Contatti ---------------- */
+  // Bozza salvata sul dispositivo: se l'invio non riesce i dati restano.
+  const EMPTY_CONTACT = { topic: 'domanda', message: '', wantsReply: false, email: '', idem: '' };
+  const contactDraft = {
+    get() { return { ...EMPTY_CONTACT, ...store.get('draftContact', {}) }; },
+    update(p) { const d = { ...this.get(), ...p }; store.set('draftContact', d); return d; },
+    clear() { store.del('draftContact'); },
+  };
+  const TOPICS = [['domanda', 'Domanda sul gioco'], ['segnalazione', 'Segnalazione'], ['altro', 'Altro']];
+  function validateContact(d) {
+    const e = {};
+    if (d.message.trim().length < 10) e.message = d.message.trim() ? 'Scrivi qualche parola in più (almeno 10 caratteri).' : 'Scrivi il tuo messaggio.';
+    if (d.wantsReply && !d.email.trim()) e.email = 'Per risponderti ci serve un indirizzo email.';
+    else if (d.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email.trim())) e.email = 'Questo indirizzo email non sembra corretto.';
+    return e;
+  }
+  function viewContact() {
+    const c = { email: 'a.ruggeri@busatrasportisrl.it', subject: 'Ho una domanda riguardo a Movat', ...(CONFIG.contact || {}) };
+    const d = contactDraft.get();
+    const html = `
+      <div class="page">
+        <h1 class="page-title">Scrivici</h1>
+        <p class="page-sub">Dubbi sul gioco o qualcosa che non va? Il messaggio arriva solo al team Busa.</p>
+        <div id="contact-body">
+        <form class="form" id="form" novalidate style="margin-top:12px">
+          <fieldset class="field">
+            <legend>Argomento</legend>
+            <div class="chips" role="radiogroup" aria-label="Argomento">
+              ${TOPICS.map(([k, l]) => `<button type="button" class="chip" role="radio" data-topic="${k}" aria-checked="${d.topic === k}" aria-pressed="${d.topic === k}">${l}</button>`).join('')}
+            </div>
+          </fieldset>
+          <div class="field" data-field="message">
+            <label for="f-message">Messaggio <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="f-message" name="message" maxlength="2000" rows="6" aria-required="true" aria-describedby="e-message" placeholder="Scrivi qui la tua domanda o la segnalazione">${esc(d.message)}</textarea>
+            <div class="count"><span data-count="message">${d.message.length}</span>/2000</div>
+            <p class="error" id="e-message" hidden>${icon('error', 'fill')}<span></span></p>
+          </div>
+          <label class="check"><input type="checkbox" id="f-reply" ${d.wantsReply ? 'checked' : ''}><span>Voglio una risposta</span></label>
+          <div class="field" data-field="email" id="email-field" ${d.wantsReply || d.email ? '' : 'hidden'}>
+            <label for="f-email">Email <span class="private-badge">${icon('lock')}Privata</span> <span class="opt" id="email-opt">${d.wantsReply ? '' : ' (facoltativa)'}</span></label>
+            <input id="f-email" name="email" type="email" value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email" aria-describedby="e-email">
+            <p class="hint">La usiamo solo per risponderti. Non riceverai altre email.</p>
+            <p class="error" id="e-email" hidden>${icon('error', 'fill')}<span></span></p>
+          </div>
+          <p class="muted" style="font-size:13px;font-weight:600">Inviando accetti l’<a href="#/privacy">informativa privacy</a>. Per evitare lo spam usiamo una verifica antibot automatica.</p>
+        </form>
+        <div id="send-state"></div>
+        <div class="sticky-action"><button class="btn block" id="send">${icon('send')}Invia il messaggio</button></div>
+        <p class="muted" style="font-size:13px;font-weight:600;margin-top:14px;text-align:center">Preferisci la tua app di posta? Scrivi a <a href="mailto:${esc(encodeURIComponent(c.email).replace(/%40/g, '@'))}?subject=${esc(encodeURIComponent(c.subject))}">${esc(c.email)}</a></p>
+        </div>
+      </div>`;
+    return {
+      section: 'faq', back: '#/faq', title: 'Contatti', html,
+      mount() {
+        if (API) loadTurnstile().catch(() => {});
+        const $f = document.getElementById('form'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
+        const $reply = document.getElementById('f-reply'), $ef = document.getElementById('email-field');
+        const showErr = (k, msg) => {
+          const el = document.getElementById('e-' + k); if (!el) return;
+          el.hidden = !msg; el.querySelector('span').textContent = msg || '';
+          el.closest('.field').classList.toggle('invalid', !!msg);
+          const inp = el.closest('.field').querySelector('input,textarea'); if (msg) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid');
+        };
+        $f.addEventListener('input', (e) => {
+          const t = e.target; if (!t.name) return;
+          contactDraft.update({ [t.name]: t.value });
+          const n = $view.querySelector(`[data-count="${t.name}"]`); if (n) n.textContent = t.value.length;
+          if (!validateContact(contactDraft.get())[t.name]) showErr(t.name, '');
+        });
+        $f.addEventListener('submit', (e) => e.preventDefault());
+        $view.querySelectorAll('[data-topic]').forEach((b) => b.addEventListener('click', () => {
+          contactDraft.update({ topic: b.dataset.topic });
+          $view.querySelectorAll('[data-topic]').forEach((x) => { x.setAttribute('aria-pressed', x === b); x.setAttribute('aria-checked', x === b); });
+        }));
+        $reply.addEventListener('change', () => {
+          contactDraft.update({ wantsReply: $reply.checked });
+          $ef.hidden = !$reply.checked && !contactDraft.get().email;
+          document.getElementById('email-opt').textContent = $reply.checked ? '' : ' (facoltativa)';
+          if (!$reply.checked) showErr('email', '');
+        });
+        $send.onclick = async () => {
+          const cur0 = contactDraft.get();
+          const errs = validateContact(cur0);
+          showErr('message', errs.message); showErr('email', errs.email);
+          if (Object.keys(errs).length) { $view.querySelector('[aria-invalid="true"]')?.focus(); return; }
+          const cur = cur0.idem ? cur0 : contactDraft.update({ idem: newKey() });
+          $send.disabled = true; $send.innerHTML = icon('progress_activity', 'spin') + 'Invio in corso…'; $state.innerHTML = '';
+          try {
+            let out = { message: 'Grazie! Il team Busa lo leggerà presto.' };
+            if (API) out = await protectedPost('api/contact', { topic: cur.topic, message: cur.message.trim(), wantsReply: cur.wantsReply, email: cur.email.trim() || null }, 'contact', { idem: cur.idem });
+            else await new Promise((r) => setTimeout(r, 800));
+            contactDraft.clear();
+            document.getElementById('contact-body').innerHTML = `<div class="confirm" style="padding-top:12px">
+              <div class="burst"><img src="assets/img/camioncino.png" alt=""></div>
+              <h1>Messaggio inviato!</h1><p>${esc(out.message)}</p>
+              <div style="display:grid;gap:12px;margin-top:16px"><a class="btn block" href="#/faq">${icon('help')}Torna alle FAQ</a></div></div>`;
+          } catch (e) {
+            $send.disabled = false; $send.innerHTML = icon('refresh') + 'Riprova';
+            if (e.details) Object.entries(e.details).forEach(([k, v]) => showErr(k, v));
+            $state.innerHTML = sendFailBox(e);
+            document.getElementById('retry').onclick = () => $send.click();
+            $state.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        };
+      },
     };
   }
 
@@ -1799,8 +2041,8 @@
         <div id="results" class="faq-list"></div>
         ${(() => {
           const c = { text: 'Non trovi la risposta? Contattaci!', email: 'a.ruggeri@busatrasportisrl.it', subject: 'Ho una domanda riguardo a Movat', ...(CONFIG.contact || {}) };
-          return `<a class="faq-contact" href="mailto:${encodeURIComponent(c.email).replace(/%40/g, '@')}?subject=${encodeURIComponent(c.subject)}">
-            <span class="fc-ic">${icon('mail', 'fill')}</span><span class="fc-txt"><b>${esc(c.text)}</b><span>Scrivici una mail, ti rispondiamo noi.</span></span>${icon('chevron_right')}</a>`;
+          return `<a class="faq-contact" href="${API ? '#/contatti' : `mailto:${encodeURIComponent(c.email).replace(/%40/g, '@')}?subject=${encodeURIComponent(c.subject)}`}">
+            <span class="fc-ic">${icon('mail', 'fill')}</span><span class="fc-txt"><b>${esc(c.text)}</b><span>Scrivici un messaggio, ti rispondiamo noi.</span></span>${icon('chevron_right')}</a>`;
         })()}
       </div>`;
     function draw() {
