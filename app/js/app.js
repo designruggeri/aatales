@@ -199,6 +199,29 @@
   })();
   function bindPlayer(fn) { unsubPlayer?.(); unsubPlayer = player.subscribe(fn); fn(); }
 
+  /* ---------------- Opzioni di visualizzazione (ricordate sul dispositivo) ---------------- */
+  const VIEWS = {
+    ascolta: { def: 'due', opts: [['uno', 'view_agenda', '1 carta per riga'], ['due', 'grid_view', '2 carte per riga'], ['griglia', 'apps', 'Griglia']] },
+    scopri: { def: 'schede', opts: [['schede', 'view_day', 'Schede'], ['lista', 'view_list', 'Lista compatta']] },
+    crea: { def: 'due', opts: [['lista', 'view_list', 'Lista'], ['griglia', 'apps', 'Griglia'], ['uno', 'view_agenda', '1 carta per riga'], ['due', 'grid_view', '2 carte per riga']] },
+  };
+  function getView(sec) {
+    const v = store.get('vista-' + sec, null);
+    return VIEWS[sec].opts.some(([k]) => k === v) ? v : VIEWS[sec].def;
+  }
+  function viewSwitch(sec, cur) {
+    return `<div class="view-switch" role="group" aria-label="Visualizzazione">${VIEWS[sec].opts.map(([k, ic, l]) =>
+      `<button type="button" data-view="${k}" aria-pressed="${k === cur}" title="${l}" aria-label="${l}">${icon(ic)}</button>`).join('')}</div>`;
+  }
+  // Collega i pulsanti di visualizzazione: salva la scelta e ridisegna.
+  function bindViewSwitch(sec, onChange) {
+    $view.querySelectorAll('.view-switch [data-view]').forEach((b) => b.addEventListener('click', () => {
+      store.set('vista-' + sec, b.dataset.view);
+      $view.querySelectorAll('.view-switch [data-view]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      onChange(b.dataset.view);
+    }));
+  }
+
   /* ---------------- HOME ---------------- */
   function viewHome() {
     const links = [
@@ -224,7 +247,8 @@
           </a>`).join('')}
       </nav>
       <footer class="footer">
-        <div class="busa">busa<small>TRASPORTI E LOGISTICA</small></div>
+        ${CONFIG.busaLogo ? `<img class="busa-logo" src="${esc(CONFIG.busaLogo)}" alt="Busa Trasporti e Logistica">`
+          : `<div class="busa">busa<small>TRASPORTI E LOGISTICA</small></div>`}
         <p style="margin-top:10px">${esc(CONFIG.footerText ?? 'MÖVAT! è un gioco di Busa Trasporti e Logistica')}</p>
         <p style="margin-top:6px"><a href="${CONFIG.privacyUrl}">Informativa privacy</a></p>
       </footer>`,
@@ -234,15 +258,19 @@
   /* ---------------- ASCOLTA: elenco ---------------- */
   function viewCards(query) {
     const q = query.q || '';
+    let vista = getView('ascolta');
     const html = `
       <div class="page">
         <h1 class="page-title">Le carte parlanti</h1>
         <p class="page-sub">Trova la carta che hai in mano e ascolta la sua frase in dialetto piacentino.</p>
-        <div class="search" role="search">
-          ${icon('search')}
-          <label class="sr-only" for="q">Cerca per numero o nome della carta</label>
-          <input id="q" type="search" inputmode="search" placeholder="Numero o nome della carta" value="${esc(q)}" autocomplete="off">
-          <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${q ? '' : 'hidden'}>${icon('close')}</button>
+        <div class="search-row">
+          <div class="search" role="search">
+            ${icon('search')}
+            <label class="sr-only" for="q">Cerca per numero o nome della carta</label>
+            <input id="q" type="search" inputmode="search" placeholder="Numero o nome" value="${esc(q)}" autocomplete="off">
+            <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${q ? '' : 'hidden'}>${icon('close')}</button>
+          </div>
+          ${viewSwitch('ascolta', vista)}
         </div>
         <div id="results"></div>
       </div>`;
@@ -254,8 +282,17 @@
           <p class="muted">Controlla il numero stampato sulla carta o prova con un'altra parola.</p></div>`;
         return;
       }
-      $r.innerHTML = `<p class="muted" style="font-weight:700;font-size:14px;margin-bottom:10px">${list.length} ${list.length === 1 ? 'carta' : 'carte'}</p>
-        <div class="card-grid">${list.map((c) => {
+      const count = `<p class="muted" style="font-weight:700;font-size:14px;margin-bottom:10px">${list.length} ${list.length === 1 ? 'carta' : 'carte'}</p>`;
+      if (vista === 'griglia') {
+        // Griglia: miniature quadrate (ritagliate), 4 per riga; si tocca per aprire la carta.
+        $r.innerHTML = count + `<div class="sq-grid">${list.map((c) => `
+          <a class="sq-tile" href="${buildHash('ascolta/' + c.id, { q })}" aria-label="Carta ${c.number}, ${esc(c.name)}">
+            <span class="sq-art">${cardArt(c)}</span><span class="sq-num">${c.number}</span>
+            <span class="sq-name">${esc(c.name)}</span></a>`).join('')}</div>`;
+        return;
+      }
+      $r.innerHTML = count + `
+        <div class="card-grid ${vista === 'uno' ? 'cols-1' : ''}">${list.map((c) => {
           const href = buildHash('ascolta/' + c.id, { q });
           return `<article class="talk-card">
             <a class="open" href="${href}" aria-label="Apri la carta ${c.number}, ${esc(c.name)}">${cardArt(c)}</a>
@@ -284,6 +321,7 @@
         const $q = document.getElementById('q');
         const $clear = $view.querySelector('.clear');
         drawResults(q);
+        bindViewSwitch('ascolta', (v) => { vista = v; drawResults($q.value); });
         $q.addEventListener('input', () => { setQuery({ q: $q.value }); $clear.hidden = !$q.value; drawResults($q.value); });
         $clear.addEventListener('click', () => { $q.value = ''; $q.dispatchEvent(new Event('input')); $q.focus(); });
         $view.addEventListener('click', (e) => {
@@ -324,6 +362,10 @@
               ${card.translation ? `<p>“${esc(card.translation)}”</p>` : `<p class="placeholder-text">Traduzione da inserire</p>`}
             </div>
           </div>
+          ${card.text ? `<section class="card-text" aria-labelledby="ct-title">
+            <h2 id="ct-title">${icon('style')}Testo della carta</h2>
+            ${String(card.text).split(/\n\s*\n|\n/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join('')}
+          </section>` : ''}
           ${card.audio ? `
           <div class="player" id="player">
             <div class="row">
@@ -336,10 +378,6 @@
           </div>` : `
           <div class="player unavailable">${icon('schedule')}<strong>Audio non ancora disponibile</strong>
             <span>Stiamo registrando questa frase: torna a trovarci presto!</span></div>`}
-          ${card.text ? `<section class="card-text" aria-labelledby="ct-title">
-            <h2 id="ct-title">${icon('style')}Testo della carta</h2>
-            ${String(card.text).split(/\n\s*\n|\n/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join('')}
-          </section>` : ''}
         </article>
         ${cardFaq.length ? `<section class="card-faq" aria-labelledby="cf-title">
           <h2 id="cf-title">${icon('help')}Dubbi su questa carta</h2>
@@ -401,10 +439,21 @@
   const modeTotal = (m) => Object.values(m.cards).reduce((a, b) => a + b, 0);
   const modeCardList = (m) => Object.entries(m.cards).filter(([id]) => CARD[id]).map(([id, q]) => ({ card: CARD[id], qty: q })).sort((a, b) => a.card.number - b.card.number);
   const BANNERS = [['#28c4d8', '#a6e84a'], ['#ffc300', '#ff7a2f'], ['#8a3ffc', '#1292e8'], ['#52ae32', '#d6f55a']];
+  // Copertina caricata dall'autore, oppure banner automatico colorato con il camioncino.
+  function modeBanner(m, { detail = false } = {}) {
+    if (m.cover) {
+      return detail
+        ? `<div class="mode-cover detail"><img src="${esc(m.cover)}" alt="Copertina di ${esc(m.title)}"></div>`
+        : `<div class="mode-cover"><img src="${esc(m.cover)}" alt="" loading="lazy"></div>`;
+    }
+    const [b1, b2] = BANNERS[Math.max(0, MODES.indexOf(m)) % BANNERS.length];
+    return `<div class="mode-banner" style="--b1:${b1};--b2:${b2}${detail ? ';height:110px;border-radius:0' : ''}" aria-hidden="true"><span class="bt">${esc(m.title)}</span><img src="assets/img/camioncino.png" alt=""></div>`;
+  }
 
   /* ---------------- SCOPRI: gallery ---------------- */
   function viewModes(query) {
     const state = { q: query.q || '', ord: query.ord || 'recenti' };
+    let vista = getView('scopri');
     const html = `
       <div class="page">
         <div class="toolbar">
@@ -412,11 +461,14 @@
         </div>
         <p class="muted" style="margin-top:6px;font-weight:600">Inventate da chi gioca, pubblicate dopo il controllo del team Busa.</p>
         <a class="btn block secondary" href="#/crea" style="margin-top:14px">${icon('add_circle')}Crea la tua modalità</a>
-        <div class="search" role="search">
-          ${icon('search')}
-          <label class="sr-only" for="q">Cerca per titolo o descrizione</label>
-          <input id="q" type="search" placeholder="Cerca per titolo o descrizione" value="${esc(state.q)}" autocomplete="off">
-          <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${state.q ? '' : 'hidden'}>${icon('close')}</button>
+        <div class="search-row">
+          <div class="search" role="search">
+            ${icon('search')}
+            <label class="sr-only" for="q">Cerca per titolo o descrizione</label>
+            <input id="q" type="search" placeholder="Cerca modalità" value="${esc(state.q)}" autocomplete="off">
+            <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${state.q ? '' : 'hidden'}>${icon('close')}</button>
+          </div>
+          ${viewSwitch('scopri', vista)}
         </div>
         <div class="seg" role="group" aria-label="Ordina">
           ${[['recenti', 'Più recenti'], ['valutazione', 'Valutazione più alta'], ['voti', 'Più votate']].map(([k, l]) =>
@@ -439,18 +491,29 @@
           <a class="btn small" href="#/crea" style="margin-top:12px">${icon('add')}Crea la tua modalità</a></div>`;
         return;
       }
+      if (vista === 'lista') {
+        // Lista compatta: niente immagini né descrizione, carte in forma di testo.
+        $r.innerHTML = `<div class="mode-list">${list.map((m) => `
+          <a class="mode-row" href="#/scopri/${m.id}">
+            <span class="mr-main">
+              <b>${highlight(m.title, state.q)}</b>
+              <span class="by">di <b>${esc(m.author)}</b></span>
+              <span class="facts">${m.players ? `<span>${icon('group')}${esc(m.players)}</span>` : ''}<span>${icon('style')}${modeTotal(m)} carte</span>${ratingText(m)}</span>
+              <span class="mr-cards">${modeCardList(m).map(({ card, qty }) => `${esc(card.name)} ×${qty}`).join(' · ')}</span>
+            </span>${icon('chevron_right')}</a>`).join('')}</div>`;
+        return;
+      }
       $r.innerHTML = list.map((m) => {
         const cl = modeCardList(m);
-        const [b1, b2] = BANNERS[MODES.indexOf(m) % BANNERS.length];
         const shown = cl.slice(0, cl.length > 5 ? 4 : 5);
         return `<article class="mode-card">
-          <div class="mode-banner" style="--b1:${b1};--b2:${b2}" aria-hidden="true"><span class="bt">${esc(m.title)}</span><img src="assets/img/camioncino.png" alt=""></div>
+          ${modeBanner(m)}
           <div class="mode-body">
             <h2>${highlight(m.title, state.q)}</h2>
             <p class="by">di <b>${esc(m.author)}</b></p>
             <p class="desc">${highlight(m.description, state.q)}</p>
             <div class="facts">
-              <span>${icon('group')}${esc(m.players)} giocatori</span>
+              ${m.players ? `<span>${icon('group')}${esc(m.players)} giocatori</span>` : ''}
               <span>${icon('style')}${modeTotal(m)} carte Busa</span>
               ${ratingText(m)}
             </div>
@@ -467,6 +530,7 @@
       section: 'scopri', title: 'Modalità dei giocatori', html,
       mount() {
         draw();
+        bindViewSwitch('scopri', (v) => { vista = v; draw(); });
         const $q = document.getElementById('q'), $clear = $view.querySelector('.clear');
         $q.addEventListener('input', () => { state.q = $q.value; $clear.hidden = !state.q; setQuery(state); draw(); });
         $clear.addEventListener('click', () => { $q.value = ''; $q.dispatchEvent(new Event('input')); $q.focus(); });
@@ -485,25 +549,30 @@
     if (!m) return viewNotFound();
     const layout = query.vista === 'lista' ? 'lista' : 'griglia';
     const cl = modeCardList(m);
-    const [b1, b2] = BANNERS[MODES.indexOf(m) % BANNERS.length];
     const html = `
-      <div style="margin-bottom:-8px"><div class="mode-banner" style="--b1:${b1};--b2:${b2};height:110px;border-radius:0" aria-hidden="true"><span class="bt">${esc(m.title)}</span><img src="assets/img/camioncino.png" alt=""></div></div>
+      <div style="margin-bottom:-8px">${modeBanner(m, { detail: true })}</div>
       <div class="page">
         <header class="mode-head">
           <h1>${esc(m.title)}</h1>
           <p class="by" style="margin-top:4px">di <b>${esc(m.author)}</b></p>
           <div class="facts">
-            <span>${icon('group')}${esc(m.players)} giocatori</span>
+            ${m.players ? `<span>${icon('group')}${esc(m.players)} giocatori</span>` : ''}
             <span>${icon('style')}${modeTotal(m)} carte Busa</span>
             <span id="rating-inline">${ratingText(m, true)}</span>
           </div>
           <p style="margin-top:12px">${esc(m.description)}</p>
         </header>
         ${m.rules ? `<section class="info-box"><h3>${icon('rule')}Regole aggiuntive</h3><p>${esc(m.rules)}</p></section>` : ''}
-        <div class="actions-row">
-          <button class="btn secondary small" id="share">${icon('link')}Condividi</button>
-          <button class="btn small" id="variant">${icon('edit')}Crea una variante</button>
-        </div>
+        <section class="share-box" aria-labelledby="share-title">
+          <h2 id="share-title">${icon('share')}Condividi e stampa</h2>
+          <div class="share-actions">
+            <button class="btn secondary small" id="copy-link">${icon('link')}Copia link</button>
+            ${navigator.share ? `<button class="btn secondary small" id="native-share">${icon('ios_share')}Condividi…</button>` : ''}
+            <button class="btn secondary small" id="pdf">${icon('picture_as_pdf')}Scarica PDF</button>
+          </div>
+          <p class="hint">Il link apre l’app direttamente su questa modalità. Il PDF (15 × 19 cm) riassume tutto quello che serve per giocare ed è pronto da stampare.</p>
+        </section>
+        <button class="btn block" id="variant" style="margin-top:12px">${icon('edit')}Crea una variante</button>
 
         <div class="section-title" style="justify-content:space-between">
           <h2 style="font-size:20px">Carte necessarie</h2>
@@ -585,9 +654,19 @@
           const card = CARD[b.dataset.zoom];
           openCardModal(card, { extra: `<p class="sub" style="font-size:18px;color:var(--green-dark)">In questa modalità: ×${m.cards[card.id]}</p>` });
         }));
-        document.getElementById('share').onclick = async () => {
-          const url = location.href.split('#')[0] + '#/scopri/' + m.id;
+        const url = location.href.split('#')[0] + '#/scopri/' + m.id;
+        document.getElementById('copy-link').onclick = async () => {
           toast((await copyText(url)) ? 'Link copiato! Incollalo dove vuoi.' : 'Non è stato possibile copiare il link');
+        };
+        document.getElementById('native-share')?.addEventListener('click', () => {
+          navigator.share({ title: `MÖVAT! — ${m.title}`, text: `Prova la modalità “${m.title}” di ${m.author}`, url }).catch(() => {});
+        });
+        document.getElementById('pdf').onclick = async (e) => {
+          const b = e.currentTarget, label = b.innerHTML;
+          b.disabled = true; b.innerHTML = icon('progress_activity', 'spin') + 'Preparo il PDF…';
+          try { await downloadModePdf(m, url); toast('PDF scaricato'); }
+          catch (er) { console.error(er); toast('Non è stato possibile creare il PDF. Riprova.'); }
+          finally { b.disabled = false; b.innerHTML = label; }
         };
         document.getElementById('variant').onclick = () => {
           const d = draft.get();
@@ -599,6 +678,124 @@
         };
       },
     };
+  }
+
+  /* ---------------- PDF della modalità (15 × 19 cm) ---------------- */
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const el = document.createElement('script'); el.src = src; el.onload = resolve; el.onerror = () => reject(new Error('script')); document.head.appendChild(el);
+    });
+  }
+  // Converte un'immagine in JPEG/PNG (data URL) per inserirla nel PDF.
+  function imageData(src, type = 'image/png') {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        const ctx = cv.getContext('2d');
+        if (type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); }
+        ctx.drawImage(img, 0, 0);
+        resolve({ data: cv.toDataURL(type, 0.9), w: img.naturalWidth, h: img.naturalHeight });
+      };
+      img.onerror = reject; img.src = src;
+    });
+  }
+  async function downloadModePdf(m, url) {
+    if (!window.jspdf) await loadScript('assets/vendor/jspdf.umd.min.js');
+    const { jsPDF } = window.jspdf;
+    const W = 150, H = 190, M = 12, FOOT = 12;
+    const doc = new jsPDF({ unit: 'mm', format: [W, H], orientation: 'portrait' });
+    const GREEN = [67, 150, 38], DARK = [24, 35, 23], MUTED = [92, 105, 87], LIGHT = [234, 248, 228], YELLOW = [255, 195, 0];
+    const r = ratingOf(m), cl = modeCardList(m);
+    let y = 0;
+
+    const footer = () => {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED);
+      doc.text('MÖVAT! · Busa Trasporti e Logistica', M, H - 6);
+      doc.text(doc.splitTextToSize(url, 80)[0], W - M, H - 6, { align: 'right' });
+    };
+    const ensure = (h) => { if (y + h > H - FOOT) { footer(); doc.addPage([W, H], 'portrait'); y = M; } };
+    const heading = (t) => { ensure(10); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...GREEN); doc.text(t.toUpperCase(), M, y + 4); y += 7; };
+    const para = (t, size = 10) => {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(size); doc.setTextColor(...DARK);
+      const lh = size * 0.45;
+      for (const line of doc.splitTextToSize(String(t), W - 2 * M)) { ensure(lh); doc.text(line, M, y + lh * 0.8); y += lh; }
+      y += 3;
+    };
+    const star = (cx, cy, rad, fill) => {
+      const pts = [];
+      for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? rad * 0.45 : rad; pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]); }
+      const segs = pts.slice(1).map((p, i) => [p[0] - pts[i][0], p[1] - pts[i][1]]);
+      doc.setFillColor(...fill); doc.setDrawColor(...fill); doc.lines(segs, pts[0][0], pts[0][1], [1, 1], 'F', true);
+    };
+
+    // Intestazione verde con il logo
+    doc.setFillColor(...GREEN); doc.rect(0, 0, W, 24, 'F');
+    try { const logo = await imageData('assets/img/logo-movat.png'); doc.addImage(logo.data, 'PNG', M, 4.5, 15 * logo.w / logo.h, 15); } catch { /* logo facoltativo */ }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+    doc.text('MODALITÀ DEI GIOCATORI', W - M, 14, { align: 'right' });
+    y = 32;
+
+    // Copertina (se presente) e titolo
+    let titleW = W - 2 * M;
+    if (m.cover) {
+      try { const c = await imageData(m.cover, 'image/jpeg'); doc.addImage(c.data, 'JPEG', W - M - 32, 30, 32, 32); titleW -= 36; } catch { /* copertina facoltativa */ }
+    }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...DARK);
+    const tl = doc.splitTextToSize(m.title, titleW);
+    tl.forEach((line, i) => doc.text(line, M, y + 6 + i * 7.5));
+    y += 6 + (tl.length - 1) * 7.5 + 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...MUTED);
+    doc.text(`di ${m.author}`, M, y); y += 5;
+    if (m.cover) y = Math.max(y, 66);
+    y += 3;
+
+    // Riquadro con giocatori, carte e voto
+    const boxH = 20, colW = (W - 2 * M) / 3;
+    doc.setFillColor(...LIGHT); doc.roundedRect(M, y, W - 2 * M, boxH, 3, 3, 'F');
+    const fact = (i, label, value) => {
+      const x = M + colW * i + 4;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.text(label, x, y + 6);
+      doc.setFontSize(12); doc.setTextColor(...DARK); if (value) doc.text(value, x, y + 13.5);
+    };
+    fact(0, 'GIOCATORI', m.players || '—');
+    fact(1, 'CARTE BUSA', String(modeTotal(m)));
+    fact(2, 'VALUTAZIONE', '');
+    const sx = M + colW * 2 + 4;
+    const full = Math.round(r.avg);
+    for (let i = 0; i < 5; i++) star(sx + 2.2 + i * 5, y + 11.2, 2.2, i < full && r.count ? YELLOW : [205, 214, 200]);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED);
+    doc.text(r.count ? `${fmtNum(r.avg)} su 5 · ${r.count} ${r.count === 1 ? 'voto' : 'voti'}` : 'Ancora nessun voto', sx, y + 17);
+    y += boxH + 7;
+
+    heading('Descrizione'); para(m.description);
+    if (m.rules) { heading('Regole aggiuntive'); para(m.rules); }
+
+    // Elenco delle carte
+    heading('Carte Busa necessarie');
+    doc.setFontSize(10);
+    cl.forEach(({ card, qty }, i) => {
+      ensure(7);
+      if (i % 2 === 0) { doc.setFillColor(246, 250, 243); doc.rect(M, y, W - 2 * M, 7, 'F'); }
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(...MUTED); doc.text(`#${pad2(card.number)}`, M + 2, y + 4.8);
+      doc.setTextColor(...DARK); doc.text(doc.splitTextToSize(card.name, W - 2 * M - 34)[0], M + 14, y + 4.8);
+      doc.setTextColor(...GREEN); doc.text(`×${qty}`, W - M - 2, y + 4.8, { align: 'right' });
+      y += 7;
+    });
+    ensure(9);
+    doc.setDrawColor(...GREEN); doc.setLineWidth(0.4); doc.line(M, y + 1, W - M, y + 1);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(...DARK); doc.text('Totale carte Busa', M + 2, y + 6.5);
+    doc.setTextColor(...GREEN); doc.text(String(modeTotal(m)), W - M - 2, y + 6.5, { align: 'right' });
+    y += 11;
+    para('Più le carte del mazzo di base, che si usano come sempre.', 8.5);
+    footer();
+    // Scaricamento gestito direttamente: funziona anche su Android e iPhone.
+    const blob = doc.output('blob');
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = href; a.download = `movat-${m.id}.pdf`; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 60000);
   }
 
   /* ---------------- Modal carta ---------------- */
@@ -631,12 +828,40 @@
   }
 
   /* ---------------- CREA: bozza persistente ---------------- */
-  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', rules: '', tried: '', nickname: '', email: '', consent: false };
+  const EMPTY_DRAFT = { start: 'vuota', cards: {}, onlySelected: false, q: '', name: '', description: '', players: '', rules: '', tried: '', nickname: '', email: '', consent: false, cover: '' };
+  // La copertina resta anche in memoria, nel caso il browser non riesca a salvarla sul dispositivo.
+  let coverMem = '';
   const draft = {
-    get() { return { ...EMPTY_DRAFT, ...store.get('draft', {}) }; },
-    update(patch) { const d = { ...this.get(), ...patch }; store.set('draft', d); return d; },
-    clear() { store.del('draft'); },
+    get() { const d = { ...EMPTY_DRAFT, ...store.get('draft', {}) }; if (!d.cover && coverMem) d.cover = coverMem; return d; },
+    update(patch) {
+      if ('cover' in patch) coverMem = patch.cover;
+      const d = { ...this.get(), ...patch }; store.set('draft', d); return d;
+    },
+    clear() { store.del('draft'); coverMem = ''; },
   };
+  const COVER_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const COVER_MAX_MB = 10;
+  // Ritaglia al centro un quadrato e lo riduce a 1024 × 1024 px (JPEG).
+  function makeCover(file) {
+    return new Promise((resolve, reject) => {
+      if (!COVER_TYPES.includes(file.type)) return reject(new Error('Formato non supportato: usa JPG, PNG o WEBP.'));
+      if (file.size > COVER_MAX_MB * 1024 * 1024) return reject(new Error(`L’immagine supera i ${COVER_MAX_MB} MB.`));
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const side = Math.min(img.naturalWidth, img.naturalHeight);
+        const out = Math.min(1024, side);
+        const cv = document.createElement('canvas'); cv.width = out; cv.height = out;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, out, out);
+        ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, out, out);
+        URL.revokeObjectURL(url);
+        resolve(cv.toDataURL('image/jpeg', 0.86));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Non riusciamo a leggere questa immagine.')); };
+      img.src = url;
+    });
+  }
   const totalOf = (cards) => Object.values(cards).reduce((a, b) => a + b, 0);
   function validateDetails(d) {
     const e = {};
@@ -673,6 +898,7 @@
   /* PASSAGGIO 1 — CARTE */
   function viewCreateCards() {
     let d = draft.get();
+    let vista = getView('crea');
     const html = `
       <div class="page">
         <h1 class="page-title" style="font-size:26px">Crea la tua modalità</h1>
@@ -698,9 +924,12 @@
             <label class="sr-only" for="q">Cerca per numero o nome della carta</label>
             <input id="q" type="search" placeholder="Numero o nome" value="${esc(d.q)}" autocomplete="off">
           </div>
-          <button class="chip" id="only-sel" aria-pressed="${d.onlySelected}">${icon('check_circle', d.onlySelected ? 'fill' : '')}Solo selezionate</button>
+          <div class="filter-tools">
+            <button class="chip" id="only-sel" aria-pressed="${d.onlySelected}">${icon('check_circle', d.onlySelected ? 'fill' : '')}Solo selezionate</button>
+            ${viewSwitch('crea', vista)}
+          </div>
         </div>
-        <div id="pick" class="card-grid" style="margin-top:14px"></div>
+        <div id="pick" style="margin-top:14px"></div>
         <div class="sticky-action" id="bar"></div>
       </div>`;
 
@@ -711,6 +940,24 @@
           <button type="button" class="plus" data-inc="${card.id}" aria-label="Aggiungi una ${esc(card.name)}" ${qty >= card.copies ? 'disabled' : ''}>${icon('add')}</button>
         </div>
         <div class="max">${qty >= card.copies ? `Massimo raggiunto (${card.copies})` : `Max ${card.copies} ${card.copies === 1 ? 'copia' : 'copie'}`}</div>`;
+    }
+    // Un elemento della selezione, nella visualizzazione scelta.
+    function itemHtml(c, qty) {
+      if (vista === 'lista') {
+        return `<li class="pick-row ${qty ? 'selected' : ''}" data-card="${c.id}">
+          <button class="pr-name" type="button" data-zoom="${c.id}"><small>#${pad2(c.number)}</small>${esc(c.name)}</button>
+          <div class="qc">${qtyControl(c, qty)}</div></li>`;
+      }
+      if (vista === 'griglia') {
+        return `<button type="button" class="sq-tile pick ${qty ? 'selected' : ''}" data-card="${c.id}" data-zoom="${c.id}" aria-label="${esc(c.name)}: ${qty} selezionate. Tocca per scegliere la quantità">
+          <span class="sq-art">${cardArt(c)}</span><span class="sq-num">${c.number}</span>
+          ${qty ? `<span class="sq-qty">×${qty}</span>` : ''}<span class="sq-name">${esc(c.name)}</span></button>`;
+      }
+      return `<article class="pick-card ${qty ? 'selected' : ''}" data-card="${c.id}">
+            <button class="zoom" type="button" data-zoom="${c.id}" aria-label="Ingrandisci ${esc(c.name)}">${cardArt(c)}</button>
+            <div class="nm"><small>#${pad2(c.number)}</small>${esc(c.name)}</div>
+            <div class="qc">${qtyControl(c, qty)}</div>
+          </article>`;
     }
     function drawGrid() {
       d = draft.get();
@@ -724,14 +971,10 @@
           <p class="muted">${d.onlySelected ? 'Togli il filtro “Solo selezionate” per vedere tutte le carte.' : 'Prova con un altro numero o nome.'}</p></div>`;
       } else {
         $p.style.display = '';
-        $p.innerHTML = list.map((c) => {
-          const qty = d.cards[c.id] || 0;
-          return `<article class="pick-card ${qty ? 'selected' : ''}" data-card="${c.id}">
-            <button class="zoom" type="button" data-zoom="${c.id}" aria-label="Ingrandisci ${esc(c.name)}">${cardArt(c)}</button>
-            <div class="nm"><small>#${pad2(c.number)}</small>${esc(c.name)}</div>
-            <div class="qc">${qtyControl(c, qty)}</div>
-          </article>`;
-        }).join('');
+        const items = list.map((c) => itemHtml(c, d.cards[c.id] || 0)).join('');
+        $p.innerHTML = vista === 'lista' ? `<ul class="pick-list">${items}</ul>`
+          : vista === 'griglia' ? `<div class="sq-grid">${items}</div>`
+          : `<div class="card-grid ${vista === 'uno' ? 'cols-1 big' : ''}">${items}</div>`;
       }
       drawBar();
     }
@@ -754,9 +997,8 @@
       const art = $view.querySelector(`[data-card="${id}"]`);
       if (art) {
         if (d.onlySelected && !q) { drawGrid(); return; }
-        art.classList.toggle('selected', !!q);
-        art.querySelector('.qc').innerHTML = qtyControl(c, q);
-        if (!keepFocus) art.querySelector(delta > 0 ? '[data-inc]' : '[data-dec]')?.focus();
+        art.outerHTML = itemHtml(c, q);
+        if (!keepFocus) $view.querySelector(`[data-card="${id}"] ${delta > 0 ? '[data-inc]' : '[data-dec]'}`)?.focus();
       }
       drawBar();
       return q;
@@ -765,6 +1007,7 @@
       section: 'crea', title: 'Crea: scegli le carte', html,
       mount() {
         drawGrid();
+        bindViewSwitch('crea', (v) => { vista = v; drawGrid(); });
         $view.addEventListener('click', (e) => {
           const inc = e.target.closest('[data-inc]'), dec = e.target.closest('[data-dec]'), z = e.target.closest('[data-zoom]');
           if (inc) setQty(inc.dataset.inc, +1);
@@ -839,6 +1082,7 @@
           ${field('name', 'Nome della modalità', `<input type="text" ${attrs('name', true)} maxlength="60" value="${esc(d.name)}" placeholder="Es. Sorpassi a sorpresa" autocomplete="off">`, { req: true, count: 60 })}
           ${field('description', 'Descrizione', `<textarea ${attrs('description', true)} maxlength="600" placeholder="Come si gioca? Cosa la rende divertente?">${esc(d.description)}</textarea>`, { req: true, count: 600 })}
           ${field('players', 'Giocatori consigliati', `<select ${attrs('players')}><option value="">Non specificato</option>${PLAYERS.map((p) => `<option ${d.players === p ? 'selected' : ''}>${p}</option>`).join('')}</select>`, { opt: ' (facoltativo)' })}
+          <div class="field" id="cover-field"></div>
           ${field('rules', 'Regole aggiuntive', `<textarea ${attrs('rules')} maxlength="800" placeholder="Eventuali regole speciali da spiegare agli altri giocatori">${esc(d.rules)}</textarea>`, { opt: ' (facoltative)', count: 800 })}
           <fieldset class="field">
             <legend>L’hai già provata?</legend>
@@ -855,9 +1099,34 @@
           <button class="btn" id="review">Rivedi la proposta</button>
         </div>
       </div>`;
+    function drawCover(err) {
+      const cur = draft.get();
+      const $c = document.getElementById('cover-field');
+      $c.innerHTML = `
+        <span class="label">Copertina <span class="opt">(facoltativa)</span></span>
+        <div class="cover-pick">
+          <div class="cover-prev">${cur.cover ? `<img src="${cur.cover}" alt="Anteprima della copertina">`
+            : `<div class="cover-auto" aria-label="Copertina automatica"><span>${esc(cur.name || 'La tua modalità')}</span><img src="assets/img/camioncino.png" alt=""></div>`}</div>
+          <div class="cover-actions">
+            <label class="btn secondary small">${icon('add_photo_alternate')}${cur.cover ? 'Cambia immagine' : 'Carica immagine'}
+              <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" hidden></label>
+            ${cur.cover ? `<button type="button" class="btn ghost small" id="cover-del">${icon('delete')}Rimuovi</button>` : ''}
+            <p class="hint"><b>Formato quadrato 1024 × 1024 px</b> · JPG, PNG o WEBP · max ${COVER_MAX_MB} MB. Le immagini non quadrate vengono ritagliate al centro.</p>
+            <p class="hint">Se non carichi niente, usiamo una copertina automatica colorata con il camioncino.</p>
+          </div>
+        </div>
+        <p class="error" ${err ? '' : 'hidden'}>${icon('error', 'fill')}<span>${esc(err || '')}</span></p>`;
+      document.getElementById('cover-file').addEventListener('change', async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        try { draft.update({ cover: await makeCover(file) }); drawCover(); toast('Copertina caricata'); }
+        catch (er) { drawCover(er.message); }
+      });
+      document.getElementById('cover-del')?.addEventListener('click', () => { draft.update({ cover: '' }); drawCover(); });
+    }
     return {
       section: 'crea', back: '#/crea/carte', title: 'Crea: dettagli', html,
       mount() {
+        drawCover();
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
           const t = e.target; if (!t.name) return;
@@ -904,6 +1173,7 @@
           <div class="head"><h2>Dettagli</h2><a class="btn ghost small" href="#/crea/dettagli">${icon('edit')}Modifica</a></div>
           <dl>
             <div><dt>Nome</dt><dd style="font:800 20px/1.2 var(--font-head)">${esc(d.name)}</dd></div>
+            <div><dt>Copertina</dt><dd>${d.cover ? `<img class="cover-thumb" src="${d.cover}" alt="Copertina">` : 'Automatica, colorata con il camioncino'}</dd></div>
             <div><dt>Descrizione</dt><dd>${esc(d.description)}</dd></div>
             <div><dt>Nickname pubblico</dt><dd>${esc(d.nickname)}</dd></div>
             <div><dt>Giocatori consigliati</dt><dd>${esc(d.players || 'Non specificato')}</dd></div>
@@ -957,6 +1227,7 @@
             await submit({
               title: cur.name.trim(), description: cur.description.trim(), players: cur.players, rules: cur.rules.trim(), tried: cur.tried,
               nickname: cur.nickname.trim(), email: cur.email.trim() || null, cards: cur.cards, startedFrom: cur.start, consent: true,
+              cover: cur.cover ? { type: 'image/jpeg', data: cur.cover.split(',')[1] } : null,
               status: 'in_attesa', submittedAt: new Date().toISOString(),
             });
             draft.clear(); store.set('lastSent', { name: cur.name.trim(), email: !!cur.email.trim() });
@@ -1008,7 +1279,7 @@
         <div class="search" role="search">
           ${icon('search')}
           <label class="sr-only" for="q">Cerca per parola chiave o nome della carta</label>
-          <input id="q" type="search" placeholder="Parola chiave o nome della carta" value="${esc(state.q)}" autocomplete="off">
+          <input id="q" type="search" placeholder="Parola o nome della carta" value="${esc(state.q)}" autocomplete="off">
           <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${state.q ? '' : 'hidden'}>${icon('close')}</button>
         </div>
         <div class="chips" role="group" aria-label="Categorie">

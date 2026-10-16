@@ -44,6 +44,7 @@ Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati n
   - per ognuna compili a mano numero, nome, copie nel mazzo, frase, traduzione e testo;
   - se il nome del file contiene un numero (es. `carta-07.png`) viene usato come numero della carta;
   - se il numero corrisponde a una carta esistente, viene proposto di aggiornarla mantenendo il suo audio.
+- **Copertine delle modalità:** i giocatori possono caricarne una quadrata in *Crea* (1024 × 1024 px, JPG, PNG o WEBP); dal CMS puoi sostituirla o toglierla. Senza copertina si usa quella automatica colorata con il camioncino.
 - **Modalità:**
   - le proposte inviate dai giocatori arrivano *In attesa* e non sono visibili nell'app;
   - puoi correggerle e poi **approvarle e pubblicarle** oppure **rifiutarle**;
@@ -52,7 +53,7 @@ Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati n
 - **FAQ:** domande e risposte, categorie (anche da rinominare), ordine e pulsante verso una sezione dell'app.
   - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
   - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
-- **Testi e impostazioni:**
+- **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
   - frase di benvenuto, footer, formato delle carte e informativa privacy;
   - email per le notifiche delle nuove proposte;
   - cambio di utente e password.
@@ -81,3 +82,8 @@ Comando di avvio: `node server/server.js`.
 ## Senza server
 
 Aprendo solo la cartella `app/` (per esempio con `python3 -m http.server`), l'app funziona con i dati dimostrativi di `app/js/data.js`. Il CMS, l'invio delle proposte e i voti condivisi invece funzionano solo con il server.
+
+## Note tecniche
+
+- Il PDF delle modalità (15 × 19 cm) viene creato direttamente nel browser con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, incluso in `app/assets/vendor/` con la sua licenza MIT: non serve collegarsi ad altri siti.
+- Le preferenze di visualizzazione (1 per riga, 2 per riga, griglia, lista) sono ricordate su ogni dispositivo.

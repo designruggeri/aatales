@@ -65,9 +65,11 @@
   /* ---------------- Router ---------------- */
   const go = (h) => { if (location.hash === h) route(); else location.hash = h; };
   let lastHash = location.hash;
+  // A ogni cambio di sezione i dati vengono riletti dal server (es. nuove proposte o voti).
+  let stale = false;
   window.addEventListener('hashchange', () => {
     if (dirty && !confirm('Ci sono modifiche non salvate. Vuoi uscire comunque?')) { history.replaceState(null, '', lastHash); return; }
-    dirty = false; route();
+    dirty = false; stale = true; route();
   });
 
   const NAV = [
@@ -88,6 +90,7 @@
     }
     if (!ME) return viewLogin();
     if (parts[0] === 'login') return go('#/');
+    if (DATA && stale) { stale = false; try { await reload(); } catch { /* si usano i dati già caricati */ } }
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
     const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
@@ -210,15 +213,16 @@
     document.getElementById('q').addEventListener('input', (e) => { history.replaceState(null, '', '#/carte' + (e.target.value ? '?q=' + encodeURIComponent(e.target.value) : '')); draw(e.target.value); });
   }
 
-  function uploadField(kind, value) {
+  // kind: 'image' o 'audio'. name: campo del modulo. empty: testo quando non c'è nessun file.
+  function uploadField(kind, value, { name = kind, empty = '' } = {}) {
     const isImg = kind === 'image';
-    return `<div class="upload" data-upload="${kind}">
+    return `<div class="upload" data-upload="${kind}" data-name="${esc(name)}" data-empty="${esc(empty)}">
       <div class="preview">${value && isImg ? `<img src="${esc(asset(value))}" alt="">` : icon(isImg ? 'image' : 'graphic_eq')}</div>
       <div class="info">
-        <b>${value ? esc(value.split('/').pop()) : isImg ? 'Nessuna immagine: si usa l’illustrazione segnaposto' : 'Nessun audio: compare “Audio non ancora disponibile”'}</b>
+        <b>${value ? esc(value.split('/').pop()) : empty ? esc(empty) : isImg ? 'Nessuna immagine: si usa l’illustrazione segnaposto' : 'Nessun audio: compare “Audio non ancora disponibile”'}</b>
         ${value && !isImg ? `<audio controls preload="none" src="${esc(asset(value))}"></audio>` : ''}
       </div>
-      <input type="hidden" name="${kind}" value="${esc(value || '')}">
+      <input type="hidden" name="${esc(name)}" value="${esc(value || '')}">
       <label class="btn secondary sm">${icon('upload')}${value ? 'Sostituisci' : 'Carica'}<input type="file" accept="${isImg ? 'image/png,image/jpeg,image/webp,image/gif' : 'audio/*'}" hidden></label>
       ${value ? `<button type="button" class="btn danger sm" data-remove>${icon('delete')}Rimuovi</button>` : ''}
     </div>`;
@@ -227,7 +231,7 @@
     $scope.querySelectorAll('[data-upload]:not([data-bound])').forEach((box) => {
       box.dataset.bound = '1';
       const kind = box.dataset.upload;
-      const setVal = (v) => { box.outerHTML = uploadField(kind, v); bindUploads($scope, onChange); dirty = true; onChange?.(); };
+      const setVal = (v) => { box.outerHTML = uploadField(kind, v, { name: box.dataset.name, empty: box.dataset.empty }); bindUploads($scope, onChange); dirty = true; onChange?.(); };
       box.querySelector('input[type=file]').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
         if (file.size > 15 * 1024 * 1024) return toast('Il file supera i 15 MB', true);
@@ -587,6 +591,11 @@
             ${!isNew && m.status === 'published' ? `<a class="btn secondary" href="/#/scopri/${esc(m.id)}" target="_blank" rel="noopener">${icon('open_in_new')}Vedi nell’app</a>` : ''}
           </div>
           <div class="panel form">
+            <div class="field"><span class="label">Copertina</span>${uploadField('image', m.cover, { name: 'cover', empty: 'Nessuna copertina: si usa quella automatica colorata con il camioncino' })}
+              ${m.cover ? `<img src="${esc(asset(m.cover))}" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;margin-top:8px">` : ''}
+              <p class="help">Quadrata, 1024 × 1024 px · JPG, PNG o WEBP.</p></div>
+          </div>
+          <div class="panel form">
             <div class="field"><label for="email">Email privata ${icon('lock')}</label><input id="email" name="email" type="email" value="${esc(m.email)}" placeholder="Non indicata">
               <p class="help">Mai pubblicata.${m.email ? ` <a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('La tua modalità MÖVAT! “' + m.title + '”')}">Scrivi al giocatore</a>` : ''}</p></div>
             <div class="field"><label for="note">Note interne</label><textarea id="note" name="note" rows="3" placeholder="Visibili solo nel CMS">${esc(m.note)}</textarea></div>
@@ -606,6 +615,7 @@
     };
     drawQty();
     const $f = document.getElementById('f'); watchDirty($f);
+    bindUploads($f);
     document.getElementById('qty').addEventListener('click', (e) => {
       const b = e.target.closest('[data-q]'); if (!b) return;
       const c = cardById(b.dataset.q);
@@ -773,6 +783,8 @@
       <form class="panel form" id="general" novalidate>
         <h2>Testi generali</h2>
         <div class="field"><label for="welcome">Frase di benvenuto in Home</label><input id="welcome" name="welcome" type="text" maxlength="80" value="${esc(s.welcome)}"></div>
+        <div class="field"><span class="label">Logo Busa (in fondo alla Home)</span>${uploadField('image', s.busaLogo, { name: 'busaLogo', empty: 'Nessun logo: si usa la scritta “busa” segnaposto' })}
+          <p class="help">PNG con sfondo trasparente consigliato, circa 600 px di larghezza. Accettati anche JPG e WEBP.</p></div>
         <div class="field"><label for="footerText">Testo del footer</label><input id="footerText" name="footerText" type="text" maxlength="200" value="${esc(s.footerText)}"></div>
         <div class="field"><label for="ratio">Formato delle carte</label>
           <div class="row"><select id="ratio" style="max-width:260px">${RATIOS.map(([k, l]) => `<option value="${k}" ${curRatio?.[0] === k ? 'selected' : ''}>${l}</option>`).join('')}<option value="custom" ${curRatio ? '' : 'selected'}>Personalizzato…</option></select>
@@ -799,7 +811,7 @@
         </div>
         <div class="row"><button class="btn" type="submit">${icon('key')}Aggiorna l’accesso</button></div>`}
       </form>`;
-    watchDirty(document.getElementById('general')); document.getElementById('privacy').addEventListener('input', () => { dirty = true; });
+    watchDirty(document.getElementById('general')); bindUploads(document.getElementById('general')); document.getElementById('privacy').addEventListener('input', () => { dirty = true; });
     const $ratio = document.getElementById('ratio');
     $ratio.onchange = () => { document.getElementById('custom').hidden = $ratio.value !== 'custom'; dirty = true; };
     document.getElementById('general').onsubmit = async (e) => {

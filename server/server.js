@@ -284,12 +284,12 @@ function ratingFor(modeId) {
 function publicContent() {
   const s = db.settings;
   return {
-    config: { cardRatio: Number(s.cardRatio) || 63 / 88, welcome: s.welcome, footerText: s.footerText, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+    config: { cardRatio: Number(s.cardRatio) || 63 / 88, welcome: s.welcome, footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
-      description: m.description, rules: m.rules, cards: m.cards, ...ratingFor(m.id),
+      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, ...ratingFor(m.id),
     })),
     faqCategories: db.faqCategories,
     faq: [...db.faq].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((f) => ({
@@ -321,6 +321,23 @@ const on = (method, pattern, handler, opts = {}) => {
 /* --- API pubbliche --- */
 on('GET', '/api/content', () => publicContent());
 
+// Copertina inviata da un giocatore: solo JPG/PNG/WEBP veri (controllo dei primi byte), max 4 MB.
+async function saveCover(cover) {
+  if (!cover || !cover.data) return '';
+  const ext = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' }[cover.type];
+  if (!ext) throw new HttpError(415, 'Copertina in un formato non supportato');
+  const buf = Buffer.from(String(cover.data), 'base64');
+  if (!buf.length || buf.length > 4 * 1024 * 1024) throw new HttpError(413, 'Copertina troppo grande');
+  const magic = buf.subarray(0, 12);
+  const ok = (ext === '.jpg' && magic[0] === 0xff && magic[1] === 0xd8)
+    || (ext === '.png' && magic.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])))
+    || (ext === '.webp' && magic.subarray(0, 4).toString() === 'RIFF' && magic.subarray(8, 12).toString() === 'WEBP');
+  if (!ok) throw new HttpError(415, 'Il file della copertina non è un’immagine valida');
+  const name = `cover-${Date.now().toString(36)}-${crypto.randomBytes(3).toString('hex')}${ext}`;
+  await fsp.writeFile(path.join(UPLOAD_DIR, name), buf);
+  return 'uploads/' + name;
+}
+
 on('POST', '/api/proposals', async (req) => {
   if (rateLimited(req, 'proposal', 10, 3600e3)) throw new HttpError(429, 'Troppe proposte in poco tempo. Riprova più tardi.');
   const b = await readJson(req);
@@ -335,9 +352,10 @@ on('POST', '/api/proposals', async (req) => {
   const cards = cleanCards(b.cards);
   if (!Object.keys(cards).length) errors.cards = 'Nessuna carta selezionata';
   if (Object.keys(errors).length) throw Object.assign(new HttpError(422, 'Dati non validi'), { details: errors });
+  const cover = await saveCover(b.cover);
   const mode = {
     id: uniqueId(title, db.modes), title, author, email, players: str(b.players, 20), description, rules: str(b.rules, 800),
-    tried: str(b.tried, 20), cards, status: 'pending', source: 'utente', startedFrom: str(b.startedFrom, 80), note: '',
+    tried: str(b.tried, 20), cards, cover, status: 'pending', source: 'utente', startedFrom: str(b.startedFrom, 80), note: '',
     createdAt: now(), publishedAt: null, updatedAt: now(),
   };
   db.modes.push(mode); await save();
@@ -427,7 +445,7 @@ on('POST', '/api/admin/modes', async (req) => {
   const mode = {
     id: uniqueId(b.title, db.modes), title: str(b.title, 60), author: str(b.author, 30) || 'Team Busa', email: str(b.email, 200),
     players: str(b.players, 20), description: str(b.description, 1000), rules: str(b.rules, 1500), tried: str(b.tried, 20),
-    cards: cleanCards(b.cards), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
+    cards: cleanCards(b.cards), cover: str(b.cover, 300), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
     createdAt: now(), publishedAt: status === 'published' ? now() : null, updatedAt: now(),
   };
   db.modes.push(mode); await save(); return mode;
@@ -436,7 +454,7 @@ on('PUT', '/api/admin/modes/:id', async (req, p) => {
   const m = db.modes.find((x) => x.id === p.id); if (!m) throw new HttpError(404, 'Modalità non trovata');
   const b = await readJson(req);
   if ('title' in b && !str(b.title, 60)) throw new HttpError(422, 'Il nome della modalità è obbligatorio');
-  for (const [k, max] of [['title', 60], ['author', 30], ['email', 200], ['players', 20], ['description', 1000], ['rules', 1500], ['tried', 20], ['note', 1000]]) {
+  for (const [k, max] of [['title', 60], ['author', 30], ['email', 200], ['players', 20], ['description', 1000], ['rules', 1500], ['tried', 20], ['note', 1000], ['cover', 300]]) {
     if (k in b) m[k] = str(b[k], max);
   }
   if ('cards' in b) m.cards = cleanCards(b.cards);
@@ -503,6 +521,7 @@ on('PUT', '/api/admin/settings', async (req) => {
   const s = db.settings;
   if ('welcome' in b) s.welcome = str(b.welcome, 80) || 'Il gioco continua qui!';
   if ('footerText' in b) s.footerText = str(b.footerText, 200);
+  if ('busaLogo' in b) s.busaLogo = str(b.busaLogo, 300);
   if ('notifyEmails' in b) s.notifyEmails = str(b.notifyEmails, 500);
   if ('cardRatio' in b) { const r = Number(b.cardRatio); if (r > 0.3 && r < 3) s.cardRatio = r; }
   if ('privacy' in b && Array.isArray(b.privacy)) {
