@@ -109,7 +109,7 @@
     }
     if (!ME) return viewLogin();
     if (parts[0] === 'login') return go('#/');
-    if (DATA && stale) { stale = false; try { await reload(); } catch { /* si usano i dati già caricati */ } }
+    if (DATA && stale) { stale = false; try { await reload(); ME = { ...ME, ...(await api('GET', 'me')) }; } catch { /* si usano i dati già caricati */ } }
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
     const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
@@ -126,6 +126,7 @@
         </div>
       </nav>
       <main class="main" id="main"></main>
+      ${ME.restartNeeded ? `<div class="restart-banner" role="alert">${icon('restart_alt')}<span><b>Riavvia il server.</b> I file del progetto sono stati aggiornati ma il server sta ancora usando la versione precedente: alcune modifiche (come il logo o i nuovi campi) potrebbero non essere salvate. Nel Terminale premi <b>Ctrl + C</b>, poi avvia di nuovo <code>node server/server.js</code> e ricarica questa pagina.</span></div>` : ''}
     </div>`;
     document.getElementById('logout').onclick = async (e) => {
       e.preventDefault(); await api('POST', 'logout', {}).catch(() => {}); ME = null; DATA = null; go('#/login');

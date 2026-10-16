@@ -392,7 +392,11 @@ on('POST', '/api/admin/logout', async (req, _p, res) => {
   res.setHeader('Set-Cookie', sessionCookie('', 0));
   return { ok: true };
 }, { public: true });
-on('GET', '/api/admin/me', (req) => (isAuthed(req) ? { user: admin.user, passwordFromEnv: !!admin.fromEnv } : Promise.reject(new HttpError(401, 'Accesso richiesto'))), { public: true });
+// Se i file del server vengono aggiornati senza riavviarlo, il CMS mostra un avviso.
+const sourceHash = () => { try { return crypto.createHash('sha1').update(fs.readFileSync(__filename)).digest('hex'); } catch { return null; } };
+const STARTED_HASH = sourceHash();
+const restartNeeded = () => { const h = sourceHash(); return !!(h && STARTED_HASH && h !== STARTED_HASH); };
+on('GET', '/api/admin/me', (req) => (isAuthed(req) ? { user: admin.user, passwordFromEnv: !!admin.fromEnv, restartNeeded: restartNeeded() } : Promise.reject(new HttpError(401, 'Accesso richiesto'))), { public: true });
 
 /* --- Dati completi per il CMS --- */
 on('GET', '/api/admin/data', () => ({

@@ -35,6 +35,14 @@ Serve **Node.js** (versione 18 o successiva): scaricalo da https://nodejs.org (s
 
 Per fermare il server premi **Ctrl + C** nel Terminale. I dati restano salvati nella cartella `data/`.
 
+## Aggiornare a una nuova versione
+
+1. Ferma il server: nel Terminale premi **Ctrl + C**.
+2. Scarica la nuova versione e copia la tua cartella `data` dentro la nuova cartella del progetto.
+3. Avvia di nuovo il server con `node server/server.js` e ricarica le pagine del browser.
+
+Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “Riavvia il server”: finché non lo riavvii, alcune modifiche (per esempio il logo o i campi nuovi) potrebbero non essere salvate.
+
 ## Cosa si gestisce dal CMS
 
 - **Panoramica:** le proposte da controllare e un elenco di tutto ciò che è ancora segnaposto.
