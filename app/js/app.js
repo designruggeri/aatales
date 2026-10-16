@@ -482,6 +482,8 @@
   }
   const playersLabel = (v) => (!v ? '' : v === '1' ? '1 giocatore' : `${v} giocatori`);
 
+  // Modalità pubblicate dal team Busa: quelle ufficiali del gioco.
+  const officialBadge = `<span class="official-badge">${icon('verified', 'fill')}Team Busa</span>`;
   const BANNERS = [['#28c4d8', '#a6e84a'], ['#ffc300', '#ff7a2f'], ['#8a3ffc', '#1292e8'], ['#52ae32', '#d6f55a']];
   // Copertina caricata dall'autore, oppure banner automatico colorato con il camioncino.
   function modeBanner(m, { detail = false } = {}) {
@@ -546,9 +548,9 @@
       if (vista === 'lista') {
         // Lista compatta: niente immagini né descrizione, carte in forma di testo.
         $r.innerHTML = `<div class="mode-list">${list.map((m) => `
-          <a class="mode-row" href="#/scopri/${m.id}">
+          <a class="mode-row ${m.official ? 'official' : ''}" href="#/scopri/${m.id}">
             <span class="mr-main">
-              <b>${highlight(m.title, state.q)}</b>
+              ${m.official ? officialBadge : ''}<b>${highlight(m.title, state.q)}</b>
               <span class="by">di <b>${esc(m.author)}</b></span>
               <span class="facts">${m.players ? `<span>${icon('group')}${esc(m.players)}</span>` : ''}<span>${icon('style')}${modeTotal(m)} carte</span>${ratingText(m)}</span>
               <span class="mr-cards">${modeCardList(m).map(({ card, qty }) => card.id === state.carta ? `<mark>${esc(card.name)} ×${qty}</mark>` : `${esc(card.name)} ×${qty}`).join(' · ')}</span>
@@ -558,8 +560,8 @@
       $r.innerHTML = list.map((m) => {
         const cl = modeCardList(m);
         const shown = cl.slice(0, cl.length > 5 ? 4 : 5);
-        return `<article class="mode-card">
-          ${modeBanner(m)}
+        return `<article class="mode-card ${m.official ? 'official' : ''}">
+          ${modeBanner(m)}${m.official ? `<div class="official-strip">${officialBadge}</div>` : ''}
           <div class="mode-body">
             <h2>${highlight(m.title, state.q)}</h2>
             <p class="by">di <b>${esc(m.author)}</b></p>

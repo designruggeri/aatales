@@ -315,7 +315,7 @@ function publicContent() {
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
-      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, ...ratingFor(m.id),
+      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', ...ratingFor(m.id),
     })),
     userCards: db.userCards.filter((c) => c.status === 'published').map((c) => ({
       id: c.id, title: c.title, dialect: c.dialect, translation: c.translation, text: c.text, author: c.author,

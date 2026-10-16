@@ -651,3 +651,11 @@ html, body { overflow-x: clip; }
 .af-txt small { display: block; color: var(--ink-muted); font-weight: 700; }
 .hl-card { background: var(--green); color: #fff; border-radius: 999px; padding: 3px 9px; font-weight: 800; font-size: 13px; }
 .mr-cards mark { background: var(--lime-soft); color: var(--green-dark); font-weight: 800; padding: 0 4px; border-radius: 6px; }
+
+/* Scopri: modalità ufficiali del team Busa (bordo verde spesso) */
+.mode-card.official, .mode-row.official { border: 4px solid var(--green); box-shadow: 0 0 0 3px rgba(82,174,50,.18), var(--shadow-1); }
+.mode-card.official { position: relative; }
+.official-strip { position: absolute; top: 10px; left: 10px; }
+.official-badge { display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 4px 10px 4px 7px; border-radius: 999px; background: var(--green); color: #fff; font: 800 12px/1 var(--font-body); box-shadow: 0 2px 0 var(--green-dark); }
+.official-badge .ms { font-size: 16px; }
+.mode-row .official-badge { margin-bottom: 2px; }
