@@ -212,3 +212,11 @@ hr { border: 0; border-top: 1px solid var(--stroke-soft); margin: 16px 0; }
 .field .range-row input { width: 100%; accent-color: var(--green); }
 .field .range-row output { font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
 @media (max-width: 860px) { #cardmaker .split { grid-template-columns: 1fr !important; } }
+
+/* Anteprima icona della modalità */
+.icon-preview { display: flex; align-items: stretch; gap: 12px; padding: 12px; border: 1px solid var(--stroke); border-radius: 12px; background: #fff; }
+.icon-preview .ip-text { flex: 1; min-width: 0; display: grid; align-content: center; gap: 2px; }
+.icon-preview .ip-text > b { font: 800 18px/1.15 var(--font-head); }
+.icon-preview .ip-text span { font-size: 13px; color: var(--muted); }
+.ip-circle { align-self: center; width: 56px; height: 56px; border-radius: 50%; background: var(--green); display: grid; place-items: center; overflow: hidden; flex: none; }
+.ip-circle img { object-fit: contain; display: block; }

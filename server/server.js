@@ -315,7 +315,7 @@ function publicContent() {
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
-      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', ...ratingFor(m.id),
+      description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', icon: m.icon || null, iconScale: m.iconScale || 70, ...ratingFor(m.id),
     })),
     userCards: db.userCards.filter((c) => c.status === 'published').map((c) => ({
       id: c.id, title: c.title, dialect: c.dialect, translation: c.translation, text: c.text, author: c.author,
@@ -503,6 +503,8 @@ on('DELETE', '/api/admin/cards/:id', async (req, p) => {
 
 /* Modalità */
 const STATUSES = ['pending', 'published', 'rejected'];
+// Dimensione dell'icona nel cerchio verde, in % del diametro (30–130, predefinita 70).
+const iconScaleFrom = (v) => { const n = Math.round(Number(v)); return n >= 30 && n <= 130 ? n : 70; };
 on('POST', '/api/admin/modes', async (req) => {
   const b = await readJson(req);
   if (!str(b.title, 60)) throw new HttpError(422, 'Il nome della modalità è obbligatorio');
@@ -510,7 +512,7 @@ on('POST', '/api/admin/modes', async (req) => {
   const mode = {
     id: uniqueId(b.title, db.modes), title: str(b.title, 60), author: str(b.author, 30) || 'Team Busa', email: str(b.email, 200),
     players: str(b.players, 20), description: str(b.description, 1000), rules: str(b.rules, 1500), tried: str(b.tried, 20),
-    cards: cleanCards(b.cards), cover: str(b.cover, 300), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
+    cards: cleanCards(b.cards), cover: str(b.cover, 300), icon: str(b.icon, 300), iconScale: iconScaleFrom(b.iconScale), status, source: 'busa', startedFrom: '', note: str(b.note, 1000),
     createdAt: now(), publishedAt: status === 'published' ? now() : null, updatedAt: now(),
   };
   db.modes.push(mode); await save(); return mode;
@@ -519,10 +521,11 @@ on('PUT', '/api/admin/modes/:id', async (req, p) => {
   const m = db.modes.find((x) => x.id === p.id); if (!m) throw new HttpError(404, 'Modalità non trovata');
   const b = await readJson(req);
   if ('title' in b && !str(b.title, 60)) throw new HttpError(422, 'Il nome della modalità è obbligatorio');
-  for (const [k, max] of [['title', 60], ['author', 30], ['email', 200], ['players', 20], ['description', 1000], ['rules', 1500], ['tried', 20], ['note', 1000], ['cover', 300]]) {
+  for (const [k, max] of [['title', 60], ['author', 30], ['email', 200], ['players', 20], ['description', 1000], ['rules', 1500], ['tried', 20], ['note', 1000], ['cover', 300], ['icon', 300]]) {
     if (k in b) m[k] = str(b[k], max);
   }
   if ('cards' in b) m.cards = cleanCards(b.cards);
+  if ('iconScale' in b) m.iconScale = iconScaleFrom(b.iconScale);
   if ('status' in b && STATUSES.includes(b.status) && b.status !== m.status) {
     m.status = b.status;
     if (b.status === 'published' && !m.publishedAt) m.publishedAt = now();

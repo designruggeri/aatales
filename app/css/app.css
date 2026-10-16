@@ -659,3 +659,12 @@ html, body { overflow-x: clip; }
 .official-badge { display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 4px 10px 4px 7px; border-radius: 999px; background: var(--green); color: #fff; font: 800 12px/1 var(--font-body); box-shadow: 0 2px 0 var(--green-dark); }
 .official-badge .ms { font-size: 16px; }
 .mode-row .official-badge { margin-bottom: 2px; }
+
+/* Icona della modalità: cerchio verde a destra di titolo e autore */
+.title-row { display: flex; align-items: stretch; gap: 12px; }
+.title-row .tr-text { flex: 1; min-width: 0; display: grid; align-content: center; gap: 2px; }
+.mode-icon { flex: none; align-self: center; height: 100%; min-height: 44px; max-height: 64px; aspect-ratio: 1; border-radius: 50%; background: var(--green); display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 2px 6px rgba(24,35,23,.15); }
+.title-row > .mode-icon { align-self: stretch; height: auto; }
+.mode-icon img { object-fit: contain; display: block; }
+.mode-head .mode-icon { min-height: 56px; max-height: 76px; }
+.mode-row .tr-text > b { font: 800 18px/1.15 var(--font-head); }

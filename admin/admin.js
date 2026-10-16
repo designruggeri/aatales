@@ -692,7 +692,7 @@
 
   function viewMode($m, id) {
     const isNew = id === 'nuova';
-    const m = isNew ? { title: '', author: 'Team Busa', email: '', players: '', description: '', rules: '', tried: '', cards: {}, status: 'published', note: '', ratingSum: 0, ratingCount: 0 } : DATA.modes.find((x) => x.id === id);
+    const m = isNew ? { title: '', author: 'Team Busa', email: '', players: '', description: '', rules: '', tried: '', cards: {}, status: 'published', note: '', icon: '', iconScale: 70, ratingSum: 0, ratingCount: 0 } : DATA.modes.find((x) => x.id === id);
     if (!m) { $m.innerHTML = `<p class="empty">Modalità non trovata. <a href="#/modalita">Torna alle modalità</a></p>`; return; }
     const cards = { ...m.cards };
     const votes = isNew ? [] : DATA.votes.filter((v) => v.modeId === m.id).sort((a, b) => b.at.localeCompare(a.at));
@@ -752,6 +752,17 @@
               <p class="help">Quadrata, 1024 × 1024 px · JPG, PNG o WEBP.</p></div>
           </div>
           <div class="panel form">
+            <div class="field"><span class="label">Icona accanto al titolo</span>${uploadField('image', m.icon, { name: 'icon', empty: 'Nessuna icona' })}
+              <p class="help">PNG con sfondo trasparente, quadrata (es. 256 × 256 px). Nell’app compare in un cerchio verde a destra di titolo e autore.</p></div>
+            <div class="icon-preview" id="icon-prev">
+              <div class="ip-text"><b id="ip-title">${esc(m.title || 'Titolo della modalità')}</b><span>di <b>${esc(m.author || 'Team Busa')}</b></span></div>
+              <span class="ip-circle"><img id="ip-img" alt="" ${m.icon ? `src="${esc(asset(m.icon))}"` : 'hidden'}></span>
+            </div>
+            <label class="field"><span class="label">Dimensione dell’icona nel cerchio: <output id="ip-val">${m.iconScale || 70}%</output></span>
+              <input type="range" id="ip-scale" min="30" max="130" step="1" value="${m.iconScale || 70}" style="width:100%;accent-color:var(--green)"></label>
+            <input type="hidden" name="iconScale" value="${m.iconScale || 70}">
+          </div>
+          <div class="panel form">
             <div class="field"><label for="email">Email privata ${icon('lock')}</label><input id="email" name="email" type="email" value="${esc(m.email)}" placeholder="Non indicata">
               <p class="help">Mai pubblicata.${m.email ? ` <a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('La tua modalità MÖVAT! “' + m.title + '”')}">Scrivi al giocatore</a>` : ''}</p></div>
             <div class="field"><label for="note">Note interne</label><textarea id="note" name="note" rows="3" placeholder="Visibili solo nel CMS">${esc(m.note)}</textarea></div>
@@ -771,7 +782,19 @@
     };
     drawQty();
     const $f = document.getElementById('f'); watchDirty($f);
-    bindUploads($f);
+    // Anteprima dell'icona nel cerchio verde
+    const drawIcon = () => {
+      const v = $f.querySelector('input[name=icon]').value, sc = $f.querySelector('input[name=iconScale]').value;
+      const img = document.getElementById('ip-img');
+      img.hidden = !v; if (v) img.src = asset(v);
+      img.style.width = img.style.height = sc + '%';
+      document.getElementById('ip-val').textContent = sc + '%';
+      document.getElementById('ip-title').textContent = $f.querySelector('#title').value || 'Titolo della modalità';
+    };
+    bindUploads($f, drawIcon);
+    document.getElementById('ip-scale').addEventListener('input', (e) => { $f.querySelector('input[name=iconScale]').value = e.target.value; dirty = true; drawIcon(); });
+    $f.querySelector('#title').addEventListener('input', drawIcon);
+    drawIcon();
     document.getElementById('qty').addEventListener('click', (e) => {
       const b = e.target.closest('[data-q]'); if (!b) return;
       const c = cardById(b.dataset.q);

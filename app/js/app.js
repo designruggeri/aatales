@@ -483,6 +483,8 @@
   const playersLabel = (v) => (!v ? '' : v === '1' ? '1 giocatore' : `${v} giocatori`);
 
   // Modalità pubblicate dal team Busa: quelle ufficiali del gioco.
+  // Icona della modalità (caricata dal CMS) in un cerchio verde Busa, alta quanto titolo + autore.
+  const modeIcon = (m) => (m.icon ? `<span class="mode-icon" aria-hidden="true"><img src="${esc(m.icon)}" alt="" style="width:${Number(m.iconScale) || 70}%;height:${Number(m.iconScale) || 70}%"></span>` : '');
   const officialBadge = `<span class="official-badge">${icon('verified', 'fill')}Team Busa</span>`;
   const BANNERS = [['#28c4d8', '#a6e84a'], ['#ffc300', '#ff7a2f'], ['#8a3ffc', '#1292e8'], ['#52ae32', '#d6f55a']];
   // Copertina caricata dall'autore, oppure banner automatico colorato con il camioncino.
@@ -550,8 +552,9 @@
         $r.innerHTML = `<div class="mode-list">${list.map((m) => `
           <a class="mode-row ${m.official ? 'official' : ''}" href="#/scopri/${m.id}">
             <span class="mr-main">
-              ${m.official ? officialBadge : ''}<b>${highlight(m.title, state.q)}</b>
-              <span class="by">di <b>${esc(m.author)}</b></span>
+              ${m.official ? officialBadge : ''}
+              <span class="title-row"><span class="tr-text"><b>${highlight(m.title, state.q)}</b>
+              <span class="by">di <b>${esc(m.author)}</b></span></span>${modeIcon(m)}</span>
               <span class="facts">${m.players ? `<span>${icon('group')}${esc(m.players)}</span>` : ''}<span>${icon('style')}${modeTotal(m)} carte</span>${ratingText(m)}</span>
               <span class="mr-cards">${modeCardList(m).map(({ card, qty }) => card.id === state.carta ? `<mark>${esc(card.name)} ×${qty}</mark>` : `${esc(card.name)} ×${qty}`).join(' · ')}</span>
             </span>${icon('chevron_right')}</a>`).join('')}</div>`;
@@ -563,8 +566,8 @@
         return `<article class="mode-card ${m.official ? 'official' : ''}">
           ${modeBanner(m)}${m.official ? `<div class="official-strip">${officialBadge}</div>` : ''}
           <div class="mode-body">
-            <h2>${highlight(m.title, state.q)}</h2>
-            <p class="by">di <b>${esc(m.author)}</b></p>
+            <div class="title-row"><div class="tr-text"><h2>${highlight(m.title, state.q)}</h2>
+            <p class="by">di <b>${esc(m.author)}</b></p></div>${modeIcon(m)}</div>
             <p class="desc">${highlight(m.description, state.q)}</p>
             <div class="facts">
               ${m.players ? `<span>${icon('group')}${esc(playersLabel(m.players))}</span>` : ''}
@@ -608,8 +611,8 @@
       <div style="margin-bottom:-8px">${modeBanner(m, { detail: true })}</div>
       <div class="page">
         <header class="mode-head">
-          <h1>${esc(m.title)}</h1>
-          <p class="by" style="margin-top:4px">di <b>${esc(m.author)}</b></p>
+          <div class="title-row"><div class="tr-text"><h1>${esc(m.title)}</h1>
+          <p class="by" style="margin-top:4px">di <b>${esc(m.author)}</b></p></div>${modeIcon(m)}</div>
           <div class="facts">
             ${m.players ? `<span>${icon('group')}${esc(playersLabel(m.players))}</span>` : ''}
             <span>${icon('style')}${modeTotal(m)} carte Busa</span>
