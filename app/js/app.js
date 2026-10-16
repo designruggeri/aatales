@@ -1481,7 +1481,7 @@
           <div class="facts"><span id="rating-inline">${ratingText(c, true, 'carta:' + c.id)}</span></div>
         </header>
         <div class="bubble">
-          <div class="lbl">${icon('record_voice_over')}Frase in piacentino</div>
+          <div class="lbl">${icon('record_voice_over')}Frase in dialetto</div>
           <p class="dialect">«${esc(c.dialect)}»</p>
           ${c.translation ? `<div class="transl"><div class="lbl">${icon('translate')}Traduzione italiana</div><p>“${esc(c.translation)}”</p></div>` : ''}
         </div>
@@ -1599,7 +1599,7 @@
           <form class="form" id="form" novalidate>
             ${Object.keys(errs).length ? `<div class="form-error-summary" role="alert">${icon('error', 'fill')}<span>Completa i campi evidenziati.</span></div>` : ''}
             ${cfield(d, errs, 'title', 'Titolo della carta', `<input id="f-title" name="title" type="text" maxlength="${L.title}" value="${esc(d.title)}" placeholder="Es. Fermo lì!" autocomplete="off">`, { req: true, count: L.title })}
-            ${cfield(d, errs, 'dialect', 'Frase del camioncino, in piacentino', `<textarea id="f-dialect" name="dialect" maxlength="${L.dialect}" rows="2" placeholder="Cosa dice il camioncino nel fumetto?">${esc(d.dialect)}</textarea>`, { req: true, count: L.dialect })}
+            ${cfield(d, errs, 'dialect', 'Frase del camioncino, in dialetto', `<textarea id="f-dialect" name="dialect" maxlength="${L.dialect}" rows="2" placeholder="Cosa dice il camioncino nel fumetto?">${esc(d.dialect)}</textarea>`, { req: true, count: L.dialect })}
             ${cfield(d, errs, 'translation', 'Traduzione in italiano', `<textarea id="f-translation" name="translation" maxlength="${L.translation}" rows="2" placeholder="Compare nel fumetto, sotto la frase">${esc(d.translation)}</textarea>`, { opt: ' (facoltativa)', count: L.translation })}
             ${cfield(d, errs, 'text', 'Testo della carta', `<textarea id="f-text" name="text" maxlength="${L.text}" rows="4" placeholder="Cosa succede quando qualcuno gioca questa carta?">${esc(d.text)}</textarea>`, { req: true, count: L.text })}
           </form>
@@ -1688,7 +1688,7 @@
           <div class="head"><h2>La carta</h2><a class="btn ghost small" href="#/crea/carta">${icon('edit')}Modifica</a></div>
           <dl>
             <div><dt>Titolo</dt><dd style="font:800 20px/1.2 var(--font-head)">${esc(d.title)}</dd></div>
-            <div><dt>Frase in piacentino</dt><dd>${esc(d.dialect)}</dd></div>
+            <div><dt>Frase in dialetto</dt><dd>${esc(d.dialect)}</dd></div>
             <div><dt>Traduzione</dt><dd>${esc(d.translation || '—')}</dd></div>
             <div><dt>Testo della carta</dt><dd>${esc(d.text)}</dd></div>
           </dl>

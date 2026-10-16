@@ -589,7 +589,7 @@
         <div>
           <div class="panel form">
             ${tf('title', 'Titolo')}
-            ${tf('dialect', 'Frase del camioncino (piacentino)', 2)}
+            ${tf('dialect', 'Frase del camioncino (dialetto)', 2)}
             ${tf('translation', 'Traduzione', 2)}
             ${tf('text', 'Testo della carta', 4)}
           </div>
