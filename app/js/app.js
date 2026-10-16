@@ -499,7 +499,7 @@
         : `<div class="mode-cover"><img src="${esc(m.cover)}" alt="" loading="lazy"></div>`;
     }
     const [b1, b2] = BANNERS[Math.max(0, MODES.indexOf(m)) % BANNERS.length];
-    return `<div class="mode-banner" style="--b1:${b1};--b2:${b2}${detail ? ';height:110px;border-radius:0' : ''}" aria-hidden="true"><span class="bt">${esc(m.title)}</span><img src="assets/img/camioncino.png" alt=""></div>`;
+    return `<div class="mode-banner" style="--b1:${b1};--b2:${b2}${detail ? ';height:110px;border-radius:0' : ''}" aria-hidden="true"><img src="assets/img/camioncino.png" alt=""></div>`;
   }
 
   /* ---------------- SCOPRI: gallery ---------------- */
@@ -1194,7 +1194,7 @@
         <span class="label">Copertina <span class="opt">(facoltativa)</span></span>
         <div class="cover-pick">
           <div class="cover-prev">${cur.cover ? `<img src="${cur.cover}" alt="Anteprima della copertina">`
-            : `<div class="cover-auto" aria-label="Copertina automatica"><span>${esc(cur.name || 'La tua modalità')}</span><img src="assets/img/camioncino.png" alt=""></div>`}</div>
+            : `<div class="cover-auto" aria-label="Copertina automatica"><img src="assets/img/camioncino.png" alt=""></div>`}</div>
           <div class="cover-actions">
             <label class="btn secondary small">${icon('add_photo_alternate')}${cur.cover ? 'Cambia immagine' : 'Carica immagine'}
               <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" hidden></label>

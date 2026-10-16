@@ -297,7 +297,6 @@ main { flex: 1; outline: none; }
 .mode-card + .mode-card { margin-top: 16px; }
 .mode-banner { position: relative; height: 92px; padding: 14px 16px; overflow: hidden; display: flex; align-items: flex-end;
   background: radial-gradient(rgba(255,255,255,.45) 18%, transparent 20%) 0 0 / 14px 14px, linear-gradient(120deg, var(--b1, #28c4d8), var(--b2, #a6e84a)); }
-.mode-banner .bt { font: 800 24px/0.95 var(--font-head); color: #fff; text-transform: uppercase; -webkit-text-stroke: 2px #173a0c; paint-order: stroke fill; text-shadow: 0 3px 0 #173a0c; max-width: 70%; }
 .mode-banner img { position: absolute; right: -6px; bottom: -6px; width: 120px; transform: scaleX(-1); filter: drop-shadow(0 4px 4px rgba(0,0,0,.25)); }
 .mode-body { padding: 14px 16px 16px; }
 .mode-body h2 { font-size: 22px; }
@@ -558,7 +557,6 @@ html, body { overflow-x: clip; }
 .cover-prev { width: 112px; height: 112px; flex: none; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--stroke); background: #fff; }
 .cover-prev img { width: 100%; height: 100%; object-fit: cover; }
 .cover-auto { width: 100%; height: 100%; position: relative; padding: 10px; background: radial-gradient(rgba(255,255,255,.45) 18%, transparent 20%) 0 0 / 10px 10px, linear-gradient(120deg, #28c4d8, #a6e84a); }
-.cover-auto span { position: relative; z-index: 1; font: 800 14px/1 var(--font-head); color: #fff; text-transform: uppercase; -webkit-text-stroke: 1.2px #173a0c; paint-order: stroke fill; overflow-wrap: anywhere; }
 .cover-auto img { position: absolute; right: -6px; bottom: -4px; width: 78px; transform: scaleX(-1); }
 .cover-actions { display: grid; gap: 6px; justify-items: start; min-width: 0; }
 .cover-actions .hint { margin: 0; }
