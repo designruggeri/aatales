@@ -574,7 +574,7 @@ html, body { overflow-x: clip; }
 .share-box .hint { margin-top: 10px; font-size: 13px; color: var(--ink-muted); font-weight: 600; }
 
 /* Logo Busa nel footer (caricato dal CMS) */
-.busa-logo { max-width: 160px; max-height: 64px; margin: 0 auto; object-fit: contain; }
+.busa-logo { max-width: 80px; max-height: 32px; margin: 0 auto; object-fit: contain; }
 
 @media (max-width: 380px) {
   .view-switch button { width: 34px; }
@@ -591,3 +591,38 @@ html, body { overflow-x: clip; }
 .field.invalid .pl-box input[type=text]:not(:disabled) { border-color: var(--red); background: #fffafa; }
 .plus-toggle { width: 52px; height: 52px; flex: none; border-radius: 16px; border: 1.5px solid var(--stroke); background: #fff; color: var(--green-dark); font: 900 26px/1 var(--font-body); }
 .plus-toggle[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 3px 0 var(--green-dark); }
+
+/* ---------- Schede Scopri (Modalità / Carte) e scelta in Crea ---------- */
+.scopri-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+.scopri-tabs a { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; border-radius: 999px; text-decoration: none; font: 800 14px/1.1 var(--font-body); color: var(--ink-muted); padding: 0 8px; text-align: center; }
+.scopri-tabs a .ms { font-size: 20px; }
+.scopri-tabs a[aria-current="page"] { background: var(--green); color: #fff; box-shadow: 0 2px 0 var(--green-dark); }
+.chooser { display: grid; gap: 14px; margin-top: 20px; }
+.choice { display: flex; align-items: center; gap: 14px; padding: 18px 16px; background: #fff; border: 2px solid var(--stroke); border-radius: 22px; text-decoration: none; color: var(--ink); box-shadow: var(--shadow-1); }
+.choice:active { transform: translateY(2px); }
+.choice .ch-ic { width: 56px; height: 56px; border-radius: 18px; background: var(--lime-soft); color: var(--green-dark); display: grid; place-items: center; flex: none; }
+.choice .ch-ic .ms { font-size: 30px; }
+.choice b { display: block; font: 800 20px/1.15 var(--font-head); }
+.choice span span { display: block; color: var(--ink-muted); font-weight: 600; font-size: 14px; margin-top: 3px; }
+.choice > .ms { margin-left: auto; color: var(--green-dark); }
+
+/* ---------- Carte dei giocatori ---------- */
+.ucard-img { display: block; width: 100%; aspect-ratio: var(--card-ratio); object-fit: cover; border-radius: 12% / 8.6%; background: linear-gradient(135deg, #d9f0c6, #b5e08a); box-shadow: 0 0 0 1.5px var(--stroke), 0 3px 8px rgba(24,35,23,.12); }
+.ucard-img.sq { aspect-ratio: 1; border-radius: 0; box-shadow: none; object-position: center 30%; }
+.ucard-tile { text-decoration: none; color: inherit; }
+.ucard-tile .open { display: block; }
+.ucard-tile .t { display: grid; gap: 2px; }
+.ucard-tile .by { font-size: 13px; }
+.ucard-tile .rating { font-size: 13px; }
+.card-grid.cols-1 .ucard-tile .open .ucard-img { width: min(78%, 300px); margin: 0 auto; }
+.ucard-detail { display: flex; justify-content: center; }
+.ucard-detail canvas { width: min(82%, 340px); height: auto; border-radius: 12% / 8.6%; box-shadow: 0 10px 28px rgba(24,35,23,.22); }
+.ucard-detail.small canvas { width: min(60%, 240px); }
+
+/* Crea una carta: anteprima che resta visibile mentre si scrive */
+.cm-preview { position: sticky; top: 66px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 10px; background: linear-gradient(var(--cream) 88%, rgba(248,250,245,0)); }
+.cm-preview canvas { height: min(32vh, 280px); width: auto; aspect-ratio: var(--card-ratio); border-radius: 12% / 8.6%; box-shadow: 0 8px 22px rgba(24,35,23,.2); }
+.cm-badge { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-muted); font: 800 11px/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase; }
+.cm-badge .ms { font-size: 14px; }
+/* I campi restano visibili sotto l'anteprima quando si scrive */
+.card-maker .field input, .card-maker .field textarea { scroll-margin-top: calc(min(32vh, 280px) + 110px); scroll-margin-bottom: 150px; }

@@ -70,9 +70,11 @@ function slugify(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'voce';
 }
+// 'carte' è riservato: #/scopri/carte è la pagina delle carte dei giocatori.
+const RESERVED_IDS = ['carte', 'nuova', 'importa'];
 function uniqueId(base, list) {
   let id = slugify(base), n = 2;
-  while (list.some((x) => x.id === id)) id = `${slugify(base)}-${n++}`;
+  while (RESERVED_IDS.includes(id) || list.some((x) => x.id === id)) id = `${slugify(base)}-${n++}`;
   return id;
 }
 
@@ -115,6 +117,16 @@ function seedFromDemo() {
     cards: w.MOVAT_CARDS.map((c) => ({ ...c, dialect: c.dialect || '', translation: c.translation || '', text: c.text || '', audio: c.audio || '', image: c.image || '', demo: true })),
     modes,
     votes,
+    userCards: (w.MOVAT_USER_CARDS || []).map((c) => {
+      let left = c.ratingSum;
+      for (let i = 0; i < c.ratingCount; i++) {
+        const v = Math.max(1, Math.min(5, Math.round(left / (c.ratingCount - i))));
+        votes.push({ id: uid('v_'), cardId: c.id, deviceId: 'demo-' + i, value: v, demo: true, at: c.date + 'T12:00:00.000Z' });
+        left -= v;
+      }
+      return { id: c.id, title: c.title, dialect: c.dialect, translation: c.translation, text: c.text, author: c.author, email: '', note: '',
+        status: 'published', source: 'demo', createdAt: c.date + 'T10:00:00.000Z', publishedAt: c.date + 'T12:00:00.000Z', updatedAt: now() };
+    }),
     faqCategories: [...w.MOVAT_FAQ_CATEGORIES],
     faq: w.MOVAT_FAQ.map((f, i) => ({ id: f.id, category: f.category, q: f.q, a: f.a, cardId: f.cardId || '', showInList: f.showInList !== false, actionLabel: f.action?.label || '', actionHref: f.action?.href || '', order: i, demo: /segnaposto/i.test(f.q) })),
   };
@@ -124,11 +136,25 @@ function loadDb() {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   if (fs.existsSync(DB_FILE)) {
     db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    // Aggiornamento dei dati salvati con versioni precedenti.
+    if (!Array.isArray(db.userCards)) db.userCards = [];
   } else {
     db = seedFromDemo();
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
     console.log('Creato', path.relative(ROOT, DB_FILE), 'con i contenuti dimostrativi.');
   }
+  db.settings.cardMaker = normCardMaker(db.settings.cardMaker);
+}
+
+/* Creazione carte: template, limiti di caratteri e posizione dei testi (modificabili dal CMS). */
+const CARD_LIMITS = { title: 22, dialect: 70, translation: 80, text: 200 };
+const CARD_LAYOUT = { titleY: 8, balloonTop: 14, balloonBottom: 40, tailX: 62, textTop: 62, textBottom: 93 };
+function normCardMaker(cm = {}) {
+  const clamp = (v, lo, hi, def) => { const n = Math.round(Number(v)); return n >= lo && n <= hi ? n : def; };
+  const limits = {}, layout = {};
+  for (const [k, d] of Object.entries(CARD_LIMITS)) limits[k] = clamp(cm.limits?.[k], 5, 600, d);
+  for (const [k, d] of Object.entries(CARD_LAYOUT)) layout[k] = clamp(cm.layout?.[k], 0, 100, d);
+  return { template: str(cm.template, 300), limits, layout };
 }
 
 /* ------------------------------------------------------------------ */
@@ -217,7 +243,7 @@ async function notifyNewProposal(mode, req) {
     await mailer.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER, to,
       subject: `MÖVAT! — nuova proposta: ${mode.title}`,
-      text: `È arrivata una nuova modalità da controllare.\n\nNome: ${mode.title}\nNickname: ${mode.author}\nGiocatori: ${mode.players || '—'}\n\n${mode.description}\n\nCarte:\n${cards}\n\nApri il CMS: ${base}/admin/#/modalita/${mode.id}`,
+      text: `È arrivata una nuova modalità da controllare.\n\nNome: ${mode.title}\nNickname: ${mode.author}\nGiocatori: ${mode.players || '—'}\n\n${mode.description}\n\nCarte:\n${cards}\n\nApri il CMS: ${base}/admin/#/${mode.adminPath || 'modalita/' + mode.id}`,
     });
   } catch (e) { console.error('Invio email non riuscito:', e.message); }
 }
@@ -276,20 +302,24 @@ async function serveStatic(req, res, baseDir, relPath, { spa } = {}) {
 /* ------------------------------------------------------------------ */
 /* Dati pubblici                                                       */
 /* ------------------------------------------------------------------ */
-function ratingFor(modeId) {
+function ratingFor(modeId, key = 'modeId') {
   let sum = 0, count = 0;
-  for (const v of db.votes) if (v.modeId === modeId) { sum += v.value; count++; }
+  for (const v of db.votes) if (v[key] === modeId) { sum += v.value; count++; }
   return { ratingSum: sum, ratingCount: count };
 }
 function publicContent() {
   const s = db.settings;
   return {
-    config: { cardRatio: Number(s.cardRatio) || 63 / 88, welcome: s.welcome, footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+    config: { cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
       description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, ...ratingFor(m.id),
+    })),
+    userCards: db.userCards.filter((c) => c.status === 'published').map((c) => ({
+      id: c.id, title: c.title, dialect: c.dialect, translation: c.translation, text: c.text, author: c.author,
+      date: (c.publishedAt || c.createdAt).slice(0, 10), updatedAt: c.updatedAt, ...ratingFor(c.id, 'cardId'),
     })),
     faqCategories: db.faqCategories,
     faq: [...db.faq].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((f) => ({
@@ -363,19 +393,49 @@ on('POST', '/api/proposals', async (req) => {
   return { ok: true };
 });
 
+on('POST', '/api/card-proposals', async (req) => {
+  if (rateLimited(req, 'card-proposal', 10, 3600e3)) throw new HttpError(429, 'Troppe proposte in poco tempo. Riprova più tardi.');
+  const b = await readJson(req);
+  const L = db.settings.cardMaker.limits;
+  const errors = {};
+  const field = (k, required, label) => {
+    const v = String(b[k] ?? '').trim();
+    if (required && !v) errors[k] = `${label} mancante`;
+    if (v.length > L[k]) errors[k] = `${label}: massimo ${L[k]} caratteri`;
+    return v.slice(0, L[k]);
+  };
+  const title = field('title', true, 'Titolo'), dialect = field('dialect', true, 'Frase in dialetto');
+  const translation = field('translation', false, 'Traduzione'), text = field('text', true, 'Testo della carta');
+  const author = str(b.nickname, 30), email = str(b.email, 200);
+  if (!author) errors.nickname = 'Nickname mancante';
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.email = 'Email non valida';
+  if (!b.consent) errors.consent = 'Consenso mancante';
+  if (Object.keys(errors).length) throw Object.assign(new HttpError(422, 'Dati non validi'), { details: errors });
+  const card = {
+    id: uniqueId(title, db.userCards), title, dialect, translation, text, author, email, note: str(b.note, 600), adminNote: '',
+    status: 'pending', source: 'utente', createdAt: now(), publishedAt: null, updatedAt: now(),
+  };
+  db.userCards.push(card); await save();
+  notifyNewProposal({ id: card.id, adminPath: 'carte-proposte/' + card.id, title: `[Carta] ${card.title}`, author, players: '', description: `${dialect}\n${translation}\n\n${text}`, cards: {} }, req);
+  return { ok: true };
+});
+
 on('POST', '/api/votes', async (req) => {
   if (rateLimited(req, 'vote', 60, 600e3)) throw new HttpError(429, 'Troppi voti in poco tempo.');
   const b = await readJson(req);
-  const mode = db.modes.find((m) => m.id === b.modeId && m.status === 'published');
-  if (!mode) throw new HttpError(404, 'Modalità non trovata');
+  // Voto a una modalità (modeId) oppure a una carta dei giocatori (cardId).
+  const key = b.cardId ? 'cardId' : 'modeId';
+  const list = key === 'cardId' ? db.userCards : db.modes;
+  const mode = list.find((m) => m.id === b[key] && m.status === 'published');
+  if (!mode) throw new HttpError(404, key === 'cardId' ? 'Carta non trovata' : 'Modalità non trovata');
   const value = Math.round(Number(b.value));
   const deviceId = str(b.deviceId, 64);
   if (!(value >= 1 && value <= 5)) throw new HttpError(400, 'Il voto va da 1 a 5');
   if (!/^[a-zA-Z0-9_-]{8,64}$/.test(deviceId)) throw new HttpError(400, 'Dispositivo non valido');
-  const existing = db.votes.find((v) => v.modeId === mode.id && v.deviceId === deviceId);
-  if (existing) { existing.value = value; existing.at = now(); } else db.votes.push({ id: uid('v_'), modeId: mode.id, deviceId, value, at: now() });
+  const existing = db.votes.find((v) => v[key] === mode.id && v.deviceId === deviceId);
+  if (existing) { existing.value = value; existing.at = now(); } else db.votes.push({ id: uid('v_'), [key]: mode.id, deviceId, value, at: now() });
   await save();
-  return { ok: true, ...ratingFor(mode.id) };
+  return { ok: true, ...ratingFor(mode.id, key) };
 });
 
 /* --- Autenticazione CMS --- */
@@ -402,6 +462,7 @@ on('GET', '/api/admin/me', (req) => (isAuthed(req) ? { user: admin.user, passwor
 on('GET', '/api/admin/data', () => ({
   ...db,
   modes: db.modes.map((m) => ({ ...m, ...ratingFor(m.id) })),
+  userCards: db.userCards.map((c) => ({ ...c, ...ratingFor(c.id, 'cardId') })),
 }));
 
 /* Carte */
@@ -474,12 +535,32 @@ on('DELETE', '/api/admin/modes/:id', async (req, p) => {
   await save(); return { ok: true };
 });
 
+/* Carte proposte dai giocatori */
+on('PUT', '/api/admin/user-cards/:id', async (req, p) => {
+  const c = db.userCards.find((x) => x.id === p.id); if (!c) throw new HttpError(404, 'Carta non trovata');
+  const b = await readJson(req);
+  const L = db.settings.cardMaker.limits;
+  if ('title' in b && !str(b.title, L.title)) throw new HttpError(422, 'Il titolo è obbligatorio');
+  for (const k of ['title', 'dialect', 'translation', 'text']) if (k in b) c[k] = str(b[k], L[k]);
+  for (const [k, max] of [['author', 30], ['email', 200], ['adminNote', 1000]]) if (k in b) c[k] = str(b[k], max);
+  if ('status' in b && STATUSES.includes(b.status) && b.status !== c.status) {
+    c.status = b.status;
+    if (b.status === 'published' && !c.publishedAt) c.publishedAt = now();
+  }
+  c.updatedAt = now(); await save(); return { ...c, ...ratingFor(c.id, 'cardId') };
+});
+on('DELETE', '/api/admin/user-cards/:id', async (req, p) => {
+  db.userCards = db.userCards.filter((c) => c.id !== p.id);
+  db.votes = db.votes.filter((v) => v.cardId !== p.id);
+  await save(); return { ok: true };
+});
+
 /* Voti */
 on('DELETE', '/api/admin/votes/:id', async (req, p) => { db.votes = db.votes.filter((v) => v.id !== p.id); await save(); return { ok: true }; });
 on('POST', '/api/admin/votes/clear', async (req) => {
   const b = await readJson(req);
   const before = db.votes.length;
-  db.votes = db.votes.filter((v) => !((!b.modeId || v.modeId === b.modeId) && (!b.demoOnly || v.demo)));
+  db.votes = db.votes.filter((v) => !((!b.modeId || v.modeId === b.modeId) && (!b.cardId || v.cardId === b.cardId) && (!b.demoOnly || v.demo)));
   await save(); return { ok: true, removed: before - db.votes.length };
 });
 
@@ -526,6 +607,7 @@ on('PUT', '/api/admin/settings', async (req) => {
   if ('welcome' in b) s.welcome = str(b.welcome, 80) || 'Il gioco continua qui!';
   if ('footerText' in b) s.footerText = str(b.footerText, 200);
   if ('busaLogo' in b) s.busaLogo = str(b.busaLogo, 300);
+  if ('cardMaker' in b) s.cardMaker = normCardMaker(b.cardMaker);
   if ('notifyEmails' in b) s.notifyEmails = str(b.notifyEmails, 500);
   if ('cardRatio' in b) { const r = Number(b.cardRatio); if (r > 0.3 && r < 3) s.cardRatio = r; }
   if ('privacy' in b && Array.isArray(b.privacy)) {
@@ -564,6 +646,8 @@ on('GET', '/api/admin/export', (req, _p, res) => {
 on('POST', '/api/admin/import', async (req) => {
   const b = await readJson(req);
   for (const k of ['settings', 'cards', 'modes', 'votes', 'faqCategories', 'faq']) if (!(k in b)) throw new HttpError(422, `Backup non valido: manca "${k}"`);
+  if (!Array.isArray(b.userCards)) b.userCards = [];
+  b.settings.cardMaker = normCardMaker(b.settings.cardMaker);
   await fsp.copyFile(DB_FILE, path.join(DATA_DIR, `db-prima-dell-import-${Date.now()}.json`));
   db = b; await save(); return { ok: true };
 });

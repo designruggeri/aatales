@@ -95,6 +95,7 @@
     ['', 'dashboard', 'Panoramica'],
     ['carte', 'style', 'Carte'],
     ['modalita', 'stadia_controller', 'Modalità'],
+    ['carte-proposte', 'draw', 'Carte proposte'],
     ['voti', 'star', 'Voti'],
     ['faq', 'help', 'FAQ'],
     ['impostazioni', 'tune', 'Testi e impostazioni'],
@@ -112,14 +113,15 @@
     if (DATA && stale) { stale = false; try { await reload(); ME = { ...ME, ...(await api('GET', 'me')) }; } catch { /* si usano i dati già caricati */ } }
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
-    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
+    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, 'carte-proposte': id ? viewUserCardAdmin : viewUserCardsAdmin, voti: viewVotes, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
     const view = sec ? views[sec] : viewDashboard;
     if (!view) return go('#/');
     const pending = DATA.modes.filter((m) => m.status === 'pending').length;
+    const pendingCards = (DATA.userCards || []).filter((c) => c.status === 'pending').length;
     $root.innerHTML = `<div class="layout">
       <nav class="side" aria-label="Sezioni del CMS">
         <a class="brand" href="#/"><img src="/assets/img/logo-movat.png" alt="MÖVAT!"><span>CMS</span></a>
-        ${NAV.map(([k, ic, l]) => `<a class="nav-link" href="#/${k}" ${(sec || '') === k ? 'aria-current="page"' : ''}>${icon(ic)}<span class="lbl">${l}</span>${k === 'modalita' && pending ? `<span class="badge count" title="Proposte in attesa">${pending}</span>` : ''}</a>`).join('')}
+        ${NAV.map(([k, ic, l]) => `<a class="nav-link" href="#/${k}" ${(sec || '') === k ? 'aria-current="page"' : ''}>${icon(ic)}<span class="lbl">${l}</span>${k === 'modalita' && pending ? `<span class="badge count" title="Proposte in attesa">${pending}</span>` : ''}${k === 'carte-proposte' && pendingCards ? `<span class="badge count" title="Carte in attesa">${pendingCards}</span>` : ''}</a>`).join('')}
         <div class="bottom">
           <a class="nav-link" href="/" target="_blank" rel="noopener">${icon('open_in_new')}<span class="lbl">Apri l’app</span></a>
           <a class="nav-link" href="#" id="logout">${icon('logout')}<span class="lbl">Esci</span></a>
@@ -160,7 +162,10 @@
 
   /* ---------------- Panoramica ---------------- */
   function viewDashboard($m) {
-    const pending = DATA.modes.filter((m) => m.status === 'pending');
+    const pending = [
+      ...DATA.modes.filter((m) => m.status === 'pending').map((m) => ({ ...m, kind: 'Modalità', href: '#/modalita/' + m.id, info: `${modeTotal(m)} carte` })),
+      ...DATA.userCards.filter((c) => c.status === 'pending').map((c) => ({ ...c, kind: 'Carta', href: '#/carte-proposte/' + c.id, info: 'nuova carta Busa' })),
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const published = DATA.modes.filter((m) => m.status === 'published');
     const demoCards = DATA.cards.filter((c) => c.demo).length;
     const noAudio = DATA.cards.filter((c) => !c.audio).length;
@@ -181,15 +186,15 @@
     $m.innerHTML = `
       <div class="page-head"><div><h1>Ciao ${esc(ME.user)}!</h1><p class="muted">Da qui gestisci tutti i contenuti dell’app MÖVAT!.</p></div></div>
       <div class="grid-4">
-        <a class="stat ${pending.length ? 'warn' : ''}" href="#/modalita?filtro=pending"><b>${pending.length}</b><span>Proposte da controllare</span></a>
+        <a class="stat ${pending.length ? 'warn' : ''}" href="${pending.length && pending.every((x) => x.kind === 'Carta') ? '#/carte-proposte?filtro=pending' : '#/modalita?filtro=pending'}"><b>${pending.length}</b><span>Proposte da controllare</span></a>
         <a class="stat" href="#/modalita?filtro=published"><b>${published.length}</b><span>Modalità pubblicate</span></a>
         <a class="stat" href="#/carte"><b>${DATA.cards.length}</b><span>Carte nel catalogo</span></a>
         <a class="stat" href="#/voti"><b>${DATA.votes.length}</b><span>Voti ricevuti</span></a>
       </div>
       <div class="panel" style="margin-top:16px">
-        <div class="panel-head"><h2>Proposte in attesa</h2><a class="btn secondary sm" href="#/modalita?filtro=pending">Vedi tutte</a></div>
-        ${pending.length ? `<div class="table-wrap"><table><tbody>${pending.slice(0, 6).map((m) => `
-          <tr class="clickable" data-href="#/modalita/${esc(m.id)}"><td><span class="title">${esc(m.title)}</span><div class="muted small">di ${esc(m.author)} · ${modeTotal(m)} carte</div></td>
+        <div class="panel-head"><h2>Proposte in attesa</h2><div class="row"><a class="btn secondary sm" href="#/modalita?filtro=pending">Modalità</a><a class="btn secondary sm" href="#/carte-proposte?filtro=pending">Carte</a></div></div>
+        ${pending.length ? `<div class="table-wrap"><table><tbody>${pending.slice(0, 8).map((m) => `
+          <tr class="clickable" data-href="${esc(m.href)}"><td><span class="badge">${m.kind}</span> <span class="title">${esc(m.title)}</span><div class="muted small">di ${esc(m.author)} · ${esc(m.info)}</div></td>
           <td class="muted small">${fmtDate(m.createdAt)}</td><td style="text-align:right"><span class="btn sm">Controlla${icon('chevron_right')}</span></td></tr>`).join('')}</tbody></table></div>`
           : `<p class="empty">${icon('task_alt')} Nessuna proposta da controllare.</p>`}
       </div>
@@ -521,6 +526,132 @@
     });
   }
 
+  /* ---------------- Carte proposte dai giocatori ---------------- */
+  const cmCfg = (extra = {}) => ({ template: DATA.settings.cardMaker?.template, layout: DATA.settings.cardMaker?.layout, ratio: DATA.settings.cardRatio, base: '/', ...extra });
+  function fillCardThumbs($scope) {
+    $scope.querySelectorAll('img[data-uc]').forEach(async (img) => {
+      const c = DATA.userCards.find((x) => x.id === img.dataset.uc); if (!c) return;
+      try { img.src = await window.MovatCardRender.toDataURL(c, cmCfg({ width: 160 }), 'image/jpeg', 0.85); } catch { /* */ }
+    });
+  }
+  function viewUserCardsAdmin($m) {
+    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+    const list0 = DATA.userCards;
+    const state = { filtro: params.get('filtro') || (list0.some((x) => x.status === 'pending') ? 'pending' : 'published'), q: params.get('q') || '' };
+    const counts = { pending: 0, published: 0, rejected: 0, demo: 0 };
+    list0.forEach((x) => { counts[x.status]++; if (x.source === 'demo') counts.demo++; });
+    $m.innerHTML = `
+      <div class="page-head"><div><h1>Carte proposte</h1><p class="muted">Carte Busa inventate dai giocatori in “Crea → Carta Busa”. Quelle pubblicate compaiono in “Scopri → Carte dei giocatori”.</p></div>
+        <a class="btn secondary" href="#/impostazioni?sezione=carta">${icon('tune')}Template e limiti</a></div>
+      <div class="tabs" role="group" aria-label="Filtra">
+        ${[['pending', 'In attesa'], ['published', 'Pubblicate'], ['rejected', 'Rifiutate'], ['tutte', 'Tutte'], ['demo', 'Di esempio']].map(([k, l]) =>
+          `<button class="tab" data-f="${k}" aria-pressed="${state.filtro === k}">${l} <span class="badge">${k === 'tutte' ? list0.length : counts[k]}</span></button>`).join('')}
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="search-box">${icon('search')}<input type="search" id="q" placeholder="Cerca per titolo, autore o testo" value="${esc(state.q)}"></div></div>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Carta</th><th>Stato</th><th>Voto</th><th>Data</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+      </div>`;
+    const draw = () => {
+      const n = norm(state.q);
+      const list = list0.filter((x) => (state.filtro === 'tutte' || (state.filtro === 'demo' ? x.source === 'demo' : x.status === state.filtro))
+        && (!n || norm(`${x.title} ${x.author} ${x.dialect} ${x.translation} ${x.text}`).includes(n))).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      document.getElementById('rows').innerHTML = list.map((x) => `
+        <tr class="clickable" data-href="#/carte-proposte/${esc(x.id)}">
+          <td style="width:58px"><img data-uc="${esc(x.id)}" alt="" style="width:44px;aspect-ratio:var(--card-ratio);border-radius:6px;background:var(--lime-soft);display:block"></td>
+          <td><span class="title">${esc(x.title)}</span> ${x.source === 'demo' ? '<span class="badge demo">Esempio</span>' : ''}
+            <div class="muted small">di ${esc(x.author)}${x.email ? ' · ' + icon('mail') : ''}</div></td>
+          <td>${statusBadge(x.status)}</td>
+          <td class="num">${x.ratingCount ? `<span class="stars">★</span> ${fmtAvg(x.ratingSum, x.ratingCount)} <span class="muted">(${x.ratingCount})</span>` : '<span class="muted">—</span>'}</td>
+          <td class="muted small">${fmtDate(x.createdAt)}</td><td style="text-align:right">${icon('chevron_right', 'muted')}</td>
+        </tr>`).join('') || `<tr><td colspan="6" class="empty">Nessuna carta in questo elenco.</td></tr>`;
+      bindRows($m); fillCardThumbs($m);
+    };
+    const sync = () => history.replaceState(null, '', '#/carte-proposte?' + new URLSearchParams(Object.entries(state).filter(([, v]) => v)));
+    draw();
+    $m.querySelectorAll('[data-f]').forEach((b) => b.onclick = () => { state.filtro = b.dataset.f; $m.querySelectorAll('[data-f]').forEach((x) => x.setAttribute('aria-pressed', x === b)); sync(); draw(); });
+    document.getElementById('q').addEventListener('input', (e) => { state.q = e.target.value; sync(); draw(); });
+  }
+
+  function viewUserCardAdmin($m, id) {
+    const c = DATA.userCards.find((x) => x.id === id);
+    if (!c) { $m.innerHTML = `<p class="empty">Carta non trovata. <a href="#/carte-proposte">Torna alle carte proposte</a></p>`; return; }
+    const L = DATA.settings.cardMaker.limits;
+    const votes = DATA.votes.filter((v) => v.cardId === c.id).sort((a, b) => b.at.localeCompare(a.at));
+    const tf = (k, label, rows) => `<div class="field"><label for="${k}">${label}</label>
+      ${rows ? `<textarea id="${k}" name="${k}" maxlength="${L[k]}" rows="${rows}">${esc(c[k] || '')}</textarea>` : `<input id="${k}" name="${k}" type="text" maxlength="${L[k]}" value="${esc(c[k] || '')}">`}
+      <p class="help" style="text-align:right"><span data-cnt="${k}">${(c[k] || '').length}</span>/${L[k]}</p></div>`;
+    $m.innerHTML = `
+      <a class="crumb" href="#/carte-proposte">${icon('arrow_back')}Carte proposte</a>
+      <div class="page-head"><div><h1>${esc(c.title)}</h1>
+        <p class="muted">${statusBadge(c.status)} · ${c.source === 'demo' ? 'Carta di esempio' : 'Proposta da un giocatore'} il ${fmtDate(c.createdAt)}</p></div></div>
+      ${c.status === 'pending' ? `<div class="notice warn" style="margin-bottom:16px">${icon('pending_actions')}<span>Questa carta non è visibile nell’app. Controllala, correggi eventuali errori e poi pubblicala o rifiutala.</span></div>` : ''}
+      <form class="split" id="f" novalidate>
+        <div>
+          <div class="panel form">
+            ${tf('title', 'Titolo')}
+            ${tf('dialect', 'Frase del camioncino (piacentino)', 2)}
+            ${tf('translation', 'Traduzione', 2)}
+            ${tf('text', 'Testo della carta', 4)}
+          </div>
+          <div class="panel form">
+            <div class="grid-2">
+              <div class="field"><label for="author">Nickname pubblico</label><input id="author" name="author" type="text" maxlength="30" value="${esc(c.author)}"></div>
+              <div class="field"><label for="email">Email privata ${icon('lock')}</label><input id="email" name="email" type="email" value="${esc(c.email || '')}" placeholder="Non indicata">
+                ${c.email ? `<p class="help"><a href="mailto:${esc(c.email)}?subject=${encodeURIComponent('La tua carta MÖVAT! “' + c.title + '”')}">Scrivi al giocatore</a></p>` : ''}</div>
+            </div>
+            ${c.note ? `<div class="field"><span class="label">Note del giocatore</span><p class="notice">${icon('chat')}<span>${esc(c.note)}</span></p></div>` : ''}
+            <div class="field"><label for="adminNote">Note interne</label><textarea id="adminNote" name="adminNote" rows="2" placeholder="Visibili solo nel CMS">${esc(c.adminNote || '')}</textarea></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Voti</h2><span class="muted">${c.ratingCount ? `Media ${fmtAvg(c.ratingSum, c.ratingCount)} su 5 · ${c.ratingCount} voti` : 'Ancora nessun voto'}</span></div>
+            ${votes.length ? `<div class="table-wrap"><table><tbody>${votes.map((v) => `<tr><td><span class="stars">${'★'.repeat(v.value)}</span><span class="muted">${'★'.repeat(5 - v.value)}</span></td>
+              <td class="muted small">${v.demo ? '<span class="badge demo">Demo</span>' : esc(v.deviceId.slice(0, 10)) + '…'}</td><td class="muted small">${fmtDate(v.at)}</td>
+              <td style="text-align:right"><button type="button" class="btn danger sm icon" data-del-vote="${esc(v.id)}" aria-label="Elimina voto">${icon('delete')}</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nessun voto da mostrare.</p>'}
+          </div>
+        </div>
+        <aside class="sticky">
+          <div class="panel"><canvas id="uc-prev" style="width:100%;border-radius:12px;display:block"></canvas>
+            <button type="button" class="btn secondary sm" id="dl" style="margin-top:10px;width:100%">${icon('download')}Scarica immagine PNG</button></div>
+          <div class="panel form">
+            <div class="field"><label for="status">Stato</label>
+              <select id="status" name="status">${Object.entries(STATUS).map(([k, l]) => `<option value="${k}" ${k === c.status ? 'selected' : ''}>${l}</option>`).join('')}</select>
+              <p class="help">Solo le carte “Pubblicate” compaiono in Scopri.</p></div>
+            ${c.status === 'pending' ? `<button type="button" class="btn" id="approve">${icon('check_circle')}Approva e pubblica</button>
+              <button type="button" class="btn danger" id="reject">${icon('block')}Rifiuta</button><hr style="margin:4px 0">` : ''}
+            <button class="btn ${c.status === 'pending' ? 'secondary' : ''}" type="submit">${icon('save')}Salva le modifiche</button>
+            ${c.status === 'published' ? `<a class="btn secondary" href="/#/scopri/carte/${esc(c.id)}" target="_blank" rel="noopener">${icon('open_in_new')}Vedi nell’app</a>` : ''}
+            <button type="button" class="btn danger" id="del">${icon('delete')}Elimina la carta</button>
+          </div>
+        </aside>
+      </form>`;
+    const $f = document.getElementById('f'); watchDirty($f);
+    const vals = () => Object.fromEntries(new FormData($f));
+    const canvas = document.getElementById('uc-prev');
+    const draw = () => window.MovatCardRender.render(canvas, vals(), cmCfg({ width: 600 }));
+    draw();
+    $f.addEventListener('input', (e) => { const k = e.target.name; const n = $m.querySelector(`[data-cnt="${k}"]`); if (n) n.textContent = e.target.value.length; draw(); });
+    document.getElementById('dl').onclick = async () => {
+      const blob = await window.MovatCardRender.toBlob(vals(), cmCfg({ width: 1080 }), 'image/png');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `carta-${c.id}.png`; a.click();
+    };
+    const saveWith = async (btn, extra, msg) => {
+      const v = { ...vals(), ...extra };
+      if (!v.title.trim()) { toast('Il titolo è obbligatorio', true); return; }
+      if (await act(btn, () => api('PUT', 'user-cards/' + c.id, v), msg)) { dirty = false; route(); }
+    };
+    $f.onsubmit = (e) => { e.preventDefault(); saveWith(e.submitter, {}, 'Modifiche salvate'); };
+    document.getElementById('approve')?.addEventListener('click', (e) => saveWith(e.currentTarget, { status: 'published' }, 'Carta pubblicata in Scopri'));
+    document.getElementById('reject')?.addEventListener('click', (e) => { if (confirm('Rifiutare questa carta? Non comparirà nell’app.')) saveWith(e.currentTarget, { status: 'rejected' }, 'Carta rifiutata'); });
+    document.getElementById('del').addEventListener('click', async (e) => {
+      if (!confirm('Eliminare definitivamente questa carta e i suoi voti?')) return;
+      if (await act(e.currentTarget, () => api('DELETE', 'user-cards/' + c.id), 'Carta eliminata')) { dirty = false; go('#/carte-proposte'); }
+    });
+    $m.querySelectorAll('[data-del-vote]').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm('Eliminare questo voto?')) return;
+      if (await act(b, () => api('DELETE', 'votes/' + b.dataset.delVote), 'Voto eliminato')) route();
+    }));
+  }
+
   /* ---------------- Modalità ---------------- */
   function viewModes($m) {
     const params = new URLSearchParams(location.hash.split('?')[1] || '');
@@ -810,6 +941,7 @@
   /* ---------------- Testi e impostazioni ---------------- */
   function viewSettings($m) {
     const s = DATA.settings;
+    const cmS = JSON.parse(JSON.stringify(s.cardMaker || { template: '', limits: { title: 22, dialect: 70, translation: 80, text: 200 }, layout: { ...window.MovatCardRender.DEFAULT_LAYOUT } }));
     const RATIOS = [['63x88', 'Poker 63 × 88 mm', 63 / 88], ['57x89', 'Bridge 57 × 89 mm', 57 / 89], ['70x120', 'Tarocco 70 × 120 mm', 70 / 120], ['1x1', 'Quadrata', 1]];
     const curRatio = RATIOS.find(([, , r]) => Math.abs(r - s.cardRatio) < 0.002);
     let privacy = (s.privacy || []).map((p) => ({ ...p }));
@@ -828,6 +960,30 @@
         <div class="field"><label for="notifyEmails">Email per le notifiche delle nuove proposte</label><input id="notifyEmails" name="notifyEmails" type="text" value="${esc(s.notifyEmails)}" placeholder="team@busa.it, altro@busa.it">
           <p class="help">Separale con una virgola. Le email partono solo se sul server è configurato l’invio (vedi la guida).</p></div>
         <div class="row"><button class="btn" type="submit">${icon('save')}Salva</button></div>
+      </form>
+      <form class="panel form" id="cardmaker" novalidate>
+        <h2>Crea una carta Busa</h2>
+        <p class="muted">Template, numero massimo di caratteri e posizione dei testi per le carte create dai giocatori in “Crea → Carta Busa”.</p>
+        <div class="split" style="grid-template-columns:minmax(0,1fr) 260px">
+          <div class="form">
+            <div class="field"><span class="label">Template della carta</span>${uploadField('image', cmS.template, { name: 'template', empty: 'Nessun template: si usa lo sfondo automatico con il camioncino' })}
+              <p class="help">Carta vuota con sfondo e camioncino, nelle proporzioni della carta (es. 1080 × 1509 px). PNG o JPG.</p></div>
+            <div class="field"><span class="label">Numero massimo di caratteri</span>
+              <div class="grid-4">
+                ${[['title', 'Titolo'], ['dialect', 'Frase (balloon)'], ['translation', 'Traduzione (balloon)'], ['text', 'Testo della carta']].map(([k, l]) =>
+                  `<label class="small" style="font-weight:700">${l}<input type="text" inputmode="numeric" data-limit="${k}" value="${cmS.limits[k]}" style="margin-top:4px"></label>`).join('')}
+              </div></div>
+            <div class="field"><span class="label">Posizione dei testi (% della carta)</span>
+              ${[['titleY', 'Titolo: altezza'], ['balloonTop', 'Balloon: inizio'], ['balloonBottom', 'Balloon: fine massima'], ['tailX', 'Balloon: punta verso il camioncino (da sinistra)'], ['textTop', 'Testo: inizio riquadro'], ['textBottom', 'Testo: fine riquadro']].map(([k, l]) =>
+                `<label class="range-row"><span>${l}</span><input type="range" min="0" max="100" data-layout="${k}" value="${cmS.layout[k]}"><output>${cmS.layout[k]}%</output></label>`).join('')}
+            </div>
+          </div>
+          <div>
+            <canvas id="cm-prev" style="width:100%;border-radius:12px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.15)"></canvas>
+            <label class="check small" style="margin-top:10px"><input type="checkbox" id="cm-long">Prova con testi lunghi (al limite)</label>
+          </div>
+        </div>
+        <div class="row"><button class="btn" type="submit">${icon('save')}Salva</button><button class="btn ghost" type="button" id="cm-reset">${icon('restart_alt')}Posizioni predefinite</button></div>
       </form>
       <form class="panel form" id="privacy" novalidate>
         <div class="panel-head" style="margin:0"><h2>Informativa privacy</h2><a class="btn secondary sm" href="/#/privacy" target="_blank" rel="noopener">${icon('open_in_new')}Vedi nell’app</a></div>
@@ -879,6 +1035,38 @@
       e.preventDefault();
       if (await act(e.submitter, () => api('PUT', 'settings', { privacy, privacyIsPlaceholder: document.getElementById('placeholder').checked }), 'Informativa salvata')) { dirty = false; route(); }
     };
+    // Crea una carta: anteprima dal vivo di template, limiti e posizioni
+    const $cm = document.getElementById('cardmaker');
+    bindUploads($cm, () => drawCm());
+    const sample = (k, n) => {
+      const base = { title: 'Fermo lì!', dialect: "T'è svelt cmé un gatt ad màrmul!", translation: 'Sei svelto come un gatto di marmo!', text: 'Quando un giocatore rimane senza carte, prima che vinca puoi giocare questa carta: quel giocatore pesca 4 carte.' }[k];
+      if (!document.getElementById('cm-long')?.checked) return base;
+      let t = base; while (t.length < n) t += ' ' + base; return t.slice(0, n);
+    };
+    const cmVals = () => {
+      const limits = {}, layout = {};
+      $cm.querySelectorAll('[data-limit]').forEach((i) => { limits[i.dataset.limit] = Number(i.value) || 0; });
+      $cm.querySelectorAll('[data-layout]').forEach((i) => { layout[i.dataset.layout] = Number(i.value); i.nextElementSibling.textContent = i.value + '%'; });
+      return { template: $cm.querySelector('input[name=template]').value, limits, layout };
+    };
+    const drawCm = () => {
+      const v = cmVals();
+      const data = Object.fromEntries(['title', 'dialect', 'translation', 'text'].map((k) => [k, sample(k, v.limits[k])]));
+      window.MovatCardRender.render(document.getElementById('cm-prev'), data, { template: v.template, layout: v.layout, ratio: s.cardRatio, base: '/', width: 520 });
+    };
+    drawCm();
+    $cm.addEventListener('input', (e) => { if (e.target.dataset.limit) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3); dirty = true; drawCm(); });
+    document.getElementById('cm-long').addEventListener('change', drawCm);
+    document.getElementById('cm-reset').onclick = () => { const d = window.MovatCardRender.DEFAULT_LAYOUT; $cm.querySelectorAll('[data-layout]').forEach((i) => { i.value = d[i.dataset.layout]; }); dirty = true; drawCm(); };
+    $cm.onsubmit = async (e) => {
+      e.preventDefault();
+      const v = cmVals();
+      if (Object.values(v.limits).some((n) => !(n >= 5))) return toast('Ogni limite deve essere almeno 5 caratteri', true);
+      if (v.layout.balloonBottom <= v.layout.balloonTop || v.layout.textBottom <= v.layout.textTop) return toast('La fine di balloon e testo deve stare sotto l’inizio', true);
+      if (await act(e.submitter, () => api('PUT', 'settings', { cardMaker: v }), 'Impostazioni della carta salvate')) { dirty = false; route(); }
+    };
+    if (new URLSearchParams(location.hash.split('?')[1] || '').get('sezione') === 'carta') $cm.scrollIntoView();
+
     document.getElementById('pw').onsubmit = async (e) => {
       e.preventDefault(); if (ME.passwordFromEnv) return;
       const v = Object.fromEntries(new FormData(e.target));

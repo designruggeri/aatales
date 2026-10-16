@@ -13,6 +13,7 @@
       window.MOVAT_MODES = d.modes;
       window.MOVAT_FAQ = d.faq;
       window.MOVAT_FAQ_CATEGORIES = d.faqCategories;
+      window.MOVAT_USER_CARDS = d.userCards || [];
       API = true;
     }
   } catch { /* nessun server: modalità dimostrativa */ }
@@ -23,6 +24,8 @@
   const MODES = window.MOVAT_MODES;
   const FAQ = window.MOVAT_FAQ;
   const FAQ_CATS = window.MOVAT_FAQ_CATEGORIES;
+  const USER_CARDS = window.MOVAT_USER_CARDS || [];
+  const UCARD = Object.fromEntries(USER_CARDS.map((c) => [c.id, c]));
 
   let $view = document.getElementById('view');
   const $top = document.getElementById('topbar');
@@ -123,8 +126,8 @@
     switch (sec) {
       case undefined: out = viewHome(); break;
       case 'ascolta': out = sub ? viewCard(sub, query) : viewCards(query); break;
-      case 'scopri': out = sub ? viewMode(sub, query) : viewModes(query); break;
-      case 'crea': out = viewCreate(sub || 'carte', query); break;
+      case 'scopri': out = sub === 'carte' ? (parts[2] ? viewUserCard(parts[2]) : viewUserCards(query)) : sub ? viewMode(sub, query) : viewModes(query); break;
+      case 'crea': out = sub ? viewCreate(sub, query) : viewCreateChooser(); break;
       case 'faq': out = viewFaq(query); break;
       case 'privacy': out = viewPrivacy(); break;
       default: out = viewNotFound();
@@ -203,6 +206,7 @@
   const VIEWS = {
     ascolta: { def: 'due', opts: [['uno', 'view_agenda', '1 carta per riga'], ['due', 'grid_view', '2 carte per riga'], ['griglia', 'apps', 'Griglia']] },
     scopri: { def: 'schede', opts: [['schede', 'view_day', 'Schede'], ['lista', 'view_list', 'Lista compatta']] },
+    scopriCarte: { def: 'due', opts: [['uno', 'view_agenda', '1 carta per riga'], ['due', 'grid_view', '2 carte per riga'], ['griglia', 'apps', 'Griglia']] },
     crea: { def: 'due', opts: [['lista', 'view_list', 'Lista'], ['griglia', 'apps', 'Griglia'], ['uno', 'view_agenda', '1 carta per riga'], ['due', 'grid_view', '2 carte per riga']] },
   };
   function getView(sec) {
@@ -425,14 +429,14 @@
   // Codice casuale del dispositivo: permette di modificare il proprio voto senza account.
   let deviceId = store.get('device', null);
   if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2) + Date.now().toString(36); store.set('device', deviceId); }
-  function ratingOf(mode) {
-    const mine = votes[mode.id];
+  function ratingOf(mode, key = mode.id) {
+    const mine = votes[key];
     // Con il server i totali includono già il voto di questo dispositivo.
     const sum = mode.ratingSum + (API ? 0 : mine || 0), count = mode.ratingCount + (API || !mine ? 0 : 1);
     return { avg: count ? sum / count : 0, count, mine };
   }
-  function ratingText(mode, long = false) {
-    const r = ratingOf(mode);
+  function ratingText(mode, long = false, key) {
+    const r = ratingOf(mode, key);
     if (!r.count) return `<span class="rating">${icon('star')}<span class="n">Ancora nessun voto</span></span>`;
     return `<span class="rating">${icon('star')}${fmtNum(r.avg)}${long ? ' su 5' : ''}<span class="n">· ${r.count} ${r.count === 1 ? 'voto' : 'voti'}</span></span>`;
   }
@@ -481,11 +485,12 @@
     let vista = getView('scopri');
     const html = `
       <div class="page">
-        <div class="toolbar">
+        ${scopriTabs('modalita')}
+        <div class="toolbar" style="margin-top:14px">
           <h1 style="font-size:28px">Modalità dei giocatori</h1>
         </div>
         <p class="muted" style="margin-top:6px;font-weight:600">Inventate da chi gioca, pubblicate dopo il controllo del team Busa.</p>
-        <a class="btn block secondary" href="#/crea" style="margin-top:14px">${icon('add_circle')}Crea la tua modalità</a>
+        <a class="btn block secondary" href="#/crea/carte" style="margin-top:14px">${icon('add_circle')}Crea la tua modalità</a>
         <div class="search-row">
           <div class="search" role="search">
             ${icon('search')}
@@ -513,7 +518,7 @@
       if (!list.length) {
         $r.innerHTML = `<div class="empty">${icon('search_off')}<h3>Nessuna modalità trovata</h3>
           <p class="muted">Prova con altre parole, oppure inventane una tu!</p>
-          <a class="btn small" href="#/crea" style="margin-top:12px">${icon('add')}Crea la tua modalità</a></div>`;
+          <a class="btn small" href="#/crea/carte" style="margin-top:12px">${icon('add')}Crea la tua modalità</a></div>`;
         return;
       }
       if (vista === 'lista') {
@@ -588,15 +593,6 @@
           <p style="margin-top:12px">${esc(m.description)}</p>
         </header>
         ${m.rules ? `<section class="info-box"><h3>${icon('rule')}Regole aggiuntive</h3><p>${esc(m.rules)}</p></section>` : ''}
-        <section class="share-box" aria-labelledby="share-title">
-          <h2 id="share-title">${icon('share')}Condividi e stampa</h2>
-          <div class="share-actions">
-            <button class="btn secondary small" id="copy-link">${icon('link')}Copia link</button>
-            ${navigator.share ? `<button class="btn secondary small" id="native-share">${icon('ios_share')}Condividi…</button>` : ''}
-            <button class="btn secondary small" id="pdf">${icon('picture_as_pdf')}Scarica PDF</button>
-          </div>
-          <p class="hint">Il link apre l’app direttamente su questa modalità. Il PDF (15 × 19 cm) riassume tutto quello che serve per giocare ed è pronto da stampare.</p>
-        </section>
         <button class="btn block" id="variant" style="margin-top:12px">${icon('edit')}Crea una variante</button>
 
         <div class="section-title" style="justify-content:space-between">
@@ -618,60 +614,23 @@
             <li class="total"><span class="nm">Totale carte Busa</span><span class="q">${modeTotal(m)}</span></li>
           </ul>`}
         <p class="muted" style="font-size:13px;font-weight:600;margin-top:10px">${icon('info', '')} Le carte del mazzo di base si usano come sempre: qui trovi solo le carte Busa da aggiungere.</p>
+        <section class="share-box" aria-labelledby="share-title">
+          <h2 id="share-title">${icon('share')}Condividi e stampa</h2>
+          <div class="share-actions">
+            <button class="btn secondary small" id="copy-link">${icon('link')}Copia link</button>
+            ${navigator.share ? `<button class="btn secondary small" id="native-share">${icon('ios_share')}Condividi…</button>` : ''}
+            <button class="btn secondary small" id="pdf">${icon('picture_as_pdf')}Scarica PDF</button>
+          </div>
+          <p class="hint">Il link apre l’app direttamente su questa modalità. Il PDF (15 × 19 cm) riassume tutto quello che serve per giocare ed è pronto da stampare.</p>
+        </section>
 
         <section class="vote-box" id="vote" aria-labelledby="vote-title"></section>
       </div>`;
 
-    function drawVote(editing) {
-      const r = ratingOf(m);
-      const $v = document.getElementById('vote');
-      document.getElementById('rating-inline').innerHTML = ratingText(m, true);
-      const summary = r.count ? `${fmtNum(r.avg)} su 5 · ${r.count} ${r.count === 1 ? 'voto' : 'voti'}` : 'Ancora nessun voto';
-      if (r.mine && !editing) {
-        $v.innerHTML = `<h2 id="vote-title">Grazie per il tuo voto!</h2>
-          <p class="summary">${summary}</p>
-          <div class="stars" aria-hidden="true">${[1, 2, 3, 4, 5].map((n) => `<button tabindex="-1" class="${n <= r.mine ? 'on' : ''}">${icon('star')}</button>`).join('')}</div>
-          <p class="voted">${icon('check_circle', 'fill')}Hai dato ${r.mine} ${r.mine === 1 ? 'stella' : 'stelle'}</p>
-          <div style="margin-top:12px"><button class="btn ghost small" id="edit-vote">${icon('edit')}Modifica il voto</button></div>`;
-        document.getElementById('edit-vote').onclick = () => drawVote(true);
-        return;
-      }
-      let pick = r.mine || 0;
-      $v.innerHTML = `<h2 id="vote-title">Hai provato questa modalità? Valutala!</h2>
-        <p class="summary">${summary}</p>
-        <div class="stars" role="radiogroup" aria-label="Il tuo voto da 1 a 5 stelle">
-          ${[1, 2, 3, 4, 5].map((n) => `<button role="radio" aria-checked="${n === pick}" data-star="${n}" aria-label="${n} ${n === 1 ? 'stella' : 'stelle'}">${icon('star')}</button>`).join('')}
-        </div>
-        <button class="btn block" id="send-vote" ${pick ? '' : 'disabled'}>${pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle'}</button>
-        ${editing ? `<button class="btn ghost small" id="cancel-vote" style="margin-top:10px">Annulla</button>` : ''}
-        <p class="muted" style="font-size:13px;margin-top:10px;font-weight:600">Nessun account: il voto resta su questo dispositivo.</p>`;
-      const paint = () => {
-        $v.querySelectorAll('[data-star]').forEach((b) => { const n = +b.dataset.star; b.classList.toggle('on', n <= pick); b.setAttribute('aria-checked', n === pick); });
-        const sb = document.getElementById('send-vote');
-        sb.disabled = !pick; sb.textContent = pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle';
-      };
-      paint();
-      $v.querySelectorAll('[data-star]').forEach((b) => b.addEventListener('click', () => { pick = +b.dataset.star; paint(); }));
-      document.getElementById('send-vote').onclick = async () => {
-        if (API) {
-          const sb = document.getElementById('send-vote'); sb.disabled = true;
-          try {
-            const r = await fetch('api/votes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ modeId: m.id, deviceId, value: pick }) });
-            if (!r.ok) throw new Error();
-            const d = await r.json(); m.ratingSum = d.ratingSum; m.ratingCount = d.ratingCount;
-          } catch { sb.disabled = false; toast('Voto non inviato: controlla la connessione e riprova.'); return; }
-        }
-        votes[m.id] = pick; store.set('votes', votes);
-        toast(editing ? 'Voto aggiornato' : 'Voto registrato, grazie!');
-        drawVote(false);
-      };
-      const c = document.getElementById('cancel-vote'); if (c) c.onclick = () => drawVote(false);
-    }
-
     return {
       section: 'scopri', back: '#/scopri', title: m.title, html, keepScroll: !!query.vista,
       mount() {
-        drawVote(false);
+        voteBox(m, { key: m.id, body: { modeId: m.id }, inline: 'rating-inline' });
         $view.querySelectorAll('[data-vista]').forEach((b) => b.addEventListener('click', () => {
           history.replaceState(null, '', buildHash('scopri/' + m.id, { vista: b.dataset.vista })); route();
         }));
@@ -703,6 +662,56 @@
         };
       },
     };
+  }
+
+  // Riquadro di votazione (modalità o carte dei giocatori). key: chiave del voto salvato sul dispositivo.
+  function voteBox(m, { key, body, inline, what = 'modalità' }) {
+   const drawVote = (editing) => {
+      const r = ratingOf(m, key);
+      const $v = document.getElementById('vote');
+      if (inline) document.getElementById(inline).innerHTML = ratingText(m, true, key);
+      const summary = r.count ? `${fmtNum(r.avg)} su 5 · ${r.count} ${r.count === 1 ? 'voto' : 'voti'}` : 'Ancora nessun voto';
+      if (r.mine && !editing) {
+        $v.innerHTML = `<h2 id="vote-title">Grazie per il tuo voto!</h2>
+          <p class="summary">${summary}</p>
+          <div class="stars" aria-hidden="true">${[1, 2, 3, 4, 5].map((n) => `<button tabindex="-1" class="${n <= r.mine ? 'on' : ''}">${icon('star')}</button>`).join('')}</div>
+          <p class="voted">${icon('check_circle', 'fill')}Hai dato ${r.mine} ${r.mine === 1 ? 'stella' : 'stelle'}</p>
+          <div style="margin-top:12px"><button class="btn ghost small" id="edit-vote">${icon('edit')}Modifica il voto</button></div>`;
+        document.getElementById('edit-vote').onclick = () => drawVote(true);
+        return;
+      }
+      let pick = r.mine || 0;
+      $v.innerHTML = `<h2 id="vote-title">${what === 'carta' ? 'Ti piace questa carta? Valutala!' : 'Hai provato questa modalità? Valutala!'}</h2>
+        <p class="summary">${summary}</p>
+        <div class="stars" role="radiogroup" aria-label="Il tuo voto da 1 a 5 stelle">
+          ${[1, 2, 3, 4, 5].map((n) => `<button role="radio" aria-checked="${n === pick}" data-star="${n}" aria-label="${n} ${n === 1 ? 'stella' : 'stelle'}">${icon('star')}</button>`).join('')}
+        </div>
+        <button class="btn block" id="send-vote" ${pick ? '' : 'disabled'}>${pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle'}</button>
+        ${editing ? `<button class="btn ghost small" id="cancel-vote" style="margin-top:10px">Annulla</button>` : ''}
+        <p class="muted" style="font-size:13px;margin-top:10px;font-weight:600">Nessun account: il voto resta su questo dispositivo.</p>`;
+      const paint = () => {
+        $v.querySelectorAll('[data-star]').forEach((b) => { const n = +b.dataset.star; b.classList.toggle('on', n <= pick); b.setAttribute('aria-checked', n === pick); });
+        const sb = document.getElementById('send-vote');
+        sb.disabled = !pick; sb.textContent = pick ? `Conferma ${pick} ${pick === 1 ? 'stella' : 'stelle'}` : 'Scegli da 1 a 5 stelle';
+      };
+      paint();
+      $v.querySelectorAll('[data-star]').forEach((b) => b.addEventListener('click', () => { pick = +b.dataset.star; paint(); }));
+      document.getElementById('send-vote').onclick = async () => {
+        if (API) {
+          const sb = document.getElementById('send-vote'); sb.disabled = true;
+          try {
+            const r = await fetch('api/votes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, deviceId, value: pick }) });
+            if (!r.ok) throw new Error();
+            const d = await r.json(); m.ratingSum = d.ratingSum; m.ratingCount = d.ratingCount;
+          } catch { sb.disabled = false; toast('Voto non inviato: controlla la connessione e riprova.'); return; }
+        }
+        votes[key] = pick; store.set('votes', votes);
+        toast(editing ? 'Voto aggiornato' : 'Voto registrato, grazie!');
+        drawVote(false);
+      };
+      const c = document.getElementById('cancel-vote'); if (c) c.onclick = () => drawVote(false);
+    };
+    drawVote(false);
   }
 
   /* ---------------- PDF della modalità (15 × 19 cm) ---------------- */
@@ -926,6 +935,10 @@
     if (step === 'dettagli') return viewCreateDetails(query);
     if (step === 'riepilogo') return viewCreateReview(query);
     if (step === 'inviata') return viewCreateDone();
+    if (step === 'carta') return viewCreateCard(query);
+    if (step === 'carta-dettagli') return viewCreateCardDetails(query);
+    if (step === 'carta-riepilogo') return viewCreateCardReview(query);
+    if (step === 'carta-inviata') return viewCreateCardDone();
     return viewNotFound();
   }
 
@@ -935,7 +948,8 @@
     let vista = getView('crea');
     const html = `
       <div class="page">
-        <h1 class="page-title" style="font-size:26px">Crea la tua modalità</h1>
+        ${flowSwitch('modalita')}
+        <h1 class="page-title" style="font-size:26px;margin-top:14px">Crea la tua modalità</h1>
         ${stepper('carte')}
         <section class="start-box">
           <span class="lbl" id="start-lbl" style="font:800 13px/1 var(--font-body);color:var(--ink-muted);display:block;margin:0 4px 8px;letter-spacing:.03em;text-transform:uppercase">Punto di partenza</span>
@@ -1339,6 +1353,393 @@
         </div>
       </div>`;
     return { section: 'crea', title: 'Proposta ricevuta', html };
+  }
+
+  /* ---------------- Carte Busa create dai giocatori ---------------- */
+  const CM = {
+    template: '', layout: null, ...(CONFIG.cardMaker || {}),
+    limits: { title: 22, dialect: 70, translation: 80, text: 200, ...((CONFIG.cardMaker || {}).limits || {}) },
+  };
+  const cardCfg = (extra = {}) => ({ template: CM.template, ratio: CONFIG.cardRatio, layout: CM.layout, ...extra });
+  const thumbs = new Map();
+  function ucardThumb(c, width = 420) {
+    const k = `${c.id}|${c.updatedAt || ''}|${width}`;
+    if (!thumbs.has(k)) thumbs.set(k, window.MovatCardRender.toDataURL(c, cardCfg({ width }), 'image/jpeg', 0.88));
+    return thumbs.get(k);
+  }
+  // Riempie le <img data-ucard> con il disegno della carta (generato nel browser).
+  function fillUcardImages(root = $view) {
+    root.querySelectorAll('img[data-ucard]:not([src])').forEach(async (img) => {
+      const c = UCARD[img.dataset.ucard]; if (!c) return;
+      try { img.src = await ucardThumb(c, Number(img.dataset.w) || 420); } catch { /* resta il fondo segnaposto */ }
+    });
+  }
+  const ucardImg = (c, w = 420, cls = '') => `<img class="ucard-img ${cls}" data-ucard="${esc(c.id)}" data-w="${w}" alt="Carta “${esc(c.title)}”">`;
+  function downloadBlob(blob, name) {
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 60000);
+  }
+  const scopriTabs = (cur) => `<nav class="seg scopri-tabs" aria-label="Cosa scoprire">
+      <a href="#/scopri" aria-current="${cur === 'modalita' ? 'page' : 'false'}">${icon('stadia_controller')}Modalità</a>
+      <a href="#/scopri/carte" aria-current="${cur === 'carte' ? 'page' : 'false'}">${icon('style')}Carte dei giocatori</a></nav>`;
+
+  /* SCOPRI: carte dei giocatori */
+  function viewUserCards(query) {
+    const state = { q: query.q || '' };
+    let vista = getView('scopriCarte');
+    const html = `
+      <div class="page">
+        ${scopriTabs('carte')}
+        <h1 style="font-size:28px;margin-top:14px">Carte dei giocatori</h1>
+        <p class="muted" style="margin-top:6px;font-weight:600">Carte Busa inventate da chi gioca, pubblicate dopo il controllo del team Busa.</p>
+        <a class="btn block secondary" href="#/crea/carta" style="margin-top:14px">${icon('add_circle')}Crea la tua carta</a>
+        <div class="search-row">
+          <div class="search" role="search">
+            ${icon('search')}
+            <label class="sr-only" for="q">Cerca per titolo, autore o testo</label>
+            <input id="q" type="search" placeholder="Cerca carta" value="${esc(state.q)}" autocomplete="off">
+            <button class="icon-btn clear" type="button" aria-label="Cancella ricerca" ${state.q ? '' : 'hidden'}>${icon('close')}</button>
+          </div>
+          ${viewSwitch('scopriCarte', vista)}
+        </div>
+        <div id="results"></div>
+      </div>`;
+    function draw() {
+      const n = norm(state.q);
+      const list = USER_CARDS.filter((c) => !n || norm(`${c.title} ${c.author} ${c.dialect} ${c.translation} ${c.text}`).includes(n))
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const $r = document.getElementById('results');
+      if (!list.length) {
+        $r.innerHTML = `<div class="empty">${icon(state.q ? 'search_off' : 'style')}<h3>${state.q ? 'Nessuna carta trovata' : 'Ancora nessuna carta pubblicata'}</h3>
+          <p class="muted">${state.q ? 'Prova con altre parole.' : 'Inventane una tu: la pubblichiamo dopo il controllo del team Busa.'}</p>
+          <a class="btn small" href="#/crea/carta" style="margin-top:12px">${icon('add')}Crea la tua carta</a></div>`;
+        return;
+      }
+      const count = `<p class="muted" style="font-weight:700;font-size:14px;margin-bottom:10px">${list.length} ${list.length === 1 ? 'carta' : 'carte'}</p>`;
+      if (vista === 'griglia') {
+        $r.innerHTML = count + `<div class="sq-grid">${list.map((c) => `
+          <a class="sq-tile" href="#/scopri/carte/${esc(c.id)}" aria-label="${esc(c.title)}">
+            <span class="sq-art">${ucardImg(c, 360, 'sq')}</span><span class="sq-name">${esc(c.title)}</span></a>`).join('')}</div>`;
+      } else {
+        $r.innerHTML = count + `<div class="card-grid ${vista === 'uno' ? 'cols-1' : ''}">${list.map((c) => `
+          <a class="talk-card ucard-tile" href="#/scopri/carte/${esc(c.id)}">
+            <span class="open">${ucardImg(c, vista === 'uno' ? 720 : 420)}</span>
+            <span class="meta"><span class="t"><span class="name">${highlight(c.title, state.q)}</span>
+              <span class="by">di <b>${esc(c.author)}</b></span>${ratingText(c, false, 'carta:' + c.id)}</span></span>
+          </a>`).join('')}</div>`;
+      }
+      fillUcardImages();
+    }
+    return {
+      section: 'scopri', title: 'Carte dei giocatori', html,
+      mount() {
+        draw();
+        bindViewSwitch('scopriCarte', (v) => { vista = v; draw(); });
+        const $q = document.getElementById('q'), $clear = $view.querySelector('.clear');
+        $q.addEventListener('input', () => { state.q = $q.value; $clear.hidden = !state.q; setQuery(state); draw(); });
+        $clear.addEventListener('click', () => { $q.value = ''; $q.dispatchEvent(new Event('input')); $q.focus(); });
+      },
+    };
+  }
+
+  function viewUserCard(id) {
+    const c = UCARD[id];
+    if (!c) return viewNotFound();
+    const canShareFiles = !!(navigator.canShare && window.File && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }));
+    const html = `
+      <div class="page">
+        <div class="ucard-detail"><canvas id="uc-canvas" role="img" aria-label="Carta “${esc(c.title)}”"></canvas></div>
+        <header class="mode-head" style="margin-top:14px">
+          <h1>${esc(c.title)}</h1>
+          <p class="by" style="margin-top:4px">di <b>${esc(c.author)}</b></p>
+          <div class="facts"><span id="rating-inline">${ratingText(c, true, 'carta:' + c.id)}</span></div>
+        </header>
+        <div class="bubble">
+          <div class="lbl">${icon('record_voice_over')}Frase in piacentino</div>
+          <p class="dialect">«${esc(c.dialect)}»</p>
+          ${c.translation ? `<div class="transl"><div class="lbl">${icon('translate')}Traduzione italiana</div><p>“${esc(c.translation)}”</p></div>` : ''}
+        </div>
+        ${c.text ? `<section class="card-text"><h2>${icon('style')}Testo della carta</h2>${String(c.text).split(/\n+/).map((t) => `<p>${esc(t)}</p>`).join('')}</section>` : ''}
+        <section class="share-box" aria-labelledby="share-title">
+          <h2 id="share-title">${icon('share')}Condividi la carta</h2>
+          <div class="share-actions">
+            ${canShareFiles ? `<button class="btn secondary small" id="share-img">${icon('ios_share')}Condividi immagine</button>` : ''}
+            <button class="btn secondary small" data-dl="image/png">${icon('image')}Scarica PNG</button>
+            <button class="btn secondary small" data-dl="image/jpeg">${icon('photo')}Scarica JPG</button>
+            <button class="btn secondary small" id="copy-link">${icon('link')}Copia link</button>
+          </div>
+          <p class="hint">L’immagine è in alta risoluzione (1080 px di larghezza), pronta per chat e social.</p>
+        </section>
+        <section class="vote-box" id="vote" aria-labelledby="vote-title"></section>
+      </div>`;
+    return {
+      section: 'scopri', back: '#/scopri/carte', title: c.title, html,
+      mount() {
+        window.MovatCardRender.render(document.getElementById('uc-canvas'), c, cardCfg({ width: 720 }));
+        voteBox(c, { key: 'carta:' + c.id, body: { cardId: c.id }, inline: 'rating-inline', what: 'carta' });
+        const name = (ext) => `movat-carta-${c.id}.${ext}`;
+        $view.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
+          const type = b.dataset.dl;
+          const blob = await window.MovatCardRender.toBlob(c, cardCfg({ width: 1080 }), type, 0.92);
+          downloadBlob(blob, name(type === 'image/png' ? 'png' : 'jpg')); toast('Immagine scaricata');
+        }));
+        document.getElementById('share-img')?.addEventListener('click', async () => {
+          const blob = await window.MovatCardRender.toBlob(c, cardCfg({ width: 1080 }), 'image/png');
+          const file = new File([blob], name('png'), { type: 'image/png' });
+          navigator.share({ files: [file], title: `MÖVAT! — ${c.title}`, text: `La carta “${c.title}” di ${c.author}` }).catch(() => {});
+        });
+        document.getElementById('copy-link').onclick = async () => {
+          const u = location.href.split('#')[0] + '#/scopri/carte/' + c.id;
+          toast((await copyText(u)) ? 'Link copiato!' : 'Non è stato possibile copiare il link');
+        };
+      },
+    };
+  }
+
+  /* CREA: scelta del percorso */
+  const flowSwitch = (cur) => `<nav class="seg scopri-tabs flow-switch" aria-label="Cosa vuoi creare">
+      <a href="#/crea/carte" aria-current="${cur === 'modalita' ? 'page' : 'false'}">${icon('stadia_controller')}Una modalità</a>
+      <a href="#/crea/carta" aria-current="${cur === 'carta' ? 'page' : 'false'}">${icon('style')}Una carta Busa</a></nav>`;
+  function viewCreateChooser() {
+    return {
+      section: 'crea', title: 'Crea', html: `
+      <div class="page">
+        <h1 class="page-title" style="font-size:28px">Cosa vuoi creare?</h1>
+        <p class="page-sub">Scegli un percorso: la tua proposta arriva al team Busa, che la controlla prima di pubblicarla.</p>
+        <div class="chooser">
+          <a class="choice" href="#/crea/carte">
+            <span class="ch-ic">${icon('stadia_controller')}</span>
+            <span><b>Crea una modalità</b><span>Scegli le carte Busa e le regole per un nuovo modo di giocare.</span></span>${icon('chevron_right')}</a>
+          <a class="choice" href="#/crea/carta">
+            <span class="ch-ic">${icon('style')}</span>
+            <span><b>Crea una carta Busa</b><span>Inventa titolo, frase del camioncino e testo, e guardala prendere forma.</span></span>${icon('chevron_right')}</a>
+        </div>
+      </div>` };
+  }
+
+  /* CREA: carta Busa */
+  const EMPTY_CARD = { title: '', dialect: '', translation: '', text: '', nickname: '', email: '', note: '', consent: false };
+  const cardDraft = {
+    get() { return { ...EMPTY_CARD, ...store.get('draftCard', {}) }; },
+    update(p) { const d = { ...this.get(), ...p }; store.set('draftCard', d); return d; },
+    clear() { store.del('draftCard'); },
+  };
+  function validateCard(d) {
+    const e = {};
+    if (!d.title.trim()) e.title = 'Dai un titolo alla tua carta.';
+    if (!d.dialect.trim()) e.dialect = 'Scrivi la frase che dice il camioncino.';
+    if (!d.text.trim()) e.text = 'Scrivi il testo della carta: cosa succede quando la giochi.';
+    for (const k of ['title', 'dialect', 'translation', 'text']) if (d[k].length > CM.limits[k]) e[k] = `Massimo ${CM.limits[k]} caratteri.`;
+    return e;
+  }
+  function validateCardDetails(d) {
+    const e = {};
+    if (!d.nickname.trim()) e.nickname = 'Scegli il nickname che apparirà accanto alla carta.';
+    if (d.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email.trim())) e.email = 'Questo indirizzo email non sembra corretto.';
+    return e;
+  }
+  function cardStepper(step) {
+    const steps = [['carta', 'Carta'], ['carta-dettagli', 'Dettagli'], ['carta-riepilogo', 'Invia']];
+    const idx = steps.findIndex(([k]) => k === step);
+    return `<nav class="stepper" aria-label="Avanzamento">
+      <div class="bar" style="width:calc((100% - 48px) * ${idx / 2})"></div>
+      ${steps.map(([k, l], i) => {
+        const cls = i < idx ? 'done' : i === idx ? 'current' : '';
+        const inner = `<span class="dot">${i < idx ? icon('check') : i + 1}</span>${l}`;
+        return i < idx ? `<a class="step ${cls}" href="#/crea/${k}" style="text-decoration:none">${inner}</a>` : `<span class="step ${cls}" ${i === idx ? 'aria-current="step"' : ''}>${inner}</span>`;
+      }).join('')}
+    </nav>`;
+  }
+  const cfield = (d, errs, key, label, input, { req, opt, hint, count } = {}) => `
+      <div class="field ${errs[key] ? 'invalid' : ''}" data-field="${key}">
+        <label for="f-${key}">${label} ${req ? '<span class="req" aria-hidden="true">*</span>' : ''}${opt ? `<span class="opt">${opt}</span>` : ''}</label>
+        ${input}
+        ${count ? `<div class="count"><span data-count="${key}">${d[key].length}</span>/${count}</div>` : ''}
+        ${hint ? `<p class="hint">${hint}</p>` : ''}
+        <p class="error" id="e-${key}" ${errs[key] ? '' : 'hidden'}>${icon('error', 'fill')}<span>${esc(errs[key] || '')}</span></p>
+      </div>`;
+
+  function viewCreateCard(query) {
+    const d = cardDraft.get();
+    const errs = query.verifica === '1' ? validateCard(d) : {};
+    const L = CM.limits;
+    const html = `
+      <div class="page">
+        ${flowSwitch('carta')}
+        <h1 class="page-title" style="font-size:26px;margin-top:14px">Crea la tua carta</h1>
+        ${cardStepper('carta')}
+        <div class="card-maker">
+          <div class="cm-preview" aria-hidden="true"><canvas id="cm-canvas"></canvas><span class="cm-badge">${icon('visibility')}Anteprima dal vivo</span></div>
+          <form class="form" id="form" novalidate>
+            ${Object.keys(errs).length ? `<div class="form-error-summary" role="alert">${icon('error', 'fill')}<span>Completa i campi evidenziati.</span></div>` : ''}
+            ${cfield(d, errs, 'title', 'Titolo della carta', `<input id="f-title" name="title" type="text" maxlength="${L.title}" value="${esc(d.title)}" placeholder="Es. Fermo lì!" autocomplete="off">`, { req: true, count: L.title })}
+            ${cfield(d, errs, 'dialect', 'Frase del camioncino, in piacentino', `<textarea id="f-dialect" name="dialect" maxlength="${L.dialect}" rows="2" placeholder="Cosa dice il camioncino nel fumetto?">${esc(d.dialect)}</textarea>`, { req: true, count: L.dialect })}
+            ${cfield(d, errs, 'translation', 'Traduzione in italiano', `<textarea id="f-translation" name="translation" maxlength="${L.translation}" rows="2" placeholder="Compare nel fumetto, sotto la frase">${esc(d.translation)}</textarea>`, { opt: ' (facoltativa)', count: L.translation })}
+            ${cfield(d, errs, 'text', 'Testo della carta', `<textarea id="f-text" name="text" maxlength="${L.text}" rows="4" placeholder="Cosa succede quando qualcuno gioca questa carta?">${esc(d.text)}</textarea>`, { req: true, count: L.text })}
+          </form>
+        </div>
+        <div class="sticky-action"><div class="tot" style="font-weight:700">La carta si aggiorna mentre scrivi</div>
+          <button class="btn" id="next">Continua${icon('arrow_forward')}</button></div>
+      </div>`;
+    return {
+      section: 'crea', title: 'Crea una carta', html,
+      mount() {
+        const canvas = document.getElementById('cm-canvas');
+        let pending = false;
+        const draw = () => { if (pending) return; pending = true; requestAnimationFrame(async () => { pending = false; await window.MovatCardRender.render(canvas, cardDraft.get(), cardCfg({ width: 600, placeholders: true })); }); };
+        draw();
+        const $f = document.getElementById('form');
+        $f.addEventListener('input', (e) => {
+          const t = e.target; if (!t.name) return;
+          cardDraft.update({ [t.name]: t.value });
+          const c = $view.querySelector(`[data-count="${t.name}"]`); if (c) c.textContent = t.value.length;
+          const wrap = t.closest('.field');
+          if (wrap?.classList.contains('invalid') && !validateCard(cardDraft.get())[t.name]) { wrap.classList.remove('invalid'); document.getElementById('e-' + t.name).hidden = true; }
+          draw();
+        });
+        $f.addEventListener('submit', (e) => e.preventDefault());
+        document.getElementById('next').onclick = () => {
+          if (Object.keys(validateCard(cardDraft.get())).length) {
+            history.replaceState(null, '', '#/crea/carta?verifica=1'); route();
+            const first = $view.querySelector('.field.invalid input, .field.invalid textarea'); first?.focus(); first?.scrollIntoView({ block: 'center' });
+            return;
+          }
+          go('#/crea/carta-dettagli');
+        };
+      },
+    };
+  }
+
+  function viewCreateCardDetails(query) {
+    const d = cardDraft.get();
+    if (Object.keys(validateCard(d)).length) { history.replaceState(null, '', '#/crea/carta?verifica=1'); route(); return null; }
+    const errs = query.verifica === '1' ? validateCardDetails(d) : {};
+    const html = `
+      <div class="page">
+        <h1 class="page-title" style="font-size:26px">Chi l’ha inventata?</h1>
+        ${cardStepper('carta-dettagli')}
+        <form class="form" id="form" novalidate>
+          ${cfield(d, errs, 'nickname', 'Nickname pubblico', `<input id="f-nickname" name="nickname" type="text" maxlength="30" value="${esc(d.nickname)}" placeholder="Es. Ruota libera" autocomplete="nickname">`, { req: true, hint: 'Apparirà accanto alla carta quando sarà pubblicata.' })}
+          ${cfield(d, errs, 'email', `Email <span class="private-badge">${icon('lock')}Privata</span>`, `<input id="f-email" name="email" type="email" value="${esc(d.email)}" placeholder="nome@esempio.it" autocomplete="email" inputmode="email">`, { opt: ' (facoltativa)', hint: 'Solo per eventuali aggiornamenti sulla tua proposta. Non sarà mai pubblicata.' })}
+          ${cfield(d, errs, 'note', 'Note per il team Busa', `<textarea id="f-note" name="note" maxlength="600" rows="3" placeholder="Come ti è venuta l’idea? Come si gioca?">${esc(d.note)}</textarea>`, { opt: ' (facoltative, non pubblicate)', count: 600 })}
+        </form>
+        <div class="sticky-action two">
+          <a class="btn ghost" href="#/crea/carta">${icon('arrow_back')}Indietro</a>
+          <button class="btn" id="review">Rivedi la proposta</button>
+        </div>
+      </div>`;
+    return {
+      section: 'crea', back: '#/crea/carta', title: 'Crea una carta: dettagli', html,
+      mount() {
+        const $f = document.getElementById('form');
+        $f.addEventListener('input', (e) => {
+          const t = e.target; if (!t.name) return;
+          cardDraft.update({ [t.name]: t.value });
+          const c = $view.querySelector(`[data-count="${t.name}"]`); if (c) c.textContent = t.value.length;
+        });
+        $f.addEventListener('submit', (e) => e.preventDefault());
+        document.getElementById('review').onclick = () => {
+          if (Object.keys(validateCardDetails(cardDraft.get())).length) {
+            history.replaceState(null, '', '#/crea/carta-dettagli?verifica=1'); route();
+            $view.querySelector('.field.invalid input')?.focus(); return;
+          }
+          go('#/crea/carta-riepilogo');
+        };
+      },
+    };
+  }
+
+  function viewCreateCardReview(query) {
+    const d = cardDraft.get();
+    if (Object.keys(validateCard(d)).length) { history.replaceState(null, '', '#/crea/carta?verifica=1'); route(); return null; }
+    if (Object.keys(validateCardDetails(d)).length) { history.replaceState(null, '', '#/crea/carta-dettagli?verifica=1'); route(); return null; }
+    const html = `
+      <div class="page">
+        <h1 class="page-title" style="font-size:26px">Controlla la proposta</h1>
+        ${cardStepper('carta-riepilogo')}
+        <div class="ucard-detail small"><canvas id="rv-canvas"></canvas></div>
+        <section class="review-block">
+          <div class="head"><h2>La carta</h2><a class="btn ghost small" href="#/crea/carta">${icon('edit')}Modifica</a></div>
+          <dl>
+            <div><dt>Titolo</dt><dd style="font:800 20px/1.2 var(--font-head)">${esc(d.title)}</dd></div>
+            <div><dt>Frase in piacentino</dt><dd>${esc(d.dialect)}</dd></div>
+            <div><dt>Traduzione</dt><dd>${esc(d.translation || '—')}</dd></div>
+            <div><dt>Testo della carta</dt><dd>${esc(d.text)}</dd></div>
+          </dl>
+        </section>
+        <section class="review-block">
+          <div class="head"><h2>Dettagli</h2><a class="btn ghost small" href="#/crea/carta-dettagli">${icon('edit')}Modifica</a></div>
+          <dl>
+            <div><dt>Nickname pubblico</dt><dd>${esc(d.nickname)}</dd></div>
+            <div><dt>Email ${d.email ? `<span class="private-badge">${icon('lock')}Non pubblicata</span>` : ''}</dt><dd>${esc(d.email || 'Non indicata')}</dd></div>
+            ${d.note ? `<div><dt>Note per il team Busa</dt><dd>${esc(d.note)}</dd></div>` : ''}
+          </dl>
+        </section>
+        <label class="check" id="consent-wrap">
+          <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''}>
+          <span>Acconsento alla pubblicazione della carta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}">informativa privacy</a>.</span>
+        </label>
+        <p class="field"><span class="error" id="consent-err" hidden>${icon('error', 'fill')}Per inviare la proposta serve il tuo consenso.</span></p>
+        <div id="send-state"></div>
+        <div class="sticky-action two">
+          <a class="btn ghost" href="#/crea/carta-dettagli">${icon('arrow_back')}Indietro</a>
+          <button class="btn" id="send">${icon('send')}Invia la proposta</button>
+        </div>
+      </div>`;
+    async function submit(payload) {
+      if (query.simula === 'errore' || !navigator.onLine) { await new Promise((r) => setTimeout(r, 900)); throw new Error('rete'); }
+      if (!API) { await new Promise((r) => setTimeout(r, 1000)); return; }
+      const res = await fetch('api/card-proposals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+    }
+    return {
+      section: 'crea', back: '#/crea/carta-dettagli', title: 'Crea una carta: riepilogo', html,
+      mount() {
+        window.MovatCardRender.render(document.getElementById('rv-canvas'), d, cardCfg({ width: 600 }));
+        const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
+        $c.addEventListener('change', () => { cardDraft.update({ consent: $c.checked }); if ($c.checked) { document.getElementById('consent-wrap').classList.remove('invalid'); document.getElementById('consent-err').hidden = true; } });
+        $send.onclick = async () => {
+          if (!$c.checked) { document.getElementById('consent-wrap').classList.add('invalid'); document.getElementById('consent-err').hidden = false; $c.focus(); return; }
+          const cur = cardDraft.get();
+          $send.disabled = true; $send.innerHTML = icon('progress_activity', 'spin') + 'Invio in corso…'; $state.innerHTML = '';
+          try {
+            await submit({ title: cur.title.trim(), dialect: cur.dialect.trim(), translation: cur.translation.trim(), text: cur.text.trim(),
+              nickname: cur.nickname.trim(), email: cur.email.trim() || null, note: cur.note.trim(), consent: true });
+            store.set('lastSentCard', { title: cur.title.trim(), email: !!cur.email.trim(), data: { title: cur.title, dialect: cur.dialect, translation: cur.translation, text: cur.text } });
+            cardDraft.clear(); go('#/crea/carta-inviata');
+          } catch {
+            $send.disabled = false; $send.innerHTML = icon('refresh') + 'Riprova';
+            $state.innerHTML = `<div class="alert" role="alert">${icon('wifi_off')}<div><b>Invio non riuscito.</b><br>Controlla la connessione e riprova: i dati che hai inserito sono al sicuro.
+              <div><button class="btn danger small" id="retry">${icon('refresh')}Riprova l’invio</button></div></div></div>`;
+            document.getElementById('retry').onclick = () => { if (query.simula === 'errore') { history.replaceState(null, '', '#/crea/carta-riepilogo'); query.simula = ''; } $send.click(); };
+          }
+        };
+      },
+    };
+  }
+
+  function viewCreateCardDone() {
+    const last = store.get('lastSentCard', null);
+    return {
+      section: 'crea', title: 'Proposta ricevuta', html: `
+      <div class="page confirm">
+        ${last?.data ? `<div class="ucard-detail small"><canvas id="done-canvas"></canvas></div>` : `<div class="burst"><img src="assets/img/camioncino.png" alt=""></div>`}
+        <h1>Proposta ricevuta!</h1>
+        <p>Il team Busa controllerà la tua carta prima della pubblicazione.</p>
+        <ol class="steps">
+          <li>${icon('check_circle', 'fill')}Carta inviata</li>
+          <li>${icon('fact_check')}Controllo del team Busa</li>
+          <li>${icon('public')}Pubblicazione in Scopri con il tuo nickname</li>
+        </ol>
+        ${last?.email ? `<p class="muted" style="font-size:14px;margin-bottom:16px">Ti scriveremo all’email indicata quando ci saranno novità.</p>` : ''}
+        <div style="display:grid;gap:12px">
+          <a class="btn block" href="#/scopri/carte">${icon('style')}Guarda le carte dei giocatori</a>
+          <a class="btn block secondary" href="#/crea/carta">${icon('add')}Crea un’altra carta</a>
+        </div>
+      </div>`,
+      mount() { if (last?.data) window.MovatCardRender.render(document.getElementById('done-canvas'), last.data, cardCfg({ width: 600 })); },
+    };
   }
 
   /* ---------------- FAQ ---------------- */

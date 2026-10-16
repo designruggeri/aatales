@@ -53,6 +53,10 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
   - se il nome del file contiene un numero (es. `carta-07.png`) viene usato come numero della carta;
   - se il numero corrisponde a una carta esistente, viene proposto di aggiornarla mantenendo il suo audio.
 - **Copertine delle modalità:** i giocatori possono caricarne una quadrata in *Crea* (1024 × 1024 px, JPG, PNG o WEBP); dal CMS puoi sostituirla o toglierla. Senza copertina si usa quella automatica colorata con il camioncino.
+- **Carte proposte** (carte Busa inventate dai giocatori in *Crea → Una carta Busa*):
+  - arrivano *In attesa*: le correggi con l'anteprima dal vivo, poi le approvi e pubblichi oppure le rifiuti;
+  - quelle pubblicate compaiono in *Scopri → Carte dei giocatori*, dove si votano e si condividono come immagine PNG o JPG;
+  - in *Testi e impostazioni → Crea una carta Busa* carichi il **template** (carta vuota con sfondo e camioncino), imposti il **numero massimo di caratteri** di titolo, frase, traduzione e testo, e regoli la **posizione** di balloon e riquadro del testo guardando l'anteprima.
 - **Modalità:**
   - le proposte inviate dai giocatori arrivano *In attesa* e non sono visibili nell'app;
   - puoi correggerle e poi **approvarle e pubblicarle** oppure **rifiutarle**;

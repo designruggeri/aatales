@@ -112,3 +112,18 @@ window.MOVAT_FAQ = [
   { id: 'mod-2', category: 'Modalità di gioco', q: 'Serve un account per votare una modalità?',
     a: ['No: puoi votare senza registrarti. Il voto resta salvato su questo dispositivo e puoi modificarlo quando vuoi.'] },
 ];
+
+/*
+ * Carte Busa inventate dai giocatori e pubblicate dal team Busa (Scopri → Carte).
+ * Esempi segnaposto: il disegno viene generato dall'app sul template impostato nel CMS.
+ */
+window.MOVAT_USER_CARDS = [
+  { id: 'gira-la-rotonda', title: 'Gira la rotonda', author: 'Ruota libera', date: '2026-10-12',
+    dialect: 'Frase in dialetto di esempio', translation: 'Traduzione di esempio',
+    text: 'Testo di esempio della carta: qui il giocatore spiega cosa succede quando la si gioca.', ratingSum: 17, ratingCount: 4 },
+  { id: 'pausa-caffe', title: 'Pausa caffè', author: 'Bancale49', date: '2026-10-08',
+    dialect: 'Altra frase di esempio', translation: 'Altra traduzione di esempio',
+    text: 'Testo segnaposto di una seconda carta proposta da un giocatore.', ratingSum: 0, ratingCount: 0 },
+];
+// Impostazioni della creazione carte (con il server arrivano dal CMS).
+window.MOVAT_CONFIG.cardMaker = { template: '', limits: { title: 22, dialect: 70, translation: 80, text: 200 }, layout: null };

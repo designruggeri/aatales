@@ -206,3 +206,9 @@ hr { border: 0; border-top: 1px solid var(--stroke-soft); margin: 16px 0; }
 .restart-banner { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 90; width: min(760px, calc(100% - 32px)); display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: #7d0e0b; color: #fff; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 .restart-banner .ms { font-size: 24px; }
 .restart-banner code { background: rgba(255,255,255,.15); padding: 1px 6px; border-radius: 6px; }
+
+/* Impostazioni: posizioni della carta */
+.field .range-row { display: grid; grid-template-columns: minmax(0, 1fr) 160px 46px; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; padding: 4px 0; }
+.field .range-row input { width: 100%; accent-color: var(--green); }
+.field .range-row output { font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+@media (max-width: 860px) { #cardmaker .split { grid-template-columns: 1fr !important; } }
