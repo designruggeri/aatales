@@ -493,3 +493,10 @@ mark { background: #f6ff9e; color: inherit; border-radius: 3px; padding: 0 1px; 
 }
 /* Nessuno scorrimento orizzontale della pagina */
 html, body { overflow-x: clip; }
+
+/* Menu in basso a scomparsa (vedi app.js) */
+.tabbar { transition: transform .25s ease, opacity .25s ease; will-change: transform; }
+.shell.tabs-hidden .tabbar { transform: translate(-50%, calc(100% + 24px)); opacity: 0; pointer-events: none; }
+.sticky-action { transition: bottom .25s ease; }
+.shell.tabs-hidden .sticky-action { bottom: var(--safe-b); }
+@media (prefers-reduced-motion: reduce) { .tabbar, .sticky-action { transition: none; } }

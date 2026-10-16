@@ -140,6 +140,25 @@
   }
   window.addEventListener('hashchange', route);
 
+  /* Menu in basso: sparisce scorrendo verso l'alto (swipe giù), ricompare scorrendo verso il basso
+     (swipe su) e sempre in cima o in fondo alla pagina. Evita il menu "tagliato" quando il browser
+     mostra di nuovo la barra degli indirizzi. */
+  let lastY = window.scrollY, ticking = false;
+  function setTabsHidden(hidden) { $shell.classList.toggle('tabs-hidden', hidden); }
+  window.addEventListener('scroll', () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      const y = window.scrollY, dy = y - lastY;
+      const atTop = y < 24, atBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 24;
+      if (atTop || atBottom) setTabsHidden(false);
+      else if (dy < -6) setTabsHidden(true);
+      else if (dy > 6) setTabsHidden(false);
+      if (Math.abs(dy) > 6 || atTop) lastY = y;
+    });
+  }, { passive: true });
+  window.addEventListener('hashchange', () => { setTabsHidden(false); lastY = 0; });
+
   /* ---------------- Illustrazione carta ---------------- */
   function cardArt(card, { label = true } = {}) {
     if (card.image) return `<div class="card-art"><img class="real" src="${esc(card.image)}" alt="${esc(card.name)}"></div>`;
