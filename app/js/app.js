@@ -1971,7 +1971,7 @@
         const $reply = document.getElementById('f-reply'), $ef = document.getElementById('email-field');
         const showErr = (k, msg) => {
           const el = document.getElementById('e-' + k); if (!el) return;
-          el.hidden = !msg; el.querySelector('span').textContent = msg || '';
+          el.hidden = !msg; el.querySelector('span:not(.ms)').textContent = msg || '';
           el.closest('.field').classList.toggle('invalid', !!msg);
           const inp = el.closest('.field').querySelector('input,textarea'); if (msg) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid');
         };
