@@ -682,3 +682,72 @@ html, body { overflow-x: clip; }
 .vote-err[hidden] { display: none; }
 .notify-check[hidden] { display: none; }
 .notify-check .muted { font-weight: 600; font-size: 13px; }
+
+/* ---------- Animazioni leggere ----------
+   Partono solo all'apertura di una pagina (classe .enter sul contenitore, tolta dopo 1 secondo),
+   così ricerche e filtri ridisegnano le liste senza ripetere l'effetto. Durate brevi, nessun
+   movimento continuo vicino ai contenuti, tutto disattivato con "riduci movimento". */
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } }
+@keyframes itemIn { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-18px); } }
+@keyframes logoIn { 0% { opacity: 0; transform: scale(.6) rotate(-6deg); } 60% { opacity: 1; transform: scale(1.06) rotate(2deg); } 100% { transform: none; } }
+@keyframes cardIn { from { opacity: 0; transform: perspective(800px) rotateY(-18deg) scale(.92); } }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+@keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.45); color: var(--green); } 100% { transform: scale(1); } }
+@keyframes tabPop { 0% { transform: translateY(0); } 40% { transform: translateY(-5px) scale(1.12); } 100% { transform: none; } }
+@keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(67,150,38,.45); } 100% { box-shadow: 0 0 0 14px rgba(67,150,38,0); } }
+@keyframes rays { to { transform: rotate(360deg); } }
+@keyframes driveIn { 0% { opacity: 0; transform: translateX(-70px) rotate(-4deg); } 70% { opacity: 1; transform: translateX(6px) rotate(1deg); } 100% { transform: none; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } 60% { transform: rotate(5deg); } }
+
+/* Ingresso della pagina */
+.enter > .page, .enter > .home-hero, .enter > .welcome { animation: pageIn .32s ease-out both; }
+.enter .home-hero .logo { animation: logoIn .6s cubic-bezier(.2, .9, .3, 1.3) both; }
+/* Liste a cascata (solo i primi elementi hanno un ritardo, gli altri arrivano insieme) */
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block) { animation: itemIn .38s ease-out both; animation-delay: .38s; }
+.enter .home-link { animation-name: slideIn; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(1) { animation-delay: .04s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(2) { animation-delay: .08s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(3) { animation-delay: .12s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(4) { animation-delay: .16s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(5) { animation-delay: .2s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(6) { animation-delay: .24s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(7) { animation-delay: .28s; }
+.enter :is(.home-link, .talk-card, .mode-card, .mode-row, .sq-tile, .pick-card, .pick-row, .faq-item, .choice, .review-block):nth-child(8) { animation-delay: .32s; }
+
+/* Home: le icone delle sezioni ondeggiano al passaggio o al tocco */
+.home-link:hover img, .home-link:active img { animation: wiggle .45s ease-in-out; }
+
+/* Guarda: la carta del dettaglio entra girando; il play pulsa mentre suona */
+.enter .detail-card .card-art { animation: cardIn .55s cubic-bezier(.2, .8, .3, 1.1) .05s both; }
+.play-btn.playing { animation: pulseRing 1.4s ease-out infinite; }
+
+/* Scopri: stelle e conferma del voto */
+.stars button[aria-checked="true"] .ms { animation: pop .32s ease-out; }
+.vote-box .voted .ms { display: inline-block; animation: pop .45s ease-out .1s; }
+.enter .ucard-detail canvas { animation: cardIn .55s cubic-bezier(.2, .8, .3, 1.1) .05s both; }
+
+/* Crea: il numero delle carte scelte sobbalza */
+.bump { display: inline-block; animation: bump .35s ease-out; }
+
+/* Pagine di conferma: raggi che ruotano piano, camioncino che arriva */
+.confirm .burst { position: relative; background: radial-gradient(#fff 35%, var(--lime-soft) 70%); }
+.confirm .burst::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(rgba(183,243,56,.55) 0 12deg, transparent 12deg 24deg); animation: rays 40s linear infinite; }
+.confirm .burst img { position: relative; animation: driveIn .8s cubic-bezier(.2, .8, .3, 1.2) .1s both; }
+.confirm h1 { animation: pageIn .4s ease-out .25s both; }
+.confirm .steps li { animation: slideIn .35s ease-out both; }
+.confirm .steps li:nth-child(1) { animation-delay: .35s; }
+.confirm .steps li:nth-child(2) { animation-delay: .5s; }
+.confirm .steps li:nth-child(3) { animation-delay: .65s; }
+.confirm .steps li:nth-child(1) .ms { animation: pop .45s ease-out .55s; }
+
+/* FAQ: la risposta scivola giù */
+.faq-item.open .faq-a { animation: slideDown .22s ease-out; }
+
+/* Menu in basso: l'icona della nuova sezione salta */
+.tab.pop .ms { animation: tabPop .4s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0s !important; }
+}

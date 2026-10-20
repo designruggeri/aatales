@@ -195,3 +195,4 @@ Aprendo solo la cartella `app/` (per esempio con `python3 -m http.server`), l'ap
 
 - Il PDF delle modalità (15 × 19 cm) viene creato direttamente nel browser con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, incluso in `app/assets/vendor/` con la sua licenza MIT: non serve collegarsi ad altri siti.
 - Le preferenze di visualizzazione (1 per riga, 2 per riga, griglia, lista) sono ricordate su ogni dispositivo.
+- Le animazioni (ingresso delle pagine, liste a cascata, stelle, conferme, menu) sono brevi, partono solo all'apertura di una pagina e si disattivano da sole se il telefono o il computer ha attiva l'opzione “riduci movimento”. Sono raccolte in fondo a `app/css/app.css`.

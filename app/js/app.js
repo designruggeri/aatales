@@ -109,6 +109,7 @@
     faq: { title: 'FAQ', icon: 'help' },
   };
 
+  let lastSection = null, enterTimer = null;
   function renderChrome(section, back, headTitle) {
     if (!section) {
       $top.hidden = true; $tabs.hidden = true; $shell.classList.remove('has-tabs'); return;
@@ -121,8 +122,10 @@
       <div class="brand"><img src="assets/img/logo-movat.png" alt="MÖVAT!"><span class="section">${esc(meta.title)}</span></div>
       <img class="truck" src="assets/img/camioncino.png" alt="">`;
     $top.hidden = false;
+    // L'icona salta solo quando si cambia sezione, non a ogni pagina.
+    const changed = section !== lastSection; lastSection = section;
     $tabs.innerHTML = Object.entries(SECTIONS).map(([k, s]) =>
-      `<a class="tab" href="#/${k}" ${k === section ? 'aria-current="page"' : ''}>${icon(s.icon)}<span>${s.title}</span></a>`).join('');
+      `<a class="tab${k === section && changed ? ' pop' : ''}" href="#/${k}" ${k === section ? 'aria-current="page"' : ''}>${icon(s.icon)}<span>${s.title}</span></a>`).join('');
     $tabs.hidden = false; $shell.classList.add('has-tabs');
   }
 
@@ -148,6 +151,8 @@
     // Nuovo contenitore a ogni pagina: i listener della vista precedente spariscono con lui.
     const fresh = $view.cloneNode(false); $view.replaceWith(fresh); $view = fresh;
     $view.innerHTML = out.html;
+    // Animazione d'ingresso solo all'apertura della pagina (vedi .enter in app.css).
+    $view.classList.add('enter'); clearTimeout(enterTimer); enterTimer = setTimeout(() => $view.classList.remove('enter'), 1000);
     document.title = out.title ? `${out.title} · MÖVAT!` : 'MÖVAT! — Il gioco continua qui';
     if (!out.keepScroll) window.scrollTo(0, 0);
     out.mount?.();
@@ -1195,6 +1200,7 @@
       if (art) {
         if (d.onlySelected && !q) { drawGrid(); return; }
         art.outerHTML = itemHtml(c, q);
+        $view.querySelector(`[data-card="${id}"] output`)?.classList.add('bump');
         if (!keepFocus) $view.querySelector(`[data-card="${id}"] ${delta > 0 ? '[data-inc]' : '[data-dec]'}`)?.focus();
       }
       drawBar();
