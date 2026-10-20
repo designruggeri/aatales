@@ -969,7 +969,7 @@
   }
 
   /* ---------------- Modal carta ---------------- */
-  function openCardModal(card, { extra = '', body = '', onMount } = {}) {
+  function openCardModal(card, { extra = '', body = '', onMount, listen = true } = {}) {
     const root = document.getElementById('modal-root');
     const opener = document.activeElement;
     root.innerHTML = `<div class="modal-backdrop" data-close>
@@ -981,7 +981,7 @@
         <p class="sub">Carta n. ${card.number} · ${card.copies} ${card.copies === 1 ? 'copia' : 'copie'} nella scatola</p>
         ${extra}
         ${body}
-        ${card.audio ? `<a class="btn block secondary" style="margin-top:16px" href="#/ascolta/${card.id}">${icon('headphones')}Ascolta la frase</a>` : ''}
+        ${card.audio && listen ? `<a class="btn block secondary" style="margin-top:16px" href="#/ascolta/${card.id}">${icon('headphones')}Ascolta la frase</a>` : ''}
       </div></div>`;
     const bd = root.firstElementChild;
     bd.addEventListener('click', (e) => { if (e.target.closest('[data-close]') && (e.target === bd || e.target.closest('button[data-close]'))) closeModal(opener); });
@@ -1218,6 +1218,7 @@
           else if (z) {
             const card = CARD[z.dataset.zoom];
             openCardModal(card, {
+              listen: false, // in Crea non si esce dal percorso
               body: `<div style="margin-top:16px" id="mq"></div>`,
               onMount(root) {
                 const paint = () => { root.querySelector('#mq').innerHTML = qtyControl(card, draft.get().cards[card.id] || 0); };
