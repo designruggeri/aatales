@@ -1200,8 +1200,6 @@
     const isNew = id === 'nuova';
     const f = isNew ? { q: '', a: [], category: DATA.faqCategories[0], cardId: new URLSearchParams(location.hash.split('?')[1] || '').get('carta') || '', showInList: true, actionLabel: '', actionHref: '' } : DATA.faq.find((x) => x.id === id);
     if (!f) { $m.innerHTML = `<p class="empty">Domanda non trovata. <a href="#/faq">Torna alle FAQ</a></p>`; return; }
-    const LINKS = [['', 'Nessun collegamento'], ['#/ascolta', 'Guarda'], ['#/scopri', 'Scopri'], ['#/crea', 'Crea'], ['#/faq', 'FAQ']];
-    const customLink = f.actionHref && !LINKS.some(([h]) => h === f.actionHref);
     $m.innerHTML = `
       <a class="crumb" href="#/faq">${icon('arrow_back')}FAQ</a>
       <div class="page-head"><h1>${isNew ? 'Nuova domanda' : 'Modifica domanda'}</h1></div>
@@ -1220,12 +1218,6 @@
           <label class="check"><input type="radio" name="showInList" value="true" ${f.showInList !== false ? 'checked' : ''}>Nella lista FAQ e sulla carta</label>
           <label class="check" style="margin-top:6px"><input type="radio" name="showInList" value="false" ${f.showInList === false ? 'checked' : ''}>Solo sulla carta</label>
         </fieldset>
-        <div class="grid-2">
-          <div class="field"><label for="actionLabel">Pulsante <span class="opt">(facoltativo)</span></label><input id="actionLabel" name="actionLabel" type="text" maxlength="40" value="${esc(f.actionLabel)}" placeholder="Es. Vai a Crea"></div>
-          <div class="field"><label for="actionHref">Porta a</label><select id="actionHref" name="actionHref">
-            ${LINKS.map(([h, l]) => `<option value="${h}" ${h === (f.actionHref || '') ? 'selected' : ''}>${l}</option>`).join('')}
-            ${customLink ? `<option value="${esc(f.actionHref)}" selected>${esc(f.actionHref)}</option>` : ''}</select></div>
-        </div>
         <div class="row">
           <button class="btn" type="submit">${icon('save')}${isNew ? 'Crea la domanda' : 'Salva le modifiche'}</button>
           ${isNew ? '' : `<a class="btn secondary" href="/#/faq?open=${esc(f.id)}" target="_blank" rel="noopener">${icon('open_in_new')}Vedi nell’app</a><span class="spacer"></span>
@@ -1239,7 +1231,6 @@
       const v = Object.fromEntries(new FormData($f));
       v.showInList = v.showInList !== 'false';
       if (!v.q.trim() || !v.a.trim()) return toast('Domanda e risposta sono obbligatorie', true);
-      if (v.actionHref && !v.actionLabel.trim()) return toast('Scrivi il testo del pulsante oppure togli il collegamento', true);
       const r = await act(e.submitter, () => (isNew ? api('POST', 'faq', v) : api('PUT', 'faq/' + f.id, v)), isNew ? 'Domanda creata' : 'Modifiche salvate');
       if (r) { dirty = false; go('#/faq'); }
     };

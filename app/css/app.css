@@ -380,6 +380,10 @@ main { flex: 1; outline: none; }
 .sticky-action .tot b { display: block; font: 900 28px/1 var(--font-body); color: var(--green-dark); }
 .sticky-action .err { color: var(--red); font-weight: 800; }
 .sticky-action.two { display: grid; grid-template-columns: auto 1fr; }
+/* Senza menu in basso (passaggi di creazione) la barra delle azioni sta in fondo allo schermo */
+.shell:not(.has-tabs) .sticky-action { bottom: var(--safe-b); }
+.privacy-modal h1, .privacy-modal h2, .privacy-modal p, .privacy-modal li { text-align: left; }
+.privacy-modal h2 { font-size: 18px; margin-top: 18px; }
 
 .form { display: grid; gap: 16px; }
 .field label, .field legend { display: block; font: 800 15px/1.2 var(--font-body); margin-bottom: 6px; padding: 0; }

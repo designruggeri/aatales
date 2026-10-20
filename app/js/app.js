@@ -110,7 +110,8 @@
   };
 
   let lastSection = null, enterTimer = null;
-  function renderChrome(section, back, headTitle) {
+  // noTabs: nei passaggi di creazione il menu in basso non compare, per non uscire dal percorso.
+  function renderChrome(section, back, headTitle, noTabs) {
     if (!section) {
       $top.hidden = true; $tabs.hidden = true; $shell.classList.remove('has-tabs'); return;
     }
@@ -126,7 +127,7 @@
     const changed = section !== lastSection; lastSection = section;
     $tabs.innerHTML = Object.entries(SECTIONS).map(([k, s]) =>
       `<a class="tab${k === section && changed ? ' pop' : ''}" href="#/${k}" ${k === section ? 'aria-current="page"' : ''}>${icon(s.icon)}<span>${s.title}</span></a>`).join('');
-    $tabs.hidden = false; $shell.classList.add('has-tabs');
+    $tabs.hidden = !!noTabs; $shell.classList.toggle('has-tabs', !noTabs);
   }
 
   function route() {
@@ -147,7 +148,7 @@
       default: out = viewNotFound();
     }
     if (!out) return; // la vista ha già reindirizzato
-    renderChrome(out.section, out.back, out.headTitle);
+    renderChrome(out.section, out.back, out.headTitle, out.noTabs);
     // Nuovo contenitore a ogni pagina: i listener della vista precedente spariscono con lui.
     const fresh = $view.cloneNode(false); $view.replaceWith(fresh); $view = fresh;
     $view.innerHTML = out.html;
@@ -420,7 +421,6 @@
           ${cardFaq.map((f) => `<div class="cf-item">
             <h3>${esc(f.q)}</h3>
             ${f.a.map((p) => `<p>${esc(p)}</p>`).join('')}
-            ${f.action ? `<a class="btn small" href="${esc(f.action.href)}">${esc(f.action.label)}${icon('chevron_right')}</a>` : ''}
           </div>`).join('')}
         </section>` : ''}
         <nav class="prevnext" aria-label="Altre carte">
@@ -969,7 +969,7 @@
   }
 
   /* ---------------- Modal carta ---------------- */
-  function openCardModal(card, { extra = '', body = '', onMount, listen = true } = {}) {
+  function openCardModal(card, { extra = '', body = '', onMount } = {}) {
     const root = document.getElementById('modal-root');
     const opener = document.activeElement;
     root.innerHTML = `<div class="modal-backdrop" data-close>
@@ -981,7 +981,6 @@
         <p class="sub">Carta n. ${card.number} · ${card.copies} ${card.copies === 1 ? 'copia' : 'copie'} nella scatola</p>
         ${extra}
         ${body}
-        ${card.audio && listen ? `<a class="btn block secondary" style="margin-top:16px" href="#/ascolta/${card.id}">${icon('headphones')}Ascolta la frase</a>` : ''}
       </div></div>`;
     const bd = root.firstElementChild;
     bd.addEventListener('click', (e) => { if (e.target.closest('[data-close]') && (e.target === bd || e.target.closest('button[data-close]'))) closeModal(opener); });
@@ -1207,7 +1206,7 @@
       return q;
     }
     return {
-      section: 'crea', title: 'Crea: scegli le carte', html,
+      section: 'crea', back: '#/crea', noTabs: true, title: 'Crea: scegli le carte', html,
       mount() {
         drawGrid();
         bindViewSwitch('crea', (v) => { vista = v; drawGrid(); });
@@ -1218,7 +1217,6 @@
           else if (z) {
             const card = CARD[z.dataset.zoom];
             openCardModal(card, {
-              listen: false, // in Crea non si esce dal percorso
               body: `<div style="margin-top:16px" id="mq"></div>`,
               onMount(root) {
                 const paint = () => { root.querySelector('#mq').innerHTML = qtyControl(card, draft.get().cards[card.id] || 0); };
@@ -1337,7 +1335,7 @@
       document.getElementById('cover-del')?.addEventListener('click', () => { draft.update({ cover: '' }); drawCover(); });
     }
     return {
-      section: 'crea', back: '#/crea/carte', title: 'Crea: dettagli', html,
+      section: 'crea', back: '#/crea/carte', noTabs: true, title: 'Crea: dettagli', html,
       mount() {
         drawCover();
         // Giocatori: "da" / "+" / "a"
@@ -1437,7 +1435,7 @@
         <div class="notice">${icon('lock')}<span>La proposta resta privata finché il team Busa non la controlla. ${d.email ? 'La tua email <b>non sarà mai pubblicata</b> e la useremo solo per la proposta.' : ''}</span></div>
         <label class="check" id="consent-wrap">
           <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''} aria-describedby="consent-err">
-          <span>Acconsento alla pubblicazione della proposta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}">informativa privacy</a>.</span>
+          <span>Acconsento alla pubblicazione della proposta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}" data-privacy-modal>informativa privacy</a>.</span>
         </label>
         <p class="field"><span class="error" id="consent-err" hidden>${icon('error', 'fill')}Per inviare la proposta serve il tuo consenso.</span></p>
         <div id="send-state"></div>
@@ -1453,7 +1451,7 @@
       return protectedPost('api/proposals', payload, 'proposal', { idem });
     }
     return {
-      section: 'crea', back: '#/crea/dettagli', title: 'Crea: riepilogo', html,
+      section: 'crea', back: '#/crea/dettagli', noTabs: true, title: 'Crea: riepilogo', html,
       mount() {
         loadTurnstile().catch(() => {});
         const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
@@ -1757,7 +1755,7 @@
           <button class="btn" id="next">Continua${icon('arrow_forward')}</button></div>
       </div>`;
     return {
-      section: 'crea', title: 'Crea una carta', html,
+      section: 'crea', back: '#/crea', noTabs: true, title: 'Crea una carta', html,
       mount() {
         const canvas = document.getElementById('cm-canvas');
         let pending = false;
@@ -1805,7 +1803,7 @@
         </div>
       </div>`;
     return {
-      section: 'crea', back: '#/crea/carta', title: 'Crea una carta: dettagli', html,
+      section: 'crea', back: '#/crea/carta', noTabs: true, title: 'Crea una carta: dettagli', html,
       mount() {
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
@@ -1854,7 +1852,7 @@
         </section>
         <label class="check" id="consent-wrap">
           <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''}>
-          <span>Acconsento alla pubblicazione della carta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}">informativa privacy</a>.</span>
+          <span>Acconsento alla pubblicazione della carta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}" data-privacy-modal>informativa privacy</a>.</span>
         </label>
         <p class="field"><span class="error" id="consent-err" hidden>${icon('error', 'fill')}Per inviare la proposta serve il tuo consenso.</span></p>
         <div id="send-state"></div>
@@ -1869,7 +1867,7 @@
       return protectedPost('api/card-proposals', payload, 'card_proposal', { idem });
     }
     return {
-      section: 'crea', back: '#/crea/carta-dettagli', title: 'Crea una carta: riepilogo', html,
+      section: 'crea', back: '#/crea/carta-dettagli', noTabs: true, title: 'Crea una carta: riepilogo', html,
       mount() {
         window.MovatCardRender.render(document.getElementById('rv-canvas'), d, cardCfg({ width: 600 }));
         loadTurnstile().catch(() => {});
@@ -1963,7 +1961,7 @@
             <p class="hint">La usiamo solo per risponderti. Non riceverai altre email.</p>
             <p class="error" id="e-email" hidden>${icon('error', 'fill')}<span></span></p>
           </div>
-          <p class="muted" style="font-size:13px;font-weight:600">Inviando accetti l’<a href="#/privacy">informativa privacy</a>. Per evitare lo spam usiamo una verifica antibot automatica.</p>
+          <p class="muted" style="font-size:13px;font-weight:600">Inviando accetti l’<a href="#/privacy" data-privacy-modal>informativa privacy</a>. Per evitare lo spam usiamo una verifica antibot automatica.</p>
         </form>
         <div id="send-state"></div>
         <div class="sticky-action"><button class="btn block" id="send">${icon('send')}Invia il messaggio</button></div>
@@ -2074,7 +2072,6 @@
             <span class="cat">${esc(f.category)}</span>
             ${f.a.map((p) => `<p>${highlight(p, state.q)}</p>`).join('')}
             ${card ? `<a class="faq-card-link" href="#/ascolta/${card.id}">${cardArt(card, { label: false })}<span><small>Carta citata · #${pad2(card.number)}</small><b>${esc(card.name)}</b></span>${icon('chevron_right')}</a>` : ''}
-            ${f.action ? `<a class="btn block" href="${f.action.href}">${esc(f.action.label)}${icon('chevron_right')}</a>` : ''}
           </div>
         </div>`;
       }).join('');
@@ -2110,17 +2107,39 @@
     const intro = lines.filter((l) => !/^[•\-–]\s/.test(l));
     return `${intro.length ? `<p>${intro.map(linkify).join('<br>')}</p>` : ''}<ul>${items.map((l) => `<li>${linkify(l.replace(/^[•\-–]\s*/, ''))}</li>`).join('')}</ul>`;
   }
+  const privacySections = () => (CONFIG.privacy || [
+    { title: 'Quali dati raccogliamo', text: 'Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.' },
+    { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
+    { title: 'Voti', text: 'I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.' },
+  ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map(privacyBlock).join('')}`).join('');
+  // Informativa in una finestra sopra la pagina: chi sta compilando un modulo non esce dal percorso.
+  function openPrivacyModal() {
+    const root = document.getElementById('modal-root');
+    const opener = document.activeElement;
+    root.innerHTML = `<div class="modal-backdrop" data-close>
+      <div class="modal prose privacy-modal" role="dialog" aria-modal="true" aria-label="Informativa privacy">
+        <div class="grab"></div>
+        <div class="close-row"><button class="icon-btn" data-close aria-label="Chiudi">${icon('close')}</button></div>
+        <h1 style="font-size:24px">Informativa privacy</h1>
+        ${privacySections()}
+        <p style="margin-top:20px"><button class="btn block" data-close>${icon('check')}Ho letto, torna al modulo</button></p>
+      </div></div>`;
+    const bd = root.firstElementChild;
+    bd.addEventListener('click', (e) => { if (e.target === bd || e.target.closest('button[data-close]')) closeModal(opener); });
+    document.addEventListener('keydown', escClose);
+    root.querySelector('button[data-close]').focus();
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-privacy-modal]'); if (!a) return;
+    e.preventDefault(); openPrivacyModal();
+  });
   function viewPrivacy() {
     return {
       section: 'privacy', headTitle: 'Privacy', back: '#/', title: 'Informativa privacy',
       html: `<div class="page prose">
         <h1 style="font-size:28px">Informativa privacy</h1>
         ${CONFIG.privacyIsPlaceholder !== false ? `<p class="demo-tag" style="margin-top:10px">${icon('construction')}Testo segnaposto da sostituire con l’informativa ufficiale Busa</p>` : ''}
-        ${(CONFIG.privacy || [
-          { title: 'Quali dati raccogliamo', text: 'Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.' },
-          { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
-          { title: 'Voti', text: 'I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.' },
-        ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map(privacyBlock).join('')}`).join('')}
+        ${privacySections()}
         <p style="margin-top:20px"><a class="btn secondary" href="#/">${icon('home')}Torna alla Home</a></p>
       </div>`,
     };

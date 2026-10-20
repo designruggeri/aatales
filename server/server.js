@@ -480,8 +480,8 @@ function publicContent() {
     })),
     faqCategories: db.faqCategories,
     faq: [...db.faq].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((f) => ({
+      // I pulsanti verso altre sezioni non vengono più mostrati (portavano fuori dalle FAQ).
       id: f.id, category: f.category, q: f.q, a: f.a, cardId: f.cardId || undefined, showInList: f.cardId ? f.showInList !== false : true,
-      action: f.actionLabel && f.actionHref ? { label: f.actionLabel, href: f.actionHref } : undefined,
     })),
   };
 }

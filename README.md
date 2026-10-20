@@ -70,7 +70,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 - **Proposte (modalità e carte):** arrivano sempre *In attesa* e non sono visibili nell'app finché non le approvi. Nella scheda vedi se l'autore ha chiesto le notifiche e se ha confermato l'email, e un avviso di **possibile duplicato** quando un'altra proposta ha lo stesso titolo o contenuto (solo una segnalazione: nessuna proposta viene scartata in automatico).
 - **Voti:** per ogni modalità e carta dei giocatori: media, voti validi, **distribuzione delle stelle**, nuovi voti degli ultimi 30 giorni e **segnali da verificare** (picchi, raffiche, più voti dalla stessa rete, voti cambiati spesso). Puoi **escludere** un voto dalla media indicando il motivo e **ripristinarlo**, e **sospendere/riattivare** le votazioni di un contenuto. I voti dimostrativi si eliminano in un colpo.
 - **Messaggi:** domande e segnalazioni inviate dal modulo contatti dell'app, visibili solo nel CMS (con stato, note interne e risposta dalla tua posta).
-- **FAQ:** domande e risposte, categorie (anche da rinominare), ordine e pulsante verso una sezione dell'app.
+- **FAQ:** domande e risposte, categorie (anche da rinominare) e ordine.
   - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
   - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
   - In fondo alle FAQ c'è il box **“Non trovi la risposta? Contattaci!”**: apre l'app di posta con destinatario e oggetto già compilati. Testo, email e oggetto si cambiano in *Testi e impostazioni*.
