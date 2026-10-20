@@ -76,6 +76,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
   - In fondo alle FAQ c'è il box **“Non trovi la risposta? Contattaci!”**: apre l'app di posta con destinatario e oggetto già compilati. Testo, email e oggetto si cambiano in *Testi e impostazioni*.
 - **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
   - frase di benvenuto, testi sotto le 4 voci del menu in Home, footer, formato delle carte e informativa privacy;
+  - **informativa privacy**: il pulsante *Usa il modello aggiornato* carica un'informativa completa, scritta in base alle funzioni dell'app (testo leggibile anche in `docs/informativa-privacy.md`). Completa le parti `[DA COMPLETARE]` e `[DA VERIFICARE]`, salva e togli l'avviso “testo segnaposto”;
   - email per le notifiche delle nuove proposte e dei nuovi messaggi;
   - **protezioni e classifica:** proposte al giorno per browser (predefinite 3) e voti minimi per entrare nella classifica “Valutazione più alta” (predefiniti 5), con lo stato di antibot ed email;
   - **grandezza delle carte** quando sono mostrate da sole: vista “1 per riga”, scheda della carta in *Guarda*, anteprima ingrandita nelle modalità, carta dei giocatori e anteprima in *Crea una carta Busa*, con un'anteprima su un telefono;

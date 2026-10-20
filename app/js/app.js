@@ -2094,6 +2094,15 @@
   }
 
   /* ---------------- Privacy / 404 ---------------- */
+  // Paragrafo dell'informativa: righe con "•" diventano un elenco, gli indirizzi web diventano link (dopo l'escape).
+  const linkify = (t) => esc(t).replace(/https?:\/\/[^\s<]+[^\s<.,;:)]/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+  function privacyBlock(block) {
+    const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
+    const items = lines.filter((l) => /^[•\-–]\s/.test(l));
+    if (!items.length) return `<p>${lines.map(linkify).join('<br>')}</p>`;
+    const intro = lines.filter((l) => !/^[•\-–]\s/.test(l));
+    return `${intro.length ? `<p>${intro.map(linkify).join('<br>')}</p>` : ''}<ul>${items.map((l) => `<li>${linkify(l.replace(/^[•\-–]\s*/, ''))}</li>`).join('')}</ul>`;
+  }
   function viewPrivacy() {
     return {
       section: 'privacy', headTitle: 'Privacy', back: '#/', title: 'Informativa privacy',
@@ -2104,7 +2113,7 @@
           { title: 'Quali dati raccogliamo', text: 'Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.' },
           { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
           { title: 'Voti', text: 'I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.' },
-        ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map((t) => `<p>${esc(t)}</p>`).join('')}`).join('')}
+        ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map(privacyBlock).join('')}`).join('')}
         <p style="margin-top:20px"><a class="btn secondary" href="#/">${icon('home')}Torna alla Home</a></p>
       </div>`,
     };

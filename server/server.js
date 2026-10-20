@@ -126,12 +126,8 @@ function seedFromDemo() {
       cardRatio: 63 / 88,
       footerText: 'MÖVAT! è un gioco di Busa Trasporti e Logistica',
       notifyEmails: '',
-      privacy: [
-        { title: 'Quali dati raccogliamo', text: 'Quando invii una modalità: nome della modalità, descrizione, regole, nickname pubblico e, se lo indichi, un indirizzo email privato.' },
-        { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
-        { title: 'Voti', text: 'I voti sono anonimi: un cookie tecnico con un codice casuale riconosce il tuo browser, così puoi modificare il tuo voto. Non serve un account.' },
-        { title: 'Protezione dallo spam', text: 'Per evitare invii automatici usiamo Cloudflare Turnstile, che al momento dell’invio verifica che non sei un robot. I dati tecnici per i limiti agli invii vengono cancellati dopo 30 giorni.' },
-      ],
+      // Modello di informativa (server/privacy-template.json): le parti [DA COMPLETARE] vanno compilate dal CMS.
+      privacy: privacyTemplate().sections,
       privacyIsPlaceholder: true,
       proposalsPerDay: 3,
       rankMinVotes: 5,
@@ -153,6 +149,9 @@ function seedFromDemo() {
     faq: w.MOVAT_FAQ.map((f, i) => ({ id: f.id, category: f.category, q: f.q, a: f.a, cardId: f.cardId || '', showInList: f.showInList !== false, actionLabel: f.action?.label || '', actionHref: f.action?.href || '', order: i, demo: /segnaposto/i.test(f.q) })),
   };
 }
+
+// Modello dell'informativa privacy, basato sulle funzioni dell'app.
+const privacyTemplate = () => JSON.parse(fs.readFileSync(path.join(__dirname, 'privacy-template.json'), 'utf8'));
 
 function loadDb() {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -1096,6 +1095,7 @@ on('PUT', '/api/admin/faq-categories', async (req) => {
 });
 
 /* Impostazioni e testi */
+on('GET', '/api/admin/privacy-template', () => privacyTemplate());
 on('PUT', '/api/admin/settings', async (req) => {
   const b = await readJson(req);
   const s = db.settings;

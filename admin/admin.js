@@ -1341,8 +1341,11 @@
       </form>
       <form class="panel form" id="privacy" novalidate>
         <div class="panel-head" style="margin:0"><h2>Informativa privacy</h2><a class="btn secondary sm" href="/#/privacy" target="_blank" rel="noopener">${icon('open_in_new')}Vedi nell’app</a></div>
+        <p class="muted">Una riga vuota crea un nuovo paragrafo; le righe che iniziano con “•” diventano elenchi. Gli indirizzi web diventano link.</p>
+        <div id="ptodo"></div>
         <div class="list-edit" id="psec"></div>
-        <div class="row"><button type="button" class="btn secondary sm" id="add-sec">${icon('add')}Aggiungi sezione</button></div>
+        <div class="row"><button type="button" class="btn secondary sm" id="add-sec">${icon('add')}Aggiungi sezione</button>
+          <button type="button" class="btn secondary sm" id="use-template">${icon('policy')}Usa il modello aggiornato</button></div>
         <label class="check"><input type="checkbox" id="placeholder" ${s.privacyIsPlaceholder ? 'checked' : ''}>Mostra l’avviso “testo segnaposto” nell’app</label>
         <div class="row"><button class="btn" type="submit">${icon('save')}Salva l’informativa</button></div>
       </form>
@@ -1369,6 +1372,8 @@
       if (await act(e.submitter, () => api('PUT', 'settings', v), 'Impostazioni salvate')) { dirty = false; route(); }
     };
     const drawP = () => {
+      const todo = privacy.reduce((n, p) => n + (`${p.title} ${p.text}`.match(/\[DA (COMPLETARE|VERIFICARE)/g) || []).length, 0);
+      document.getElementById('ptodo').innerHTML = todo ? `<div class="notice warn">${icon('edit_note')}<span><b>${todo}</b> ${todo === 1 ? 'parte da completare o verificare' : 'parti da completare o verificare'} (cerca “[DA COMPLETARE” e “[DA VERIFICARE”). Finché ci sono, lascia attivo l’avviso “testo segnaposto”.</span></div>` : '';
       document.getElementById('psec').innerHTML = privacy.map((p, i) => `<div class="item">
         <div class="row" style="flex-wrap:nowrap"><input type="text" data-p="${i}" data-k="title" value="${esc(p.title)}" placeholder="Titolo della sezione">
           <button type="button" class="btn secondary sm icon" data-pm="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="Sposta su">${icon('arrow_upward')}</button>
@@ -1385,6 +1390,12 @@
       if (rm && confirm('Eliminare questa sezione?')) { privacy.splice(Number(rm.dataset.prm), 1); drawP(); dirty = true; }
     });
     document.getElementById('add-sec').onclick = () => { privacy.push({ title: '', text: '' }); drawP(); };
+    // Modello di informativa basato sulle funzioni dell'app (server/privacy-template.json).
+    document.getElementById('use-template').onclick = async (e) => {
+      if (privacy.some((p) => p.title || p.text) && !confirm('Sostituire le sezioni attuali con il modello aggiornato? Le modifiche diventano definitive solo quando premi “Salva l’informativa”.')) return;
+      try { const t = await api('GET', 'privacy-template'); privacy = t.sections.map((x) => ({ ...x })); dirty = true; drawP(); toast('Modello caricato: completa le parti [DA COMPLETARE] e salva'); }
+      catch (err) { toast(err.message, true); }
+    };
     document.getElementById('privacy').onsubmit = async (e) => {
       e.preventDefault();
       if (await act(e.submitter, () => api('PUT', 'settings', { privacy, privacyIsPlaceholder: document.getElementById('placeholder').checked }), 'Informativa salvata')) { dirty = false; route(); }

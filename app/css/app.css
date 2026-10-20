@@ -468,6 +468,8 @@ mark { background: #f6ff9e; color: inherit; border-radius: 3px; padding: 0 1px; 
 /* ---------- Varie ---------- */
 .prose h2 { font-size: 20px; margin: 18px 0 6px; }
 .prose p { margin-top: 8px; }
+.prose ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.prose a { overflow-wrap: anywhere; }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 400px) { .mini-cards { gap: 10px; } }
