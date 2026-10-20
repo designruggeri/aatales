@@ -90,7 +90,7 @@ function slugify(s) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'voce';
 }
 // 'carte' è riservato: #/scopri/carte è la pagina delle carte dei giocatori.
-const RESERVED_IDS = ['carte', 'nuova', 'importa'];
+const RESERVED_IDS = ['carte', 'nuova', 'importa', 'audio'];
 function uniqueId(base, list) {
   let id = slugify(base), n = 2;
   while (RESERVED_IDS.includes(id) || list.some((x) => x.id === id)) id = `${slugify(base)}-${n++}`;

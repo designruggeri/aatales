@@ -47,11 +47,16 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 
 - **Panoramica:** le proposte da controllare e un elenco di tutto ciò che è ancora segnaposto.
 - **Carte:** numero, nome, copie (il massimo selezionabile in *Crea*), frase in piacentino, traduzione, testo della carta, **immagine** e **audio** caricati dal computer.
-- **Caricamento massivo** (in *Carte*):
+- **Caricamento massivo delle immagini** (in *Carte*):
   - selezioni o trascini tante immagini di carte insieme;
   - per ognuna compili a mano numero, nome, copie nel mazzo, frase, traduzione e testo;
   - se il nome del file contiene un numero (es. `carta-07.png`) viene usato come numero della carta;
   - se il numero corrisponde a una carta esistente, viene proposto di aggiornarla mantenendo il suo audio.
+- **Caricamento massivo degli audio** (in *Carte*):
+  - selezioni o trascini tanti file audio insieme (MP3, M4A, AAC, WAV, OGG);
+  - se il nome del file è un numero viene associato da solo alla carta con lo stesso numero: `1.mp3` → carta 1, `07.mp3` → carta 7;
+  - per gli altri file scegli la carta dall'elenco; prima del caricamento puoi ascoltarli e correggere gli abbinamenti;
+  - se una carta ha già un audio viene segnalato che sarà sostituito; due file sulla stessa carta bloccano il caricamento finché non ne togli uno.
 - **Copertine delle modalità:** i giocatori possono caricarne una quadrata in *Crea* (1024 × 1024 px, JPG, PNG o WEBP); dal CMS puoi sostituirla o toglierla. Senza copertina si usa quella automatica colorata con il camioncino.
 - **Carte proposte** (carte Busa inventate dai giocatori in *Crea → Una carta Busa*):
   - arrivano *In attesa*: le correggi con l'anteprima dal vivo, poi le approvi e pubblichi oppure le rifiuti;

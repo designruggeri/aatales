@@ -114,7 +114,7 @@
     if (DATA && stale) { stale = false; try { await reload(); ME = { ...ME, ...(await api('GET', 'me')) }; } catch { /* si usano i dati già caricati */ } }
     if (!DATA) { $root.innerHTML = `<div class="empty">${icon('progress_activity', 'spin')} Caricamento…</div>`; try { await reload(); } catch (e) { $root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; } }
     const [sec, id] = parts;
-    const views = { carte: id === 'importa' ? viewImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, 'carte-proposte': id ? viewUserCardAdmin : viewUserCardsAdmin, voti: viewVotes, messaggi: viewMessages, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
+    const views = { carte: id === 'importa' ? viewImport : id === 'audio' ? viewAudioImport : id ? viewCard : viewCards, modalita: id ? viewMode : viewModes, 'carte-proposte': id ? viewUserCardAdmin : viewUserCardsAdmin, voti: viewVotes, messaggi: viewMessages, faq: id ? viewFaqItem : viewFaq, impostazioni: viewSettings, backup: viewBackup };
     const view = sec ? views[sec] : viewDashboard;
     if (!view) return go('#/');
     const pending = DATA.modes.filter((m) => m.status === 'pending').length;
@@ -217,7 +217,7 @@
     const q = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || '';
     $m.innerHTML = `
       <div class="page-head"><div><h1>Carte</h1><p class="muted">Catalogo delle carte Busa: nomi, copie, frasi in dialetto, immagini e audio.</p></div>
-        <div class="row"><a class="btn secondary" href="#/carte/importa">${icon('photo_library')}Caricamento massivo</a><a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div></div>
+        <div class="row"><a class="btn secondary" href="#/carte/importa">${icon('photo_library')}Caricamento massivo immagini</a><a class="btn secondary" href="#/carte/audio">${icon('library_music')}Caricamento massivo audio</a><a class="btn" href="#/carte/nuova">${icon('add')}Nuova carta</a></div></div>
       <div class="panel">
         <div class="panel-head"><div class="search-box">${icon('search')}<input type="search" id="q" placeholder="Cerca per numero o nome" value="${esc(q)}"></div>
           <span class="muted small">Le “copie” sono il massimo selezionabile nel configuratore Crea.</span></div>
@@ -529,6 +529,101 @@
       const rt = e.target.closest('[data-retry]'), dp = e.target.closest('[data-drop]');
       if (rt) { const r = rowOf(rt); r.status = 'wait'; r.error = ''; drawImportRow(r); IMPORT.queue.push(r); pumpQueue(); }
       if (dp) { const r = rowOf(dp); if (r.status === 'upload') return toast('Attendi la fine del caricamento', true); IMPORT.rows.splice(IMPORT.rows.indexOf(r), 1); IMPORT.queue = IMPORT.queue.filter((x) => x !== r); dp.closest('[data-row]').remove(); drawImportBar(); }
+    });
+  }
+
+  /* ---------------- Caricamento massivo degli audio ---------------- */
+  // Il file "7.mp3" (o "07.mp3") va alla carta numero 7. Gli altri nomi si abbinano a mano prima del caricamento.
+  const AUDIO = { rows: [], seq: 0, busy: false };
+  const AUDIO_TYPES = { mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg', webm: 'audio/webm' };
+  const audioType = (f) => (f.type && /^audio\//.test(f.type) ? f.type : AUDIO_TYPES[(f.name.split('.').pop() || '').toLowerCase()] || '');
+  const numberFromName = (name) => { const m = /^\s*0*(\d+)\s*$/.exec(String(name).replace(/\.[^.]+$/, '')); return m ? Number(m[1]) : null; };
+  function viewAudioImport($m) {
+    $m.innerHTML = `
+      <a class="crumb" href="#/carte">${icon('arrow_back')}Carte</a>
+      <div class="page-head"><div><h1>Caricamento massivo audio</h1>
+        <p class="muted">Carica tutti gli audio delle carte insieme. Se il nome del file è un numero viene associato da solo alla carta con lo stesso numero: <b>1.mp3</b> va alla carta 1, <b>07.mp3</b> alla carta 7. Per gli altri file scegli tu la carta. Controlla gli abbinamenti, poi premi “Carica e associa”.</p></div>
+        <a class="btn secondary" href="#/carte/importa">${icon('photo_library')}Caricamento massivo immagini</a></div>
+      <label class="drop" id="drop">
+        <input type="file" id="files" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.oga,.webm" multiple hidden>
+        ${icon('library_music')}<b>Trascina qui gli audio delle carte</b><span class="muted">oppure clicca per sceglierli (MP3, M4A, AAC, WAV, OGG)</span>
+      </label>
+      <div id="rows" class="imp-list"></div>
+      <div class="imp-bar" id="imp-bar"></div>`;
+    const cards = sortedCards();
+    const $rows = document.getElementById('rows');
+    const used = () => { const c = {}; AUDIO.rows.forEach((r) => { if (r.cardId && r.status !== 'done') c[r.cardId] = (c[r.cardId] || 0) + 1; }); return c; };
+    const rowHtml = (r) => {
+      const card = cardById(r.cardId), dup = r.cardId && used()[r.cardId] > 1;
+      const note = r.status === 'done' ? `<span class="badge published">${icon('check')}Associato a #${pad2(card?.number)} ${esc(card?.name || '')}</span>`
+        : r.status === 'error' ? `<span class="badge rejected">${esc(r.error)}</span>`
+        : r.status === 'upload' ? `<span class="muted">${icon('progress_activity', 'spin')} Caricamento…</span>`
+        : dup ? `<span class="badge pending">${icon('warning')}Un altro file è associato alla stessa carta</span>`
+        : !r.cardId ? `<span class="badge pending">Scegli la carta</span>`
+        : r.auto ? `<span class="muted small">${icon('auto_awesome')} Associato dal nome del file</span>` : '';
+      return `<div class="aud-row ${r.status}" data-row="${r.key}">
+        <div class="aud-file">${icon('music_note')}<b title="${esc(r.file.name)}">${esc(r.file.name)}</b><span class="muted small">${r.file.size < 1048576 ? Math.max(1, Math.round(r.file.size / 1024)) + ' KB' : (r.file.size / 1048576).toLocaleString('it-IT', { maximumFractionDigits: 1 }) + ' MB'}</span></div>
+        <audio controls preload="none" src="${r.preview}"></audio>
+        <select data-k="card" ${r.status === 'done' || r.status === 'upload' ? 'disabled' : ''} aria-label="Carta per ${esc(r.file.name)}">
+          <option value="">Scegli la carta…</option>
+          ${cards.map((c) => `<option value="${esc(c.id)}" ${c.id === r.cardId ? 'selected' : ''}>#${pad2(c.number)} ${esc(c.name)}${c.audio ? ' (ha già un audio)' : ''}</option>`).join('')}
+        </select>
+        <div class="aud-note">${note}${card?.audio && r.status !== 'done' ? `<span class="muted small">Sostituirà l’audio attuale della carta.</span>` : ''}</div>
+        <button type="button" class="btn danger sm icon" data-drop ${r.status === 'upload' ? 'disabled' : ''} aria-label="Togli ${esc(r.file.name)}">${icon('close')}</button>
+      </div>`;
+    };
+    const draw = () => {
+      $rows.innerHTML = AUDIO.rows.map(rowHtml).join('');
+      const ready = AUDIO.rows.filter((r) => r.cardId && ['ready', 'error'].includes(r.status));
+      const dups = Object.values(used()).some((n) => n > 1);
+      const done = AUDIO.rows.filter((r) => r.status === 'done').length, missing = AUDIO.rows.filter((r) => !r.cardId && r.status !== 'done').length;
+      document.getElementById('imp-bar').innerHTML = AUDIO.rows.length ? `<span>${done ? `<b>${done}</b> caricati · ` : ''}<b>${ready.length}</b> pronti${missing ? ` · <b>${missing}</b> senza carta` : ''}${dups ? ' · <span style="color:var(--red)">due file sulla stessa carta</span>' : ''}</span>
+        <div class="row">${done ? `<button type="button" class="btn secondary" id="clear-done">${icon('playlist_remove')}Togli i caricati</button>` : ''}
+        <button type="button" class="btn" id="upload" ${!ready.length || dups || AUDIO.busy ? 'disabled' : ''}>${icon('cloud_upload')}Carica e associa ${ready.length || ''}</button></div>` : '<span class="muted">Nessun file scelto.</span>';
+    };
+    const addFiles = (files) => {
+      const list = [...files].filter((f) => audioType(f));
+      if (!list.length) return toast('Seleziona file audio (MP3, M4A, AAC, WAV, OGG)', true);
+      list.sort((a, b) => a.name.localeCompare(b.name, 'it', { numeric: true }));
+      for (const file of list) {
+        const n = numberFromName(file.name), c = n != null ? DATA.cards.find((x) => x.number === n) : null;
+        AUDIO.rows.push({ key: 'a' + ++AUDIO.seq, file, preview: URL.createObjectURL(file), cardId: c ? c.id : '', auto: !!c, status: 'ready' });
+      }
+      const skipped = files.length - list.length;
+      if (skipped) toast(`${skipped} ${skipped === 1 ? 'file ignorato perché non è' : 'file ignorati perché non sono'} audio`, true);
+      draw();
+    };
+    draw();
+    document.getElementById('files').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+    const $drop = document.getElementById('drop');
+    ['dragenter', 'dragover'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => $drop.addEventListener(t, (e) => { e.preventDefault(); $drop.classList.remove('over'); }));
+    $drop.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+    const rowOf = (el) => AUDIO.rows.find((r) => r.key === el.closest('[data-row]')?.dataset.row);
+    $rows.addEventListener('change', (e) => { const r = rowOf(e.target); if (!r || e.target.dataset.k !== 'card') return; r.cardId = e.target.value; r.auto = false; if (r.status === 'error') r.status = 'ready'; draw(); });
+    $rows.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-drop]'); if (!b) return;
+      const r = rowOf(b); URL.revokeObjectURL(r.preview); AUDIO.rows.splice(AUDIO.rows.indexOf(r), 1); draw();
+    });
+    document.getElementById('imp-bar').addEventListener('click', async (e) => {
+      if (e.target.closest('#clear-done')) { AUDIO.rows = AUDIO.rows.filter((r) => r.status !== 'done'); return draw(); }
+      if (!e.target.closest('#upload') || AUDIO.busy) return;
+      AUDIO.busy = true; dirty = true;
+      for (const r of AUDIO.rows.filter((x) => x.cardId && ['ready', 'error'].includes(x.status))) {
+        r.status = 'upload'; draw();
+        try {
+          const up = await api('POST', 'upload', { name: r.file.name, type: audioType(r.file), data: await readFileB64(r.file) });
+          const card = cardById(r.cardId);
+          const saved = await api('PUT', 'cards/' + encodeURIComponent(card.id), { ...card, audio: up.url });
+          Object.assign(card, saved);
+          r.status = 'done';
+        } catch (err) { r.status = 'error'; r.error = err.message || 'Caricamento non riuscito'; }
+        draw();
+      }
+      AUDIO.busy = false; dirty = false;
+      const ok = AUDIO.rows.filter((r) => r.status === 'done').length, ko = AUDIO.rows.filter((r) => r.status === 'error').length;
+      toast(ko ? `${ko} ${ko === 1 ? 'file non caricato' : 'file non caricati'}: riprova` : `Audio associati: ${ok}`, !!ko);
+      draw();
     });
   }
 
