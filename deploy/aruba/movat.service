@@ -1,0 +1,29 @@
+[Unit]
+Description=MÖVAT! web app e CMS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=movat
+Group=movat
+EnvironmentFile=/etc/movat/movat.env
+WorkingDirectory=/opt/movat
+ExecStart=/usr/bin/node /opt/movat/server/server.js
+Restart=always
+RestartSec=3
+# Protezioni: l'app può scrivere solo nella cartella dei dati
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/movat
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

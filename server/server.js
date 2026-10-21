@@ -10,6 +10,7 @@
  *
  * Variabili d'ambiente (tutte facoltative):
  *   PORT              porta HTTP (predefinita 8000)
+ *   HOST              indirizzo su cui ascoltare (es. 127.0.0.1 dietro un proxy; predefinito: tutti)
  *   DATA_DIR          cartella dei dati (predefinita ../data)
  *   ADMIN_USER        utente del CMS (altrimenti quello salvato in data/admin.json)
  *   ADMIN_PASSWORD    password del CMS (altrimenti quella salvata in data/admin.json)
@@ -1238,7 +1239,8 @@ for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { store.flush(); 
   if (sec.PROD && !sec.CONFIG.publicUrl) console.warn('ATTENZIONE: imposta PUBLIC_URL (es. https://movat.example.it): serve per i link nelle email e per il controllo dell’hostname di Turnstile.');
   if (!mailReady()) console.log('Email non configurate: le proposte arrivano comunque, ma le notifiche agli autori non sono attive.');
 }
-server.listen(PORT, () => {
+// HOST=127.0.0.1 quando davanti c'è un proxy (es. Caddy): l'app non è raggiungibile direttamente da Internet.
+server.listen(PORT, process.env.HOST || undefined, () => {
   console.log(`MÖVAT! in esecuzione:`);
   console.log(`  App pubblica  http://localhost:${PORT}/`);
   console.log(`  CMS           http://localhost:${PORT}/admin/`);

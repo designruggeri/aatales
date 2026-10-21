@@ -87,6 +87,10 @@ Al primo avvio il CMS contiene i dati dimostrativi, segnalati come “Demo” o 
 
 ## Mettere online
 
+**Su Aruba Cloud (movat.busalogistica.it):** c'è un kit pronto in `deploy/aruba/` con la guida passo passo [`deploy/aruba/GUIDA.md`](deploy/aruba/GUIDA.md): script di installazione per Ubuntu 24.04, avvio automatico, HTTPS con Caddy, backup notturni e aggiornamenti con ritorno automatico alla versione precedente in caso di problemi.
+
+In generale:
+
 L'app e il CMS girano insieme sullo stesso server Node.js. Servono:
 
 1. **Un hosting che esegua Node.js con un disco permanente**, per esempio un piccolo server VPS (Hetzner, DigitalOcean, Aruba Cloud), Render o Railway con un *persistent disk*. Il disco serve perché i contenuti e i file caricati stanno nella cartella dei dati.
@@ -96,6 +100,7 @@ L'app e il CMS girano insieme sullo stesso server Node.js. Servono:
 | Variabile | A cosa serve |
 |---|---|
 | `PORT` | Porta del server (spesso la imposta l'hosting) |
+| `HOST` | Indirizzo su cui ascoltare: `127.0.0.1` se davanti c'è un proxy come Caddy o Nginx |
 | `DATA_DIR` | Percorso del disco permanente, per esempio `/var/data` |
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Facoltative: se impostate, sostituiscono le credenziali generate al primo avvio |
 | `NODE_ENV=production` | **Obbligatoria online.** Rende obbligatorio l'antibot (senza chiavi gli invii vengono rifiutati, mai saltati) e attiva i cookie `Secure` |
