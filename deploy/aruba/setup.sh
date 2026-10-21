@@ -27,9 +27,11 @@ step() { echo; echo "==> $*"; }
 
 step "Aggiornamento del sistema"
 export DEBIAN_FRONTEND=noninteractive
+# Tiene sempre i file di configurazione già presenti (es. /etc/cloud/cloud.cfg personalizzato da Aruba)
+APT_OPTS=(-y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
 apt-get update -y
-apt-get upgrade -y
-apt-get install -y curl ca-certificates gnupg ufw unattended-upgrades debian-keyring debian-archive-keyring apt-transport-https
+apt-get "${APT_OPTS[@]}" upgrade
+apt-get "${APT_OPTS[@]}" install curl ca-certificates gnupg ufw unattended-upgrades debian-keyring debian-archive-keyring apt-transport-https
 timedatectl set-timezone Europe/Rome || true
 dpkg-reconfigure -f noninteractive unattended-upgrades || true
 
@@ -48,7 +50,7 @@ fi
 step "Node.js 22 LTS"
 if ! command -v node >/dev/null || [[ "$(node -v | cut -d. -f1 | tr -d v)" -lt 22 ]]; then
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-  apt-get install -y nodejs
+  apt-get "${APT_OPTS[@]}" install nodejs
 fi
 node -v
 
@@ -82,7 +84,7 @@ if ! command -v caddy >/dev/null; then
   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
   apt-get update -y
-  apt-get install -y caddy
+  apt-get "${APT_OPTS[@]}" install caddy
 fi
 sed "s#__DOMAIN__#$DOMAIN#g" "$HERE/Caddyfile" > /etc/caddy/Caddyfile
 systemctl enable caddy
