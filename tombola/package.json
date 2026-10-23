@@ -1,0 +1,47 @@
+{
+  "name": "tombola-busa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tombola digitale Busa: tabellone pubblico, telecomando e CMS su rete locale",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "tsx watch --disable-warning=ExperimentalWarning server/src/index.ts",
+    "dev:client": "vite --config client/vite.config.ts",
+    "build": "tsc -p server/tsconfig.json && vite build --config client/vite.config.ts",
+    "typecheck": "tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
+    "prestart": "npm run build",
+    "start": "node --enable-source-maps --disable-warning=ExperimentalWarning dist/server/server/src/index.js",
+    "test": "vitest run",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "express": "^5.3.0",
+    "pdfkit": "^0.20.2",
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/adm-zip": "^0.5.8",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.5",
+    "@types/pdfkit": "^0.17.7",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/ws": "^8.18.2",
+    "@vitejs/plugin-react": "^6.1.2",
+    "concurrently": "^10.0.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

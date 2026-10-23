@@ -1,0 +1,55 @@
+/* Lato incluso nel progetto: nessun font da internet. */
+@font-face { font-family: 'Lato'; font-weight: 400; font-display: swap; src: url('../assets/fonts/lato-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-weight: 700; font-display: swap; src: url('../assets/fonts/lato-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-weight: 900; font-display: swap; src: url('../assets/fonts/lato-black.woff2') format('woff2'); }
+
+:root {
+  /* Verde Busa C70 M0 Y100 K0 ≈ #52AE32. I colori del display si cambiano dal CMS (Aspetto). */
+  --busa: #52ae32;
+  --busa-dark: #1f6b2a;
+  --busa-deep: #154d1e;
+  --busa-light: #cdebb8;
+  --busa-tint: #eef8e8;
+  --accent: #e8432c;
+  --accent-2: #f7941d;
+  --gold: #ffcc33;
+  --ink: #1d2a1d;
+  --muted: #5b6b5b;
+  --line: #d9e6d2;
+  --bg: #f4f8f1;
+  --white: #ffffff;
+  --danger: #c62828;
+  --radius: 14px;
+  font-family: 'Lato', system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body { background: var(--bg); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.btn {
+  text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 18px; border-radius: 12px; border: 2px solid transparent;
+  background: var(--busa); color: #fff; font-weight: 900; letter-spacing: .01em;
+  transition: transform .08s ease, filter .15s ease, background .15s;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.06); }
+.btn:active:not(:disabled) { transform: scale(.98); }
+.btn:disabled { opacity: .45; }
+.btn.secondary { background: #fff; color: var(--busa-dark); border-color: var(--busa); }
+.btn.ghost { background: transparent; color: var(--busa-dark); border-color: var(--line); }
+.btn.danger { background: var(--danger); }
+.btn.warn { background: var(--accent-2); }
+.btn.small { min-height: 34px; padding: 6px 12px; font-size: 14px; border-radius: 10px; }
+
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--busa-tint); color: var(--busa-dark); }
+.pill.red { background: #fde4e1; color: #a3251a; }
+.pill.orange { background: #fff0db; color: #8a4b00; }
+.pill.grey { background: #eceeea; color: #555; }

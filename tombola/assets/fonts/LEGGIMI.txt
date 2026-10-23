@@ -1,0 +1,3 @@
+Lato (Łukasz Dziedzic) — SIL Open Font License 1.1, https://openfontlicense.org
+File woff2 dal pacchetto npm "lato-font" 3.0.0; i .ttf (per l'incorporamento nei PDF) sono
+conversioni senza modifiche dei glifi degli stessi file. Licenza completa: OFL.txt.

@@ -7,6 +7,7 @@
 | `server/` | Il server che collega app e CMS e salva i dati |
 | `data/` | Creata al primo avvio: contenuti (`db.json`), file caricati (`uploads/`) e credenziali. **Non è nel repository**: va salvata con i backup |
 | `stitch/` | Schermate e asset originali esportati da Stitch |
+| `tombola/` | **Tombola Busa**: progetto separato (tabellone, telecomando e CMS per la tombola di Natale). Istruzioni in `tombola/README.md` |
 
 ## Avviare tutto sul tuo computer
 
