@@ -1,0 +1,1027 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="it" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>MOVAT - Il gioco carico di divertimento!</title>
+<!-- Google Fonts: Titan One & Nunito -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&amp;family=Titan+One&amp;display=swap" rel="stylesheet">
+<!-- Font Awesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<!-- Tailwind CSS CDN v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#52AE32',
+              'green-dark': '#3e8824',
+              'green-light': '#E8F5E9',
+              red: '#E53935',
+              blue: '#1E88E5',
+              'blue-light': '#E1F5FE',
+              yellow: '#FBBF24',
+              orange: '#F59E0B',
+              purple: '#37124D',
+              'purple-dark': '#2A0D3B',
+              cream: '#FCFBF7',
+              dark: '#1E293B'
+            }
+          },
+          fontFamily: {
+            display: ['"Titan One"', 'cursive', 'sans-serif'],
+            body: ['"Nunito"', 'sans-serif']
+          },
+          boxShadow: {
+            'comic': '0 8px 0 rgba(0,0,0,0.12)',
+            'comic-hover': '0 4px 0 rgba(0,0,0,0.12)',
+            'card-lift': '0 12px 28px -6px rgba(0, 0, 0, 0.1)',
+            'phone': '0 25px 50px -12px rgba(0, 0, 0, 0.45)'
+          }
+        }
+      }
+    }
+  </script>
+<!-- Typography & Global Helper Styles -->
+<style data-purpose="typography">
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #FCFBF7;
+      color: #2D3748;
+      overflow-x: hidden;
+    }
+    .font-titan {
+      font-family: 'Titan One', cursive, sans-serif;
+      letter-spacing: 0.02em;
+    }
+  </style>
+<!-- Visual Elements, Waves & Dynamic Animations -->
+<style data-purpose="decorations">
+    .burst-line {
+      display: inline-block;
+      width: 6px;
+      height: 18px;
+      border-radius: 9999px;
+    }
+    .perspective-card {
+      transform: perspective(800px) rotateY(-6deg) rotateX(4deg);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .perspective-card:hover {
+      transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(-8px) scale(1.03);
+    }
+    .truck-shadow {
+      filter: drop-shadow(0 15px 12px rgba(0,0,0,0.18));
+    }
+
+    /* Floating animation with slight offset delays */
+    @keyframes cardFloatSlow {
+      0%, 100% { transform: translateY(0px) rotate(-12deg); }
+      50% { transform: translateY(-7px) rotate(-10deg); }
+    }
+    @keyframes cardFloatMedium {
+      0%, 100% { transform: translateY(0px) rotate(-6deg); }
+      50% { transform: translateY(-9px) rotate(-4.5deg); }
+    }
+    @keyframes cardFloatCenter {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes cardFloatRight1 {
+      0%, 100% { transform: translateY(0px) rotate(6deg); }
+      50% { transform: translateY(-9px) rotate(4.5deg); }
+    }
+    @keyframes cardFloatRight2 {
+      0%, 100% { transform: translateY(0px) rotate(12deg); }
+      50% { transform: translateY(-7px) rotate(10deg); }
+    }
+    @keyframes gentleBobbing {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .animate-float-left-far {
+      animation: cardFloatSlow 5s ease-in-out infinite;
+    }
+    .animate-float-left-near {
+      animation: cardFloatMedium 4.6s ease-in-out infinite 0.6s;
+    }
+    .animate-float-center {
+      animation: cardFloatCenter 5.2s ease-in-out infinite 0.2s;
+    }
+    .animate-float-right-near {
+      animation: cardFloatRight1 4.8s ease-in-out infinite 1s;
+    }
+    .animate-float-right-far {
+      animation: cardFloatRight2 5.3s ease-in-out infinite 1.4s;
+    }
+    .animate-bob {
+      animation: gentleBobbing 3.8s ease-in-out infinite;
+    }
+
+    /* Hover pause on floating card composition */
+    .hero-fan-container:hover .animate-float-left-far,
+    .hero-fan-container:hover .animate-float-left-near,
+    .hero-fan-container:hover .animate-float-center,
+    .hero-fan-container:hover .animate-float-right-near,
+    .hero-fan-container:hover .animate-float-right-far {
+      animation-play-state: paused;
+    }
+
+    /* Hover 3D Lift Cards effect */
+    .card-interactive-lift {
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.25, 1), box-shadow 0.35s ease;
+      will-change: transform;
+    }
+    .card-interactive-lift:hover {
+      transform: translateY(-8px) scale(1.025);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.16);
+    }
+
+    /* Micro-interactions CTA */
+    .btn-bounce-hover {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.2s ease;
+      will-change: transform;
+    }
+    .btn-bounce-hover:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-bounce-hover:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    /* Smooth FAQ Accordion Grid Rows Animation */
+    .faq-answer-grid {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .faq-answer-grid.open {
+      grid-template-rows: 1fr;
+    }
+    .faq-answer-inner {
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .faq-answer-grid.open .faq-answer-inner {
+      opacity: 1;
+    }
+    .faq-icon-rotator {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s ease, color 0.25s ease;
+    }
+    .faq-item.active .faq-icon-rotator {
+      transform: rotate(45deg);
+      background-color: #52AE32;
+      color: #ffffff;
+    }
+
+    /* Scroll reveal animations */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-on-scroll.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Accessible motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      .animate-float-left-far,
+      .animate-float-left-near,
+      .animate-float-center,
+      .animate-float-right-near,
+      .animate-float-right-far,
+      .animate-bob {
+        animation: none !important;
+      }
+      .reveal-on-scroll {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .card-interactive-lift,
+      .btn-bounce-hover {
+        transition: none !important;
+        transform: none !important;
+      }
+      .faq-answer-grid {
+        transition: none !important;
+      }
+      .faq-icon-rotator {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-brand-green selection:text-white">
+<!-- BEGIN: MainHeader -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all" data-purpose="desktop-navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<!-- Logo MOVAT -->
+<a aria-label="Home MOVAT" class="flex items-center gap-2 group" href="#"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAope-DEh_QuycAkQ9AKoGrzhbLvJioaCIxQeaXaHDxq6l6hedw1s_ZsaAJ6044KjckRXO4OEgTtAhIyaCqt_kz6w_RpViDwTKXp5UpFTEIfPCxttfnNLWR_7AYtKTfNPqafCSK-76ME50N4AtlZi_RXS_k4M-mEvvnW2HDpJ0QAe8aQPA8R_VGgekmXXHOjJ8aADjlheWNuiD3dLP_gkYIT3UUCFdPy2pKRr-6w_zJ8im6W9xustLCfsqpDSWEgxJEE1Y" alt="MOVAT Logo" class="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"></a>
+<!-- Desktop Nav Menu -->
+<nav class="hidden md:flex items-center gap-8 text-[15px] font-bold text-gray-700">
+<a class="hover:text-brand-green transition-colors" href="#hero">Il gioco</a>
+<a class="hover:text-brand-green transition-colors" href="#come-si-gioca">Come si gioca</a>
+<a class="hover:text-brand-green transition-colors" href="#web-app">Web App</a>
+<a class="hover:text-brand-green transition-colors" href="#dove-trovarlo">Dove trovarlo</a>
+<a class="hover:text-brand-green transition-colors" href="#faq">FAQ</a>
+</nav>
+<!-- Right Action Button -->
+
+</div>
+</header>
+<!-- END: MainHeader -->
+<main>
+<!-- BEGIN: HeroSection -->
+<section class="relative pt-12 pb-20 overflow-hidden bg-gradient-to-b from-[#eaf6ff] via-[#e5f4d9] to-brand-cream" data-purpose="hero-banner" id="hero">
+<!-- Background Illustrated Landscape Elements -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<!-- Mountain and Skyline Silhouettes -->
+<svg class="absolute bottom-0 w-full h-80" preserveAspectRatio="none" viewBox="0 0 1440 320">
+<path d="M0,192L60,197.3C120,203,240,213,360,192C480,171,600,117,720,128C840,139,960,213,1080,224C1200,235,1320,181,1380,154.7L1440,128L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z" fill="#7bc958" fill-opacity="0.3"></path>
+<path d="M0,256L48,245.3C96,235,192,213,288,218.7C384,224,480,256,576,261.3C672,267,768,245,864,213.3C960,181,1056,139,1152,144C1248,149,1344,203,1392,229.3L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" fill="#52ae32" fill-opacity="0.25"></path>
+</svg>
+</div>
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<!-- Header Text with Playful Rays -->
+<div class="inline-flex items-center justify-center gap-2 mb-2">
+<span class="burst-line bg-brand-yellow -rotate-45"></span>
+<span class="burst-line bg-brand-green -rotate-12 h-6"></span>
+<span class="burst-line bg-brand-red rotate-12 h-5"></span>
+<h1 class="text-4xl sm:text-6xl lg:text-7xl font-titan text-brand-green tracking-tight px-3 drop-shadow-sm">
+            Il gioco carico <br class="hidden sm:inline"> di divertimento!
+          </h1>
+<span class="burst-line bg-brand-red -rotate-12 h-5"></span>
+<span class="burst-line bg-brand-green rotate-12 h-6"></span>
+<span class="burst-line bg-brand-yellow rotate-45"></span>
+</div>
+<p class="max-w-2xl mx-auto text-lg sm:text-xl font-bold text-gray-700 leading-relaxed mt-4">
+          Carte, consegne e colpi di scena per viaggi straordinari con amici e famiglia.
+        </p>
+<!-- Dynamic Product Centerpiece Fan Composition with Floating and Interactive Hover -->
+<div class="hero-fan-container relative max-w-5xl mx-auto my-12 py-6 flex items-center justify-center" data-purpose="hero-product-fan">
+<!-- Card Red (Leftmost) -->
+<div class="animate-float-left-far hidden md:block absolute left-4 lg:left-12 -rotate-12 w-36 lg:w-44 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-2.5 text-white shadow-2xl border-4 border-white transition-all hover:-translate-y-6 hover:rotate-0 hover:scale-105 duration-300 z-10 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">TRUCK</span> <i class="fa-solid fa-truck"></i>
+</div>
+<div class="my-3 bg-white/20 rounded-xl p-3 h-32 flex items-center justify-center">
+<i class="fa-solid fa-truck-pickup text-5xl text-white drop-shadow"></i>
+</div>
+<div class="text-center font-extrabold text-sm tracking-wide">CAMION ROSSO</div>
+</div>
+<!-- Card Blue (Inner Left) -->
+<div class="animate-float-left-near hidden sm:block absolute left-20 lg:left-36 -rotate-6 w-36 lg:w-44 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-2.5 text-white shadow-2xl border-4 border-white transition-all hover:-translate-y-6 hover:rotate-0 hover:scale-105 duration-300 z-20 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">CARGO</span> <i class="fa-solid fa-box"></i>
+</div>
+<div class="my-3 bg-white/20 rounded-xl p-3 h-32 flex items-center justify-center">
+<i class="fa-solid fa-truck-moving text-5xl text-white drop-shadow"></i>
+</div>
+<div class="text-center font-extrabold text-sm tracking-wide">CONTAINER</div>
+</div>
+<!-- Central Box 3D -->
+<div class="animate-float-center relative z-30 mx-auto w-64 sm:w-72 lg:w-80 group cursor-pointer">
+<div class="relative bg-gradient-to-b from-[#4ba52b] to-[#3a8b20] rounded-3xl p-5 border-4 border-white/90 shadow-2xl text-white text-center transform transition duration-500 group-hover:scale-105 group-hover:-translate-y-2">
+<div class="text-xs uppercase tracking-widest font-black text-lime-200 mb-1">IL GIOCO DA TAVOLO</div>
+<div class="text-4xl font-titan tracking-wider text-white">MOVAT</div>
+<div class="text-xs font-bold text-lime-100 mb-4">CARTE, CONSEGNE E TANTE POSSIBILITÀ</div>
+<!-- Illustrated Central Box Truck -->
+<div class="bg-white rounded-2xl p-4 shadow-inner my-2 flex flex-col items-center justify-center border-2 border-lime-200">
+<i class="fa-solid fa-truck-fast text-6xl text-brand-green mb-1 animate-pulse"></i>
+<span class="text-xs font-black text-gray-700 uppercase tracking-wider">MOVAT DELIVERY</span>
+</div>
+<p class="text-xs font-semibold text-lime-100 mt-3">Edizione Deluxe 110 Carte</p>
+</div>
+</div>
+<!-- Card Yellow/Orange (Inner Right) -->
+<div class="animate-float-right-near hidden sm:block absolute right-20 lg:right-36 rotate-6 w-36 lg:w-44 bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-2.5 text-white shadow-2xl border-4 border-white transition-all hover:-translate-y-6 hover:rotate-0 hover:scale-105 duration-300 z-20 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">SPECIAL</span> <i class="fa-solid fa-route"></i>
+</div>
+<div class="my-3 bg-white/20 rounded-xl p-3 h-32 flex items-center justify-center">
+<i class="fa-solid fa-triangle-exclamation text-5xl text-white drop-shadow"></i>
+</div>
+<div class="text-center font-extrabold text-sm tracking-wide">BLOCCO STRADA</div>
+</div>
+<!-- Card Violet (Rightmost) -->
+<div class="animate-float-right-far hidden md:block absolute right-4 lg:right-12 rotate-12 w-36 lg:w-44 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-2.5 text-white shadow-2xl border-4 border-white transition-all hover:-translate-y-6 hover:rotate-0 hover:scale-105 duration-300 z-10 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">ACTION</span> <i class="fa-solid fa-arrows-rotate"></i>
+</div>
+<div class="my-3 bg-white/20 rounded-xl p-3 h-32 flex items-center justify-center">
+<i class="fa-solid fa-arrows-split-up-and-left text-5xl text-white drop-shadow"></i>
+</div>
+<div class="text-center font-extrabold text-sm tracking-wide">CAMBIO GIRO</div>
+</div>
+</div>
+<!-- Hero CTA Button -->
+<div class="mt-4">
+<a class="btn-bounce-hover inline-flex items-center gap-3 px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-black text-lg shadow-comic hover:shadow-comic-hover" href="#dove-trovarlo">
+<i class="fa-solid fa-location-dot text-xl"></i>
+<span class="">Dove trovare MOVAT →</span>
+</a>
+</div>
+<!-- Quick Info Badges -->
+<div class="mt-10 inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 bg-white/90 backdrop-blur px-6 py-3 rounded-full border border-gray-200 shadow-sm text-sm font-extrabold text-gray-700">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-users text-brand-green text-base"></i>
+<span class="">Giocatori: 2-6</span>
+</div>
+<span class="text-gray-300 font-normal">|</span>
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-child text-brand-blue text-base"></i>
+<span class="">Età: 7+</span>
+</div>
+<span class="text-gray-300 font-normal">|</span>
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-stopwatch text-brand-red text-base"></i>
+<span class="">Durata: 20-30 min</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: HowToPlaySection -->
+<section class="py-20 bg-brand-cream border-t border-gray-100" data-purpose="how-to-play" id="come-si-gioca">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<!-- Section Title -->
+<div class="reveal-on-scroll text-center max-w-3xl mx-auto mb-16 revealed">
+<div class="inline-flex items-center justify-center gap-2 mb-2">
+<span class="burst-line bg-brand-green -rotate-12 h-5"></span>
+<h2 class="text-4xl sm:text-5xl font-titan text-gray-900 tracking-tight">Come si gioca</h2>
+<span class="burst-line bg-brand-green rotate-12 h-5"></span>
+</div>
+<p class="text-lg font-bold text-gray-600 mt-2">
+            Semplice da imparare, sempre divertente da giocare!
+          </p>
+</div>
+<!-- 3 Step Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 (Green) -->
+<div class="reveal-on-scroll card-interactive-lift bg-brand-green text-white rounded-3xl p-8 flex flex-col justify-between shadow-comic relative overflow-hidden group cursor-pointer revealed"><div class="relative z-10"><div class="w-12 h-12 bg-white text-brand-green font-titan text-2xl rounded-full flex items-center justify-center mb-6 shadow-md transition-transform duration-300 group-hover:scale-110">1</div><h3 class="text-2xl font-titan mb-3 uppercase tracking-wide">GIOCA UNA CARTA</h3><p class="text-white/90 font-bold leading-relaxed text-sm uppercase">DELLO STESSO COLORE, NUMERO O SIMBOLO DI QUELLA SUL TAVOLO.</p></div><div class="mt-6 pt-2 flex justify-center items-center relative z-10"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdmqVHh8px9vvgFt20avAoGrBlMNPwoDIwsH201beup5GSYVabmp5ARjF5FCMNJlMCbWCrb_uQZiLGASH7IVhXtt4zz8azDX9I54EARvDpEXyWe9h8Jqf81PoT7PUWN6PI5DiNIwIYTKG4jOg59uWFLENFJULDrfFby-mo9srDQVlOlVyHCyd8sBQ4N9OLLwdQXYnEsSOtyCDZqvIXOKADbfmSbXKafWz9nKCacDKkqhxRFCpoP9zE-tfC6RpkYIxKig4" alt="Gioca una carta" class="h-44 w-auto object-contain drop-shadow transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-1"></div></div>
+<!-- Card 2 (Blue) -->
+<div class="reveal-on-scroll card-interactive-lift bg-brand-blue text-white rounded-3xl p-8 flex flex-col justify-between shadow-comic relative overflow-hidden group cursor-pointer revealed" style="transition-delay: 100ms;"><div class="relative z-10"><div class="w-12 h-12 bg-white text-brand-blue font-titan text-2xl rounded-full flex items-center justify-center mb-6 shadow-md transition-transform duration-300 group-hover:scale-110">2</div><h3 class="text-2xl font-titan mb-3 uppercase tracking-wide">USA LE CARTE BUSA</h3><p class="text-white/90 font-bold leading-relaxed text-sm uppercase">PER METTERE IN DIFFICOLTÀ GLI AVVERSARI.</p></div><div class="mt-6 pt-2 flex justify-center items-center relative z-10"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeEmtV81UKGKWiKoLGZNcwvLHTG9EEPtU9baQu-cuf77f9Iu36IcEbI39g7RM_7yVF83B0NB_A8BRyMYZ2GWyx9odcfneUUPnYAm-WqBzIh5sm5OiPr0Noj6BpY1hdWK0pgPpZpJQ_DxWClKkk-x1452W3ehaE-GezB9gPYglJ6bUfPhApQ-Ra416knBTmjssZLTSStbHf8dHJeXE_6_PxrOGeARdTaWebyrwhp5WKZxfB2dIxSEoJN97O3xmjxEphspQ" alt="Usa le carte BUSA" class="h-44 w-auto object-contain drop-shadow transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-1"></div></div>
+<!-- Card 3 (Red) -->
+<div class="reveal-on-scroll card-interactive-lift bg-brand-red text-white rounded-3xl p-8 flex flex-col justify-between shadow-comic relative overflow-hidden group cursor-pointer revealed" style="transition-delay: 200ms;"><div class="relative z-10"><div class="w-12 h-12 bg-white text-brand-red font-titan text-2xl rounded-full flex items-center justify-center mb-6 shadow-md transition-transform duration-300 group-hover:scale-110">3</div><h3 class="text-2xl font-titan mb-3 uppercase tracking-wide">LIBERATI DI TUTTE LE CARTE</h3><p class="text-white/90 font-bold leading-relaxed text-sm uppercase">PRIMA DEGLI ALTRI GIOCATORI E VINCI LA PARTITA!</p></div><div class="mt-6 pt-2 flex justify-center items-center relative z-10"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBV_BOurMECSdsS7A0igndes-Rgo-1HXfRUOXzQDrjCCcaA0lzR2VFVGkTOhnoRixjOKWUFlfxfS7O2QUzg08ry12ACn77IWz06fQw2OTFx3mOMEfXzLih-zbC3tDGTiwutfJKuuq5lseEcErRxQpljro3Q6_7EuBDV0Q_GD57ylAnzcqkVVwJBol1HXhkWvANVvSJpSW6WHrMeya1jp3gWX822lJ65KWt1jtLWdqNzmnkpihsg5siwi8tH5Gb-uZBHio" alt="Liberati di tutte le carte" class="h-44 w-auto object-contain drop-shadow transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-1"></div></div>
+</div>
+</div>
+</section>
+<!-- END: HowToPlaySection -->
+<!-- BEGIN: SpecialCardsAndModesSection -->
+<section class="py-20 bg-white" data-purpose="cards-and-game-modes">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+<!-- Left Panel: Carte Speciali -->
+<div class="reveal-on-scroll bg-brand-green-light rounded-3xl p-8 sm:p-10 border border-green-200/80 flex flex-col justify-between shadow-sm revealed">
+<div>
+<h3 class="text-3xl sm:text-4xl font-titan text-gray-900 mb-2">Carte speciali</h3>
+<p class="text-base font-bold text-gray-600 mb-8">
+                Eventi inaspettati e colpi di scena rendono ogni partita unica!
+              </p>
+<!-- Special Cards Display Grid with Interactive Hover & Gentle Float -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+<!-- Blocco Strada -->
+<div class="card-interactive-lift bg-purple-700 text-white p-3 rounded-2xl flex flex-col items-center text-center shadow-md -rotate-2 hover:rotate-0 transition-all cursor-pointer">
+<span class="text-[11px] font-black uppercase tracking-wider mb-2">BLOCCO STRADA</span>
+<div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center my-2">
+<i class="fa-solid fa-traffic-cone text-2xl text-amber-300"></i>
+</div>
+<span class="text-[10px] font-bold text-purple-200">Ferma un turno</span>
+</div>
+<!-- Consegna Urgente -->
+<div class="card-interactive-lift bg-red-600 text-white p-3 rounded-2xl flex flex-col items-center text-center shadow-md rotate-2 hover:rotate-0 transition-all cursor-pointer">
+<span class="text-[11px] font-black uppercase tracking-wider mb-2">CONSEGNA URGENTE</span>
+<div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center my-2">
+<i class="fa-solid fa-stopwatch text-2xl text-white"></i>
+</div>
+<span class="text-[10px] font-bold text-red-200">Azione rapida</span>
+</div>
+<!-- Cambio Camion -->
+<div class="card-interactive-lift bg-blue-600 text-white p-3 rounded-2xl flex flex-col items-center text-center shadow-md -rotate-1 hover:rotate-0 transition-all cursor-pointer">
+<span class="text-[11px] font-black uppercase tracking-wider mb-2">CAMBIO CAMION</span>
+<div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center my-2">
+<i class="fa-solid fa-right-left text-2xl text-white"></i>
+</div>
+<span class="text-[10px] font-bold text-blue-200">Scambia veicolo</span>
+</div>
+<!-- Percorso Alternativo -->
+<div class="card-interactive-lift bg-amber-400 text-gray-900 p-3 rounded-2xl flex flex-col items-center text-center shadow-md rotate-3 hover:rotate-0 transition-all cursor-pointer">
+<span class="text-[11px] font-black uppercase tracking-wider mb-2">PERCORSO ALT.</span>
+<div class="w-14 h-14 bg-white/40 rounded-xl flex items-center justify-center my-2">
+<i class="fa-solid fa-arrow-turn-up text-2xl text-gray-900"></i>
+</div>
+<span class="text-[10px] font-extrabold text-amber-900">Salta ostacolo</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-4 border-t border-green-200/60 flex items-center gap-3 text-sm font-bold text-brand-green-dark">
+<i class="fa-solid fa-bolt text-lg"></i>
+<span class="">Oltre 25 carte azione speciali per ribaltare l'esito della gara!</span>
+</div>
+</div>
+<!-- Right Panel: Tante Modalità di Gioco -->
+<div class="reveal-on-scroll bg-brand-blue-light rounded-3xl p-8 sm:p-10 border border-blue-200/80 flex flex-col justify-between shadow-sm revealed" style="transition-delay: 150ms;">
+<div>
+<h3 class="text-3xl sm:text-4xl font-titan text-gray-900 mb-2">Tante modalità di gioco</h3>
+<p class="text-base font-bold text-gray-600 mb-8">
+                Scopri vari modi di giocare e nuove sfide da affrontare per non stancarti mai.
+              </p>
+<!-- Modes Flow Grid / Badges Connected -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-blue-100 hover:border-brand-green transition-all hover:scale-[1.02] cursor-default">
+<div class="w-12 h-12 rounded-xl bg-brand-green text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-cube"></i>
+</div>
+<div>
+<h4 class="font-extrabold text-gray-900">Modalità Classica</h4>
+<p class="text-xs text-gray-500 font-semibold">Tutti contro tutti a tutta velocità</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-blue-100 hover:border-brand-red transition-all hover:scale-[1.02] cursor-default">
+<div class="w-12 h-12 rounded-xl bg-brand-red text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-flag"></i>
+</div>
+<div>
+<h4 class="font-extrabold text-gray-900">Sfide a Tema</h4>
+<p class="text-xs text-gray-500 font-semibold">Regole speciali a tempo limitato</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-blue-100 hover:border-brand-blue transition-all hover:scale-[1.02] cursor-default">
+<div class="w-12 h-12 rounded-xl bg-brand-blue text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-location-crosshairs"></i>
+</div>
+<div>
+<h4 class="font-extrabold text-gray-900">Percorsi Speciali</h4>
+<p class="text-xs text-gray-500 font-semibold">Tappe con bonus e deviazioni</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-blue-100 hover:border-brand-purple transition-all hover:scale-[1.02] cursor-default">
+<div class="w-12 h-12 rounded-xl bg-purple-700 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-handshake"></i>
+</div>
+<div>
+<h4 class="font-extrabold text-gray-900">Modalità Cooperative</h4>
+<p class="text-xs text-gray-500 font-semibold">Insieme contro il cronometro</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-4 border-t border-blue-200/60 flex items-center gap-3 text-sm font-bold text-blue-800">
+<i class="fa-solid fa-arrows-split-up-and-left text-lg"></i>
+<span class="">Scegli la modalità che preferisci prima di iniziare ogni sessione!</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: SpecialCardsAndModesSection -->
+<!-- BEGIN: DetailedContentSection -->
+<section class="py-20 bg-brand-cream border-t border-gray-100" data-purpose="box-content-detail">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="reveal-on-scroll text-center max-w-3xl mx-auto mb-16 revealed">
+<h2 class="text-4xl sm:text-5xl font-titan text-gray-900 tracking-tight">Il contenuto da vicino</h2>
+<p class="text-lg font-bold text-gray-600 mt-2">
+            Scopri le carte, la scatola e tutti i dettagli inclusi in MOVAT.
+          </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<!-- Box Left Showcase -->
+<div class="reveal-on-scroll lg:col-span-5 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center revealed">
+<div class="w-full max-w-xs bg-gradient-to-br from-brand-green to-emerald-700 rounded-3xl p-6 text-white text-center shadow-xl mb-6 card-interactive-lift cursor-pointer">
+<div class="text-xs font-black uppercase text-lime-200 tracking-widest">SCATOLA ORIGINALE</div>
+<div class="text-4xl font-titan my-2">MOVAT</div>
+<p class="text-xs font-semibold text-white/80">Carte, camion e consegne per mille avventure!</p>
+<div class="my-6 bg-white/10 rounded-2xl p-6 border border-white/20">
+<i class="fa-solid fa-truck-ramp-box text-6xl text-white"></i>
+</div>
+<div class="text-[11px] font-bold text-lime-100">Design compatto da viaggio</div>
+</div>
+<!-- Box List Contents -->
+<ul class="w-full space-y-3 font-bold text-gray-700 text-sm">
+<li class="flex items-center gap-3">
+<i class="fa-solid fa-circle-check text-brand-green text-base"></i>
+<span class=""><strong>110 Carte illustrate</strong> resistenti e plastificate</span>
+</li>
+<li class="flex items-center gap-3">
+<i class="fa-solid fa-circle-check text-brand-green text-base"></i>
+<span class=""><strong>Regolamento ufficiale</strong> illustrato a colori</span>
+</li>
+<li class="flex items-center gap-3">
+<i class="fa-solid fa-circle-check text-brand-green text-base"></i>
+<span class=""><strong>Tabella modalità</strong> e schede riassuntive</span>
+</li>
+<li class="flex items-center gap-3">
+<i class="fa-solid fa-circle-check text-brand-green text-base"></i>
+<span class=""><strong>Accesso Web-App</strong> gratuito incluso</span>
+</li>
+</ul>
+</div>
+<!-- Cards Close-up Right Showcase -->
+<div class="reveal-on-scroll lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-6 revealed" style="transition-delay: 150ms;">
+<!-- Close-up Card 1 -->
+<div class="card-interactive-lift bg-brand-red text-white rounded-3xl p-5 shadow-comic flex flex-col justify-between h-80 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">01</span>
+<i class="fa-solid fa-truck"></i>
+</div>
+<div class="bg-white/15 rounded-2xl h-44 flex flex-col items-center justify-center p-4">
+<i class="fa-solid fa-truck text-6xl mb-2 text-white drop-shadow"></i>
+<span class="text-xs font-extrabold uppercase tracking-wide">Camion Rosso</span>
+</div>
+<div class="text-center font-titan text-sm tracking-wide">
+                CAMION ROSSO
+              </div>
+</div>
+<!-- Close-up Card 2 -->
+<div class="card-interactive-lift bg-brand-blue text-white rounded-3xl p-5 shadow-comic flex flex-col justify-between h-80 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">02</span>
+<i class="fa-solid fa-box"></i>
+</div>
+<div class="bg-white/15 rounded-2xl h-44 flex flex-col items-center justify-center p-4">
+<i class="fa-solid fa-truck-moving text-6xl mb-2 text-white drop-shadow"></i>
+<span class="text-xs font-extrabold uppercase tracking-wide">Container 40t</span>
+</div>
+<div class="text-center font-titan text-sm tracking-wide">
+                CAMION CONTAINER
+              </div>
+</div>
+<!-- Close-up Card 3 -->
+<div class="card-interactive-lift bg-purple-700 text-white rounded-3xl p-5 shadow-comic flex flex-col justify-between h-80 cursor-pointer">
+<div class="flex justify-between items-center text-xs font-black">
+<span class="">03</span>
+<i class="fa-solid fa-arrows-rotate"></i>
+</div>
+<div class="bg-white/15 rounded-2xl h-44 flex flex-col items-center justify-center p-4">
+<i class="fa-solid fa-arrows-split-up-and-left text-6xl mb-2 text-white drop-shadow"></i>
+<span class="text-xs font-extrabold uppercase tracking-wide">Inverti Giro</span>
+</div>
+<div class="text-center font-titan text-sm tracking-wide">
+                CAMBIO DIREZIONE
+              </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: DetailedContentSection -->
+<!-- BEGIN: WebAppSection -->
+<section class="py-20 bg-brand-purple text-white relative overflow-hidden" data-purpose="digital-companion-app" id="web-app">
+<!-- Glow ambient effects -->
+<div class="absolute -top-40 -left-40 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-40 -right-40 w-96 h-96 bg-brand-blue/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<!-- Left Column: Copy & Actions -->
+<div class="reveal-on-scroll lg:col-span-5 text-left revealed">
+<span class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-lime-300 font-extrabold text-xs uppercase tracking-wider mb-4 border border-white/20">
+              Web App Gratuita
+            </span>
+<h2 class="text-4xl sm:text-5xl font-titan tracking-tight leading-tight mb-6">
+              Il divertimento <br> continua online
+            </h2>
+<p class="text-lg text-purple-100 font-bold mb-4">
+              Con la web app di MOVAT puoi ascoltare suoni e colonne sonore, scoprire nuove modalità di gioco e creare le tue partite personalizzate.
+            </p>
+<p class="text-sm text-purple-300 font-semibold mb-8 flex items-center gap-2">
+<i class="fa-solid fa-circle-info"></i>
+              Contenuti extra da esplorare: lo smartphone non è obbligatorio per giocare.
+            </p>
+<a class="btn-bounce-hover inline-flex items-center gap-3 px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-black text-lg shadow-comic hover:shadow-comic-hover" href="https://example.com" rel="noopener" target="_blank">
+<i class="fa-solid fa-gamepad text-xl"></i>
+<span class="">Apri la web-app →</span>
+</a>
+</div>
+<!-- Middle Column: Smartphone Mockup with Interactive Floating Bob -->
+<div class="reveal-on-scroll lg:col-span-3 flex justify-center revealed" style="transition-delay: 150ms;">
+<div class="animate-bob relative w-64 h-[490px] bg-gray-900 rounded-[42px] p-3 shadow-phone border-4 border-gray-700/80 hover:scale-105 transition-transform duration-300">
+<!-- Camera Notch -->
+<div class="absolute top-5 left-1/2 -translate-x-1/2 w-24 h-4 bg-gray-800 rounded-full z-20"></div>
+<!-- Screen Container -->
+<div class="w-full h-full bg-brand-purple-dark rounded-[32px] overflow-hidden flex flex-col p-4 pt-8 text-center border border-white/10 relative">
+<!-- App Header -->
+<div class="text-2xl font-titan text-brand-green tracking-wider mt-1">MOVAT</div>
+<div class="text-[10px] uppercase font-black text-purple-300 tracking-widest mb-3">DIGITAL COMPANION</div>
+<!-- Center App Card Graphic -->
+<div class="bg-gradient-to-b from-brand-green/30 to-brand-green/10 rounded-2xl p-3 border border-brand-green/30 my-auto cursor-pointer hover:scale-105 transition-transform">
+<i class="fa-solid fa-truck-fast text-4xl text-lime-300 mb-2"></i>
+<div class="text-xs font-black text-white">SUONI E MODALITÀ</div>
+<div class="text-[10px] text-purple-200 font-semibold">Tocca per avviare il timer</div>
+</div>
+<!-- Mini App Navigation Buttons -->
+<div class="space-y-2 mb-2">
+<div class="bg-brand-green text-white py-2 px-3 rounded-xl text-xs font-black flex items-center justify-between hover:brightness-110 transition cursor-pointer">
+<span class=""><i class="fa-solid fa-music mr-1.5"></i> Ascolta Frasi</span>
+<i class="fa-solid fa-play text-[10px]"></i>
+</div>
+<div class="bg-brand-red text-white py-2 px-3 rounded-xl text-xs font-black flex items-center justify-between hover:brightness-110 transition cursor-pointer">
+<span class=""><i class="fa-solid fa-flag mr-1.5"></i> Modalità</span>
+<i class="fa-solid fa-chevron-right text-[10px]"></i>
+</div>
+<div class="bg-brand-blue text-white py-2 px-3 rounded-xl text-xs font-black flex items-center justify-between hover:brightness-110 transition cursor-pointer">
+<span class=""><i class="fa-solid fa-gear mr-1.5"></i> Crea Partita</span>
+<i class="fa-solid fa-plus text-[10px]"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Interactive App Feature Pills -->
+<div class="reveal-on-scroll lg:col-span-4 space-y-4 revealed" style="transition-delay: 250ms;">
+<!-- Feature 1 -->
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex items-center gap-4 hover:bg-white/20 hover:scale-[1.02] transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-music"></i>
+</div>
+<div>
+<h4 class="font-titan text-base text-white">Ascolta</h4>
+<p class="text-xs font-bold text-purple-200">Suoni, clacson e musiche dal mondo delle consegne.</p>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex items-center gap-4 hover:bg-white/20 hover:scale-[1.02] transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-brand-red text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-flag"></i>
+</div>
+<div>
+<h4 class="font-titan text-base text-white">Modalità</h4>
+<p class="text-xs font-bold text-purple-200">Scopri nuove sfide e varianti della community.</p>
+</div>
+</div>
+<!-- Feature 3 -->
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex items-center gap-4 hover:bg-white/20 hover:scale-[1.02] transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-brand-blue text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-gear"></i>
+</div>
+<div>
+<h4 class="font-titan text-base text-white">Crea</h4>
+<p class="text-xs font-bold text-purple-200">Costruisci le tue partite personalizzate e regole custom.</p>
+</div>
+</div>
+<!-- Feature 4 -->
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex items-center gap-4 hover:bg-white/20 hover:scale-[1.02] transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+<i class="fa-solid fa-users"></i>
+</div>
+<div>
+<h4 class="font-titan text-base text-white">Le mie partite</h4>
+<p class="text-xs font-bold text-purple-200">Salva e ritrova tutte le tue configurazioni preferite.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: WebAppSection -->
+<!-- BEGIN: DownloadsSection -->
+<section class="py-20 bg-brand-cream" data-purpose="downloads-resources">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="reveal-on-scroll text-center max-w-3xl mx-auto mb-16 revealed">
+<h2 class="text-4xl sm:text-5xl font-titan text-gray-900 tracking-tight">Approfondisci MOVAT!</h2>
+<p class="text-lg font-bold text-gray-600 mt-2">
+            Scarica i materiali e scopri tutte le regole e le modalità di gioco per le tue serate.
+          </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+<!-- Download Card 1: Regolamento -->
+<div class="reveal-on-scroll bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:shadow-card-lift transition-all revealed">
+<div class="flex items-start gap-5">
+<div class="w-16 h-16 rounded-2xl bg-red-50 text-brand-red flex flex-col items-center justify-center font-black flex-shrink-0 border border-red-200">
+<i class="fa-solid fa-file-pdf text-2xl"></i>
+<span class="text-[10px] mt-0.5">PDF</span>
+</div>
+<div>
+<h3 class="text-2xl font-titan text-gray-900 mb-2">Regolamento</h3>
+<p class="text-sm font-bold text-gray-600">
+                  Tutto quello che ti serve per iniziare a giocare a MOVAT, spiegato passo dopo passo con esempi illustrati.
+                </p>
+</div>
+</div>
+<div class="mt-8">
+<a class="btn-bounce-hover w-full inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-extrabold text-sm shadow-comic hover:shadow-comic-hover" href="#">
+<i class="fa-solid fa-download"></i>
+<span class="">Scarica il regolamento · PDF</span>
+</a>
+</div>
+</div>
+<!-- Download Card 2: Foglio Modalità -->
+<div class="reveal-on-scroll bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:shadow-card-lift transition-all revealed" style="transition-delay: 150ms;">
+<div class="flex items-start gap-5">
+<div class="w-16 h-16 rounded-2xl bg-red-50 text-brand-red flex flex-col items-center justify-center font-black flex-shrink-0 border border-red-200">
+<i class="fa-solid fa-file-lines text-2xl"></i>
+<span class="text-[10px] mt-0.5">PDF</span>
+</div>
+<div>
+<h3 class="text-2xl font-titan text-gray-900 mb-2">Foglio delle modalità</h3>
+<p class="text-sm font-bold text-gray-600">
+                  Un pratico riepilogo di tutte le modalità di gioco, setup delle carte e varianti speciali per gruppi numerosi.
+                </p>
+</div>
+</div>
+<div class="mt-8">
+<a class="btn-bounce-hover w-full inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-extrabold text-sm shadow-comic hover:shadow-comic-hover" href="#">
+<i class="fa-solid fa-download"></i>
+<span class="">Scarica il foglio delle modalità</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: DownloadsSection -->
+<!-- BEGIN: StoreLocatorSection -->
+<section class="py-20 bg-brand-green-light border-t border-green-200/60" data-purpose="retail-store-locator" id="dove-trovarlo">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="reveal-on-scroll text-center max-w-3xl mx-auto mb-14 revealed">
+<div class="inline-flex items-center justify-center gap-2 mb-2">
+<i class="fa-solid fa-map-location-dot text-brand-green text-3xl"></i>
+<h2 class="text-4xl sm:text-5xl font-titan text-gray-900 tracking-tight">Dove trovare MOVAT</h2>
+</div>
+<p class="text-lg font-bold text-gray-600 mt-2">
+            Trova il negozio più vicino a te e parti anche tu per una nuova avventura!
+          </p>
+</div>
+<!-- Store Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Store 1 -->
+<div class="reveal-on-scroll bg-white rounded-3xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow revealed">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-2xl bg-brand-blue-light text-brand-blue flex items-center justify-center text-xl">
+<i class="fa-solid fa-store"></i>
+</div>
+<div>
+<h4 class="font-titan text-lg text-gray-900">Giochi &amp; Fantasia</h4>
+<p class="text-xs font-bold text-gray-500">Milano · MI</p>
+</div>
+</div>
+<p class="text-sm font-semibold text-gray-600 mb-6">
+              Corso Buenos Aires 45, Milano
+            </p>
+<a class="btn-bounce-hover w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-brand-green hover:text-white text-gray-700 font-extrabold text-xs transition-colors" href="https://maps.google.com" rel="noopener" target="_blank">
+<i class="fa-solid fa-location-arrow"></i>
+<span class="">Indicazioni stradali</span>
+</a>
+</div>
+<!-- Store 2 -->
+<div class="reveal-on-scroll bg-white rounded-3xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow revealed" style="transition-delay: 120ms;">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-2xl bg-brand-blue-light text-brand-blue flex items-center justify-center text-xl">
+<i class="fa-solid fa-store"></i>
+</div>
+<div>
+<h4 class="font-titan text-lg text-gray-900">L'Isola del Gioco</h4>
+<p class="text-xs font-bold text-gray-500">Bologna · BO</p>
+</div>
+</div>
+<p class="text-sm font-semibold text-gray-600 mb-6">
+              Via dell'Indipendenza 12, Bologna
+            </p>
+<a class="btn-bounce-hover w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-brand-green hover:text-white text-gray-700 font-extrabold text-xs transition-colors" href="https://maps.google.com" rel="noopener" target="_blank">
+<i class="fa-solid fa-location-arrow"></i>
+<span class="">Indicazioni stradali</span>
+</a>
+</div>
+<!-- Store 3 -->
+<div class="reveal-on-scroll bg-white rounded-3xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow revealed" style="transition-delay: 240ms;">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-2xl bg-brand-blue-light text-brand-blue flex items-center justify-center text-xl">
+<i class="fa-solid fa-store"></i>
+</div>
+<div>
+<h4 class="font-titan text-lg text-gray-900">Tabaccheria &amp; Svago</h4>
+<p class="text-xs font-bold text-gray-500">Verona · VR</p>
+</div>
+</div>
+<p class="text-sm font-semibold text-gray-600 mb-6">
+              Piazza Bra 8, Verona
+            </p>
+<a class="btn-bounce-hover w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-brand-green hover:text-white text-gray-700 font-extrabold text-xs transition-colors" href="https://maps.google.com" rel="noopener" target="_blank">
+<i class="fa-solid fa-location-arrow"></i>
+<span class="">Indicazioni stradali</span>
+</a>
+</div>
+</div>
+<!-- Call to retail partners -->
+<div class="reveal-on-scroll text-center font-bold text-gray-700 revealed">
+<span class="">Sei un rivenditore o vuoi proporre MOVAT nel tuo negozio? </span>
+<a class="text-brand-green-dark hover:underline font-extrabold ml-1" href="#contatti">Contattaci subito →</a>
+</div>
+</div>
+</section>
+<!-- END: StoreLocatorSection -->
+<!-- BEGIN: FAQSection -->
+<section class="py-20 bg-brand-cream border-t border-gray-200/60" data-purpose="faq-accordion" id="faq">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="reveal-on-scroll text-center max-w-2xl mx-auto mb-14 revealed">
+<div class="inline-flex items-center justify-center gap-2 mb-2">
+<i class="fa-solid fa-comments text-brand-green text-3xl"></i>
+<h2 class="text-4xl sm:text-5xl font-titan text-gray-900 tracking-tight">Domande frequenti</h2>
+</div>
+<p class="text-base sm:text-lg font-bold text-gray-600">
+            Qui trovi le risposte alle domande più comuni su MOVAT.
+          </p>
+</div>
+<!-- Dynamic Smooth Animated FAQ Accordion -->
+<div class="space-y-4" id="faq-accordion-container">
+<!-- FAQ 1 -->
+<div class="faq-item group bg-white rounded-2xl border border-gray-200 p-5 shadow-sm transition-all" data-faq-index="1">
+<button aria-controls="faq-content-1" aria-expanded="false" class="faq-toggle w-full flex items-center justify-between text-left font-extrabold text-gray-900 text-lg select-none focus:outline-none">
+<span class="">Che tipo di gioco è MOVAT?</span>
+<span class="faq-icon-rotator w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0 ml-4">
+<i class="fa-solid fa-plus"></i>
+</span>
+</button>
+<div class="faq-answer-grid" id="faq-content-1">
+<div class="faq-answer-inner">
+<p class="mt-4 text-gray-600 font-semibold leading-relaxed border-t border-gray-100 pt-3">
+                MOVAT è un gioco da tavolo con carte vivace e scattante per 2-6 giocatori, ispirato al mondo dei camionisti, delle merci e delle consegne. Unisce tattica immediata, colpi bassi con le carte speciali e diverse modalità per divertire sia bambini dai 7 anni che adulti durante serate in famiglia o con amici.
+              </p>
+</div>
+</div>
+</div>
+<!-- FAQ 2 -->
+<div class="faq-item group bg-white rounded-2xl border border-gray-200 p-5 shadow-sm transition-all" data-faq-index="2">
+<button aria-controls="faq-content-2" aria-expanded="false" class="faq-toggle w-full flex items-center justify-between text-left font-extrabold text-gray-900 text-lg select-none focus:outline-none">
+<span class="">Lo smartphone serve obbligatoriamente per giocare?</span>
+<span class="faq-icon-rotator w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0 ml-4">
+<i class="fa-solid fa-plus"></i>
+</span>
+</button>
+<div class="faq-answer-grid" id="faq-content-2">
+<div class="faq-answer-inner">
+<p class="mt-4 text-gray-600 font-semibold leading-relaxed border-t border-gray-100 pt-3">
+                No, assolutamente! MOVAT è un gioco da tavolo 100% analogico e completamente autonomo con la sua scatola di carte e regolamento. La Web App è un compagno digitale gratuito aggiuntivo che arricchisce l'esperienza con suoni realistici, clacson, timer e modalità extra, ma non è richiesta per le partite.
+              </p>
+</div>
+</div>
+</div>
+<!-- FAQ 3 -->
+<div class="faq-item group bg-white rounded-2xl border border-gray-200 p-5 shadow-sm transition-all" data-faq-index="3">
+<button aria-controls="faq-content-3" aria-expanded="false" class="faq-toggle w-full flex items-center justify-between text-left font-extrabold text-gray-900 text-lg select-none focus:outline-none">
+<span class="">Le carte speciali sono sempre obbligatorie?</span>
+<span class="faq-icon-rotator w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0 ml-4">
+<i class="fa-solid fa-plus"></i>
+</span>
+</button>
+<div class="faq-answer-grid" id="faq-content-3">
+<div class="faq-answer-inner">
+<p class="mt-4 text-gray-600 font-semibold leading-relaxed border-t border-gray-100 pt-3">
+                Nelle prime partite con principianti o bambini piccoli puoi iniziare rimuovendo alcune carte speciali per un flusso più lineare. Quando il gruppo prende confidenza, reinserirle tutte regala ribaltamenti improvvisi, blocchi stradali e strategie divertenti per vincere all'ultimo metro!
+              </p>
+</div>
+</div>
+</div>
+<!-- FAQ 4 -->
+<div class="faq-item group bg-white rounded-2xl border border-gray-200 p-5 shadow-sm transition-all" data-faq-index="4">
+<button aria-controls="faq-content-4" aria-expanded="false" class="faq-toggle w-full flex items-center justify-between text-left font-extrabold text-gray-900 text-lg select-none focus:outline-none">
+<span class="">La web app è gratuita?</span>
+<span class="faq-icon-rotator w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0 ml-4">
+<i class="fa-solid fa-plus"></i>
+</span>
+</button>
+<div class="faq-answer-grid" id="faq-content-4">
+<div class="faq-answer-inner">
+<p class="mt-4 text-gray-600 font-semibold leading-relaxed border-t border-gray-100 pt-3">
+                Sì! L'applicazione web è al 100% gratuita per tutti gli acquirenti del gioco e appassionati. Funziona direttamente da qualsiasi browser su smartphone, tablet o PC senza bisogno di scaricare app dagli store o sottoscrivere abbonamenti.
+              </p>
+</div>
+</div>
+</div>
+<!-- FAQ 5 -->
+<div class="faq-item group bg-white rounded-2xl border border-gray-200 p-5 shadow-sm transition-all" data-faq-index="5">
+<button aria-controls="faq-content-5" aria-expanded="false" class="faq-toggle w-full flex items-center justify-between text-left font-extrabold text-gray-900 text-lg select-none focus:outline-none">
+<span class="">Come posso proporre una nuova modalità o una carta?</span>
+<span class="faq-icon-rotator w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm font-bold flex-shrink-0 ml-4">
+<i class="fa-solid fa-plus"></i>
+</span>
+</button>
+<div class="faq-answer-grid" id="faq-content-5">
+<div class="faq-answer-inner">
+<p class="mt-4 text-gray-600 font-semibold leading-relaxed border-t border-gray-100 pt-3">
+                All'interno della nostra Web App trovi la sezione 'Crea Partita' e lo spazio community: puoi inventare nuove regole, percorsi personalizzati e proporre carte originali. La community vota le proposte migliori e le più divertenti vengono incluse nei futuri aggiornamenti ed espansioni fisiche!
+              </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: FAQSection -->
+</main>
+<!-- BEGIN: MainFooter -->
+<footer class="bg-[#2e6b1b] text-white pt-16 pb-12 relative overflow-hidden" data-purpose="site-footer" id="contatti">
+<!-- Top Decorative Forest Landscape Silhouette -->
+<div class="absolute top-0 inset-x-0 h-4 bg-brand-green"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<!-- Top Row with Logo and Nav Links -->
+<div class="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/20 text-center md:text-left">
+<div>
+<div class="text-4xl font-titan tracking-wider text-white">MOVAT</div>
+<p class="text-sm font-bold text-lime-200 mt-1">
+            Carte, camion e consegne per mille avventure!
+          </p>
+</div>
+<!-- Footer Navigation Links -->
+<nav class="flex flex-wrap justify-center gap-6 text-sm font-bold text-white/90">
+<a class="hover:text-lime-300 transition-colors" href="#hero">Il gioco</a>
+<a class="hover:text-lime-300 transition-colors" href="#come-si-gioca">Come si gioca</a>
+<a class="hover:text-lime-300 transition-colors" href="#web-app">Web App</a>
+<a class="hover:text-lime-300 transition-colors" href="#dove-trovarlo">Dove trovarlo</a>
+<a class="hover:text-lime-300 transition-colors" href="#faq">FAQ</a>
+</nav>
+<!-- Social Icons -->
+<div class="flex items-center gap-4 text-xl">
+<a aria-label="Instagram" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" href="https://instagram.com" rel="noopener" target="_blank">
+<i class="fa-brands fa-instagram"></i>
+</a>
+<a aria-label="YouTube" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" href="https://youtube.com" rel="noopener" target="_blank">
+<i class="fa-brands fa-youtube"></i>
+</a>
+</div>
+</div>
+<!-- Bottom Row with Copyright and Legal -->
+<div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs font-semibold text-white/70 gap-4">
+<div class="">
+          © 2024 MOVAT. Tutti i diritti riservati.
+        </div>
+<div class="flex items-center gap-6">
+<a class="hover:text-white transition-colors" href="#">Privacy</a>
+<a class="hover:text-white transition-colors" href="#">Cookie</a>
+<a class="hover:text-white transition-colors" href="#">Contatti</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- END: MainFooter -->
+<!-- BEGIN: Dynamic Accordion & Scroll Reveal Scripts -->
+<script data-purpose="dynamic-interactions">
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Fluid Animated Accordion with JavaScript
+      const faqItems = document.querySelectorAll('.faq-item');
+      
+      faqItems.forEach((item) => {
+        const toggleBtn = item.querySelector('.faq-toggle');
+        const contentGrid = item.querySelector('.faq-answer-grid');
+        
+        toggleBtn.addEventListener('click', () => {
+          const isCurrentlyActive = item.classList.contains('active');
+          
+          // Collapse other open FAQs for a clean accordion experience
+          faqItems.forEach((other) => {
+            if (other !== item && other.classList.contains('active')) {
+              other.classList.remove('active');
+              other.querySelector('.faq-answer-grid').classList.remove('open');
+              other.querySelector('.faq-toggle').setAttribute('aria-expanded', 'false');
+            }
+          });
+          
+          // Toggle current
+          if (isCurrentlyActive) {
+            item.classList.remove('active');
+            contentGrid.classList.remove('open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+          } else {
+            item.classList.add('active');
+            contentGrid.classList.add('open');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      // 2. Smooth Scroll Reveal with IntersectionObserver & Fallback
+      const revealElements = document.querySelectorAll('.reveal-on-scroll');
+      
+      if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.12,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+      } else {
+        // Fallback for older browsers
+        revealElements.forEach(el => el.classList.add('revealed'));
+      }
+    });
+  </script>
+<!-- END: Dynamic Accordion & Scroll Reveal Scripts -->
+
+
+
+
+</body></html>
