@@ -71,8 +71,8 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 - **Voti:** per ogni modalità e carta dei giocatori: media, voti validi, **distribuzione delle stelle**, nuovi voti degli ultimi 30 giorni e **segnali da verificare** (picchi, raffiche, più voti dalla stessa rete, voti cambiati spesso). Puoi **escludere** un voto dalla media indicando il motivo e **ripristinarlo**, e **sospendere/riattivare** le votazioni di un contenuto. I voti dimostrativi si eliminano in un colpo.
 - **Messaggi:** domande e segnalazioni inviate dal modulo contatti dell'app, visibili solo nel CMS (con stato, note interne e risposta dalla tua posta).
 - **FAQ:** domande e risposte, categorie (anche da rinominare) e ordine.
-  - Una FAQ collegata a una carta compare anche nel box *Dubbi su questa carta*, quando si apre la carta nell'app.
-  - Puoi scegliere se mostrarla **nella lista FAQ e sulla carta** oppure **solo sulla carta**.
+  - Una FAQ può essere collegata a **una o più carte**: compare nel box *Dubbi su questa carta* di ognuna, quando si apre la carta nell'app.
+  - Puoi scegliere se mostrarla **nella lista FAQ e sulle carte** oppure **solo sulle carte**.
   - In fondo alle FAQ c'è il box **“Non trovi la risposta? Contattaci!”**: apre l'app di posta con destinatario e oggetto già compilati. Testo, email e oggetto si cambiano in *Testi e impostazioni*.
 - **Testi e impostazioni:** (compreso il **logo Busa** in fondo alla Home)
   - frase di benvenuto, testi sotto le 4 voci del menu in Home, footer, formato delle carte e informativa privacy;

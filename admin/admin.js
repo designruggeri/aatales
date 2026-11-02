@@ -68,6 +68,8 @@
     });
   }
   const cardById = (id) => DATA.cards.find((c) => c.id === id);
+  // Carte citate da una FAQ (una FAQ può riguardare più carte).
+  const faqCards = (f) => (Array.isArray(f.cardIds) ? f.cardIds : f.cardId ? [f.cardId] : []);
   const sortedCards = () => [...DATA.cards].sort((a, b) => a.number - b.number);
   const modeTotal = (m) => Object.values(m.cards || {}).reduce((a, b) => a + b, 0);
   function cardArt(c) {
@@ -317,7 +319,7 @@
           </div>
           ${usedIn.length ? `<div class="notice">${icon('info')}<span>Usata in ${usedIn.length} modalità: ${usedIn.map((m) => `<a href="#/modalita/${esc(m.id)}">${esc(m.title)}</a>`).join(', ')}.</span></div>` : ''}
           ${isNew ? '' : `<div class="panel" style="margin-top:16px"><div class="panel-head"><h2>FAQ di questa carta</h2><a class="btn secondary sm" href="#/faq/nuova?carta=${esc(c.id)}">${icon('add')}Nuova FAQ</a></div>
-            ${(() => { const fq = DATA.faq.filter((f) => f.cardId === c.id); return fq.length
+            ${(() => { const fq = DATA.faq.filter((f) => faqCards(f).includes(c.id)); return fq.length
               ? fq.map((f) => `<p style="margin-top:6px"><a href="#/faq/${esc(f.id)}"><b>${esc(f.q)}</b></a> ${f.showInList === false ? '<span class="badge">Solo sulla carta</span>' : '<span class="badge">Anche nella lista FAQ</span>'}</p>`).join('')
               : '<p class="muted">Nessuna FAQ collegata. Quelle che crei compaiono nell’app sotto la carta.</p>'; })()}</div>`}
         </div>
@@ -1163,8 +1165,8 @@
         <a class="btn" href="#/faq/nuova">${icon('add')}Nuova domanda</a></div>
       <div class="panel"><div class="panel-head"><h2>Domande</h2><span class="muted small">Usa le frecce per cambiare l’ordine.</span></div>
         <div class="table-wrap"><table><thead><tr><th>Domanda</th><th>Categoria</th><th>Carta</th><th>Ordine</th></tr></thead><tbody>
-        ${faq.map((f, i) => `<tr><td><a href="#/faq/${esc(f.id)}" class="title" style="text-decoration:none;color:inherit">${esc(f.q)}</a> ${f.demo || /segnaposto/i.test(f.q) ? '<span class="badge demo">Segnaposto</span>' : ''} ${f.cardId && f.showInList === false ? `<span class="badge" title="Non compare nella lista FAQ">${icon('style')}Solo sulla carta</span>` : ''}</td>
-          <td><span class="badge">${esc(f.category)}</span></td><td class="small">${f.cardId ? esc(cardById(f.cardId)?.name || '') : '<span class="muted">—</span>'}</td>
+        ${faq.map((f, i) => `<tr><td><a href="#/faq/${esc(f.id)}" class="title" style="text-decoration:none;color:inherit">${esc(f.q)}</a> ${f.demo || /segnaposto/i.test(f.q) ? '<span class="badge demo">Segnaposto</span>' : ''} ${faqCards(f).length && f.showInList === false ? `<span class="badge" title="Non compare nella lista FAQ">${icon('style')}Solo sulle carte</span>` : ''}</td>
+          <td><span class="badge">${esc(f.category)}</span></td><td class="small">${(() => { const n = faqCards(f).map((id) => cardById(id)?.name).filter(Boolean); return n.length ? esc(n.slice(0, 3).join(', ')) + (n.length > 3 ? ` <span class="muted">+${n.length - 3}</span>` : '') : '<span class="muted">—</span>'; })()}</td>
           <td><div class="row" style="flex-wrap:nowrap"><button class="btn secondary sm icon" data-move="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="Sposta su">${icon('arrow_upward')}</button>
             <button class="btn secondary sm icon" data-move="${i}" data-d="1" ${i < faq.length - 1 ? '' : 'disabled'} aria-label="Sposta giù">${icon('arrow_downward')}</button>
             <a class="btn ghost sm icon" href="#/faq/${esc(f.id)}" aria-label="Modifica">${icon('edit')}</a></div></td></tr>`).join('') || '<tr><td colspan="4" class="empty">Nessuna domanda.</td></tr>'}
@@ -1198,8 +1200,10 @@
 
   function viewFaqItem($m, id) {
     const isNew = id === 'nuova';
-    const f = isNew ? { q: '', a: [], category: DATA.faqCategories[0], cardId: new URLSearchParams(location.hash.split('?')[1] || '').get('carta') || '', showInList: true, actionLabel: '', actionHref: '' } : DATA.faq.find((x) => x.id === id);
+    const fromCard = new URLSearchParams(location.hash.split('?')[1] || '').get('carta');
+    const f = isNew ? { q: '', a: [], category: DATA.faqCategories[0], cardIds: fromCard && cardById(fromCard) ? [fromCard] : [], showInList: true } : DATA.faq.find((x) => x.id === id);
     if (!f) { $m.innerHTML = `<p class="empty">Domanda non trovata. <a href="#/faq">Torna alle FAQ</a></p>`; return; }
+    let picked = faqCards(f).filter((cid) => cardById(cid));
     $m.innerHTML = `
       <a class="crumb" href="#/faq">${icon('arrow_back')}FAQ</a>
       <div class="page-head"><h1>${isNew ? 'Nuova domanda' : 'Modifica domanda'}</h1></div>
@@ -1207,16 +1211,15 @@
         <div class="field"><label for="q">Domanda</label><input id="q" name="q" type="text" maxlength="300" value="${esc(f.q)}" required></div>
         <div class="field"><label for="a">Risposta</label><textarea id="a" name="a" rows="7">${esc(f.a.join('\n\n'))}</textarea>
           <p class="help">Lascia una riga vuota per iniziare un nuovo paragrafo. Meglio paragrafi brevi, da leggere durante la partita.</p></div>
-        <div class="grid-2">
-          <div class="field"><label for="category">Categoria</label><select id="category" name="category">${DATA.faqCategories.map((c) => `<option ${c === f.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
-          <div class="field"><label for="cardId">Carta citata <span class="opt">(facoltativa)</span></label><select id="cardId" name="cardId"><option value="">Nessuna</option>
-            ${sortedCards().map((c) => `<option value="${esc(c.id)}" ${c.id === f.cardId ? 'selected' : ''}>#${pad2(c.number)} ${esc(c.name)}</option>`).join('')}</select>
-            <p class="help">La risposta compare anche quando si apre la carta nell’app.</p></div>
-        </div>
-        <fieldset class="field" id="vis" ${f.cardId ? '' : 'hidden'} style="border:0;padding:0;margin:0">
+        <div class="field" style="max-width:360px"><label for="category">Categoria</label><select id="category" name="category">${DATA.faqCategories.map((c) => `<option ${c === f.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
+        <div class="field"><span class="label">Carte citate <span class="opt">(facoltative, anche più di una)</span></span>
+          <div class="card-picks" id="picks"></div>
+          <select id="add-card" aria-label="Aggiungi una carta" style="max-width:360px;margin-top:8px"></select>
+          <p class="help">La risposta compare anche quando si apre ognuna di queste carte nell’app, nel box “Dubbi su questa carta”.</p></div>
+        <fieldset class="field" id="vis" ${picked.length ? '' : 'hidden'} style="border:0;padding:0;margin:0">
           <legend class="label">Dove mostrarla</legend>
-          <label class="check"><input type="radio" name="showInList" value="true" ${f.showInList !== false ? 'checked' : ''}>Nella lista FAQ e sulla carta</label>
-          <label class="check" style="margin-top:6px"><input type="radio" name="showInList" value="false" ${f.showInList === false ? 'checked' : ''}>Solo sulla carta</label>
+          <label class="check"><input type="radio" name="showInList" value="true" ${f.showInList !== false ? 'checked' : ''}>Nella lista FAQ e sulle carte</label>
+          <label class="check" style="margin-top:6px"><input type="radio" name="showInList" value="false" ${f.showInList === false ? 'checked' : ''}>Solo sulle carte</label>
         </fieldset>
         <div class="row">
           <button class="btn" type="submit">${icon('save')}${isNew ? 'Crea la domanda' : 'Salva le modifiche'}</button>
@@ -1225,10 +1228,26 @@
         </div>
       </form>`;
     const $f = document.getElementById('f'); watchDirty($f);
-    document.getElementById('cardId').addEventListener('change', (e) => { document.getElementById('vis').hidden = !e.target.value; });
+    // Scelta di più carte: etichette rimovibili + menu per aggiungerne altre.
+    const drawPicks = () => {
+      const cards = picked.map(cardById).filter(Boolean).sort((a, b) => a.number - b.number);
+      document.getElementById('picks').innerHTML = cards.length
+        ? cards.map((c) => `<span class="card-pick"><span class="thumb" style="width:26px">${cardArt(c)}</span>#${pad2(c.number)} ${esc(c.name)}<button type="button" class="btn secondary icon sm" data-unpick="${esc(c.id)}" aria-label="Togli ${esc(c.name)}">${icon('close')}</button></span>`).join('')
+        : '<span class="muted small">Nessuna carta: la FAQ compare solo nella lista.</span>';
+      document.getElementById('add-card').innerHTML = '<option value="">+ Aggiungi una carta…</option>' +
+        sortedCards().filter((c) => !picked.includes(c.id)).map((c) => `<option value="${esc(c.id)}">#${pad2(c.number)} ${esc(c.name)}</option>`).join('');
+      document.getElementById('vis').hidden = !cards.length;
+    };
+    drawPicks();
+    document.getElementById('add-card').addEventListener('change', (e) => { if (e.target.value) { picked.push(e.target.value); dirty = true; drawPicks(); } });
+    document.getElementById('picks').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-unpick]'); if (!b) return;
+      picked = picked.filter((cid) => cid !== b.dataset.unpick); dirty = true; drawPicks();
+    });
     $f.onsubmit = async (e) => {
       e.preventDefault();
       const v = Object.fromEntries(new FormData($f));
+      v.cardIds = picked;
       v.showInList = v.showInList !== 'false';
       if (!v.q.trim() || !v.a.trim()) return toast('Domanda e risposta sono obbligatorie', true);
       const r = await act(e.submitter, () => (isNew ? api('POST', 'faq', v) : api('PUT', 'faq/' + f.id, v)), isNew ? 'Domanda creata' : 'Modifiche salvate');

@@ -270,3 +270,9 @@ tr.excluded td:last-child, tr.excluded td:nth-last-child(2) { opacity: 1; }
 .aud-note { grid-area: note; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .aud-note:empty { display: none; }
 @media (max-width: 800px) { .aud-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "file drop" "audio audio" "card card" "note note"; } }
+
+/* FAQ: carte citate */
+.card-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.card-pick { display: inline-flex; align-items: center; gap: 8px; padding: 4px 4px 4px 8px; border: 1px solid var(--stroke); border-radius: 999px; background: #fff; font-weight: 700; font-size: 14px; }
+.card-pick .thumb { flex: none; }
+.card-pick .btn.icon.sm { width: 28px; min-height: 28px; border-radius: 50%; }

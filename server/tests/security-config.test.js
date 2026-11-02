@@ -89,7 +89,7 @@ async function post(base, url, body, headers = {}, cookie) {
     const B = 'http://localhost:8914';
     const p = await start(8914, dir, {}, { fresh: false });
     const db = JSON.parse(fs.readFileSync(path.join(dir, 'db.json'), 'utf8'));
-    check('Migrazione: versione 2, messaggi e impostazioni aggiunti', db.version === 2 && Array.isArray(db.messages) && db.settings.proposalsPerDay === 3 && db.settings.rankMinVotes === 5);
+    check('Migrazione: versione 3, messaggi e impostazioni aggiunti', db.version === 3 && Array.isArray(db.messages) && db.settings.proposalsPerDay === 3 && db.settings.rankMinVotes === 5);
     check('Migrazione: codici dispositivo sostituiti da impronte, doppioni rimossi', !JSON.stringify(db).includes('dabc123xyz') && db.votes.filter((v) => v.voter && v.voter.startsWith('legacy-') && v.modeId === m0).length === 1 && db.votes.find((v) => v.voter.startsWith('legacy-') && v.modeId === m0).value === 5);
     check('Migrazione: ogni voto ha un solo record per browser e contenuto', new Set(db.votes.map((v) => (v.cardId ? 'c' + v.cardId : 'm' + v.modeId) + v.voter)).size === db.votes.length);
     const c = await (await fetch(B + '/api/content')).json();

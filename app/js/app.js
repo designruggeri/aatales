@@ -57,6 +57,8 @@
     set(k, v) { try { localStorage.setItem('movat:' + k, JSON.stringify(v)); } catch { /* storage non disponibile */ } },
     del(k) { try { localStorage.removeItem('movat:' + k); } catch { /* */ } },
   };
+  // Carte citate da una FAQ (più carte; i dati dimostrativi usano ancora il campo singolo cardId).
+  const faqCards = (f) => (Array.isArray(f.cardIds) ? f.cardIds : f.cardId ? [f.cardId] : []);
   function highlight(text, q) {
     const t = esc(text); if (!q) return t;
     const i = norm(text).indexOf(norm(q));
@@ -361,7 +363,7 @@
     if (!card) return viewNotFound();
     const i = CARDS.indexOf(card);
     const prev = CARDS[i - 1], next = CARDS[i + 1];
-    const cardFaq = FAQ.filter((f) => f.cardId === card.id);
+    const cardFaq = FAQ.filter((f) => faqCards(f).includes(card.id));
     // Modalità pubblicate (dei giocatori e del team Busa) che usano questa carta, prima le più votate.
     const usedIn = MODES.filter((m) => m.cards[card.id]).sort(byRating);
     const back = buildHash('ascolta', { q: query.q });
@@ -2054,7 +2056,7 @@
       const n = norm(state.q);
       // Le FAQ marcate "solo sulla carta" compaiono nel dettaglio della carta, non qui.
       const list = FAQ.filter((f) => f.showInList !== false && (!state.cat || f.category === state.cat) && (!n ||
-        norm(f.q).includes(n) || f.a.some((p) => norm(p).includes(n)) || (f.cardId && norm(CARD[f.cardId]?.name).includes(n))));
+        norm(f.q).includes(n) || f.a.some((p) => norm(p).includes(n)) || faqCards(f).some((id) => norm(CARD[id]?.name).includes(n))));
       const $r = document.getElementById('results');
       if (!list.length) {
         $r.innerHTML = `<div class="empty">${icon('help')}<h3>Nessuna risposta trovata</h3>
@@ -2065,13 +2067,13 @@
       }
       $r.innerHTML = list.map((f) => {
         const open = state.open === f.id;
-        const card = f.cardId && CARD[f.cardId];
+        const cards = faqCards(f).map((id) => CARD[id]).filter(Boolean).sort((a, b) => a.number - b.number);
         return `<div class="faq-item ${open ? 'open' : ''}">
           <button class="faq-q" aria-expanded="${open}" aria-controls="a-${f.id}" data-faq="${f.id}">${highlight(f.q, state.q)}<span class="chev">${icon('expand_more')}</span></button>
           <div class="faq-a" id="a-${f.id}" ${open ? '' : 'hidden'}>
             <span class="cat">${esc(f.category)}</span>
             ${f.a.map((p) => `<p>${highlight(p, state.q)}</p>`).join('')}
-            ${card ? `<a class="faq-card-link" href="#/ascolta/${card.id}">${cardArt(card, { label: false })}<span><small>Carta citata · #${pad2(card.number)}</small><b>${esc(card.name)}</b></span>${icon('chevron_right')}</a>` : ''}
+            ${cards.map((card) => `<a class="faq-card-link" href="#/ascolta/${card.id}">${cardArt(card, { label: false })}<span><small>${cards.length > 1 ? 'Carte citate' : 'Carta citata'} · #${pad2(card.number)}</small><b>${esc(card.name)}</b></span>${icon('chevron_right')}</a>`).join('')}
           </div>
         </div>`;
       }).join('');

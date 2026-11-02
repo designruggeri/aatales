@@ -147,7 +147,7 @@ function seedFromDemo() {
         status: 'published', source: 'demo', createdAt: c.date + 'T10:00:00.000Z', publishedAt: c.date + 'T12:00:00.000Z', updatedAt: now() };
     }),
     faqCategories: [...w.MOVAT_FAQ_CATEGORIES],
-    faq: w.MOVAT_FAQ.map((f, i) => ({ id: f.id, category: f.category, q: f.q, a: f.a, cardId: f.cardId || '', showInList: f.showInList !== false, actionLabel: f.action?.label || '', actionHref: f.action?.href || '', order: i, demo: /segnaposto/i.test(f.q) })),
+    faq: w.MOVAT_FAQ.map((f, i) => ({ id: f.id, category: f.category, q: f.q, a: f.a, cardIds: f.cardIds || (f.cardId ? [f.cardId] : []), showInList: f.showInList !== false, actionLabel: f.action?.label || '', actionHref: f.action?.href || '', order: i, demo: /segnaposto/i.test(f.q) })),
   };
 }
 
@@ -171,6 +171,7 @@ function loadDb() {
 
 /*
  * Migrazione dei dati salvati con versioni precedenti (idempotente).
+ * v3: FAQ collegate a più carte (cardIds).
  * v2: voti legati all'impronta dell'identificativo anonimo del browser (campo "voter"), un solo voto
  *     per browser e contenuto, esclusioni dal CMS; messaggi dei contatti; notifiche email con verifica.
  */
@@ -198,11 +199,16 @@ function migrate(d) {
     if (!seen.has(k)) seen.set(k, v);
   }
   d.votes = d.votes.filter((v) => seen.get(voteKeyOf(v)) === v);
+  // v3: una FAQ può citare più carte (cardIds), al posto della singola cardId.
+  for (const f of d.faq || []) {
+    if (!Array.isArray(f.cardIds)) f.cardIds = f.cardId ? [f.cardId] : [];
+    delete f.cardId;
+  }
   for (const list of [d.modes, d.userCards]) for (const x of list) {
     if (!('votingSuspended' in x)) x.votingSuspended = false;
     if (!x.notify) x.notify = { status: 'none' };
   }
-  d.version = 2;
+  d.version = 3;
 }
 const clampInt = (v, lo, hi, def) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : def; };
 const voteTargetKey = (v) => (v.cardId ? 'card:' + v.cardId : 'mode:' + v.modeId);
@@ -482,7 +488,7 @@ function publicContent() {
     faqCategories: db.faqCategories,
     faq: [...db.faq].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((f) => ({
       // I pulsanti verso altre sezioni non vengono più mostrati (portavano fuori dalle FAQ).
-      id: f.id, category: f.category, q: f.q, a: f.a, cardId: f.cardId || undefined, showInList: f.cardId ? f.showInList !== false : true,
+      id: f.id, category: f.category, q: f.q, a: f.a, cardIds: f.cardIds?.length ? f.cardIds : undefined, showInList: f.cardIds?.length ? f.showInList !== false : true,
     })),
   };
 }
@@ -944,7 +950,7 @@ on('DELETE', '/api/admin/cards/:id', async (req, p) => {
   if (used.length && url.searchParams.get('force') !== '1') throw new HttpError(409, `La carta è usata in ${used.length} modalità: ${used.map((m) => m.title).join(', ')}`);
   db.cards = db.cards.filter((c) => c.id !== p.id);
   for (const m of used) delete m.cards[p.id];
-  db.faq.forEach((f) => { if (f.cardId === p.id) f.cardId = ''; });
+  db.faq.forEach((f) => { f.cardIds = (f.cardIds || []).filter((id) => id !== p.id); });
   await save(); return { ok: true };
 });
 
@@ -1065,10 +1071,13 @@ function faqFrom(b, existing = {}) {
   const a = (Array.isArray(b.a) ? b.a : String(b.a || '').split(/\n\s*\n/)).map((x) => str(x, 2000)).filter(Boolean);
   if (!a.length) throw new HttpError(422, 'La risposta è obbligatoria');
   const category = db.faqCategories.includes(b.category) ? b.category : db.faqCategories[0];
-  const cardId = db.cards.some((c) => c.id === b.cardId) ? b.cardId : '';
-  // Una FAQ collegata a una carta può comparire solo sulla carta, senza entrare nella lista FAQ.
-  const showInList = !cardId || !(b.showInList === false || b.showInList === 'false' || b.showInList === 'card');
-  return { ...existing, q: str(b.q, 300), a, category, cardId, showInList,
+  // Carte citate: solo carte esistenti, senza doppioni (accetta anche il vecchio campo singolo cardId).
+  const asked = Array.isArray(b.cardIds) ? b.cardIds : b.cardId ? [b.cardId] : [];
+  const cardIds = [...new Set(asked.map(String))].filter((id) => db.cards.some((c) => c.id === id)).slice(0, 50);
+  // Una FAQ collegata a carte può comparire solo sulle carte, senza entrare nella lista FAQ.
+  const showInList = !cardIds.length || !(b.showInList === false || b.showInList === 'false' || b.showInList === 'card');
+  const { cardId: _old, ...rest } = existing;
+  return { ...rest, q: str(b.q, 300), a, category, cardIds, showInList,
     actionLabel: str(b.actionLabel, 40), actionHref: str(b.actionHref, 300), demo: false };
 }
 on('POST', '/api/admin/faq', async (req) => {
