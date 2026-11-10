@@ -12,7 +12,7 @@
 .adm-head { position: relative; display: flex; align-items: center; gap: 16px; padding: 10px 22px; background: var(--busa-dark); color: #fff; min-height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 18px; z-index: 1; }
 .brand .truck { height: 40px; }
-.brand .logo { height: 36px; max-width: 140px; object-fit: contain; background: #fff; border-radius: 6px; padding: 2px 6px; }
+.brand .logo { height: 36px; max-width: 140px; object-fit: contain; }
 .lights { position: absolute; left: 260px; right: 380px; top: 0; height: 34px; }
 .lights ellipse { animation: twinkle 1.6s ease-in-out infinite alternate; }
 @keyframes twinkle { to { opacity: .45; } }
