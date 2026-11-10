@@ -184,4 +184,4 @@ Cosa coprono: invarianti su 1.000 cartelle; 90 numeri distinti e nessuna 91ª es
 
 **Facoltativo / non incluso**: lettura del QR della cartella con la fotocamera dentro l'app (richiede HTTPS: su HTTP locale usa la fotocamera del telefono con il prefisso del QR, oppure digita il codice); modalità di apertura sequenziale delle categorie; lotti in serie da sei con copertura 1–90; tombolino e decina; repertorio della smorfia; logo Busa vettoriale (da caricare dal CMS). La voce sintetica usa le voci installate nel sistema e può non essere disponibile offline su tutti i dispositivi.
 
-**Asset**: il camioncino Busa è quello già presente nel repository (`app/assets/img/camioncino.png`), con molla animata e cappello natalizio vettoriale; il pacco regalo è un disegno vettoriale con la scritta BUSA. Sostituibili.
+**Asset**: il camioncino Busa natalizio (con cappello) è in `assets/img/camioncino.png` e `client/src/assets/camioncino.png` (stesso file, usato da tabellone, CMS e PDF), con molla animata; il pacco regalo è un disegno vettoriale con la scritta BUSA. Sostituibili.

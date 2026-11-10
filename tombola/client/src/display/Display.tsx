@@ -335,7 +335,7 @@ function SidePanel({ pub, anims, drawAnim, christmas }: { pub: PublicState; anim
         {corner}
         <h2 className="panel-title big">Pausa</h2>
         {s.message && <p className="pause-msg">{s.message}</p>}
-        <Truck width={340} christmas={christmas} />
+        <Truck width={280} christmas={christmas} />
         <PrizeTable pub={pub} />
       </aside>
     );

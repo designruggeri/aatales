@@ -1,4 +1,4 @@
-// Decorazioni vettoriali (agrifoglio, cappello di Babbo Natale, pacco Busa). Tutte disattivabili dal CMS.
+// Decorazioni vettoriali (agrifoglio, pacco Busa) e camioncino Busa. Le decorazioni natalizie si disattivano dal CMS.
 import truck from '../assets/camioncino.png';
 
 export const TRUCK_SRC = truck;
@@ -16,23 +16,11 @@ export function Holly({ size = 64, style }: { size?: number; style?: React.CSSPr
   );
 }
 
-export function SantaHat({ size = 90, style }: { size?: number; style?: React.CSSProperties }) {
-  return (
-    <svg width={size} height={size * 0.8} viewBox="0 0 100 80" style={style} aria-hidden="true">
-      <path d="M12 60 C20 20 50 2 78 14 C90 20 92 34 86 44 L80 40 C76 30 66 28 60 34 L88 60 Z" fill="#d7262b" />
-      <path d="M40 18 C56 8 72 10 80 18" stroke="#ff6b5e" strokeWidth="4" fill="none" opacity=".5" />
-      <rect x="6" y="56" width="88" height="16" rx="8" fill="#fff" />
-      <circle cx="86" cy="46" r="10" fill="#fff" />
-    </svg>
-  );
-}
-
-/** Camioncino Busa (asset originale) con molla e, se attivo, cappello natalizio. */
-export function Truck({ width = 220, christmas, bounce = true }: { width?: number; christmas: boolean; bounce?: boolean }) {
+/** Camioncino Busa (asset originale, già con il cappello natalizio) con la molla animata. */
+export function Truck({ width = 220, bounce = true }: { width?: number; christmas?: boolean; bounce?: boolean }) {
   return (
     <div className={`truck-wrap ${bounce ? 'bounce' : ''}`} style={{ width, position: 'relative' }}>
       <img src={truck} alt="Camioncino Busa" style={{ width: '100%', display: 'block' }} draggable={false} />
-      {christmas && <SantaHat size={width * 0.36} style={{ position: 'absolute', left: width * 0.55, top: -width * 0.17, transform: 'rotate(14deg)' }} />}
     </div>
   );
 }

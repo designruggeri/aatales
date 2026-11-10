@@ -75,7 +75,7 @@ function drawCard(doc: PDFKit.PDFDocument, card: CardRow, ox: number, oy: number
 
   // Camioncino Busa (immagine originale) e titolo.
   const truckH = 15;
-  const truckW = truckH * (800 / 428);
+  const truckW = truckH * (2000 / 1467); // proporzioni di assets/img/camioncino.png
   if (fs.existsSync(TRUCK_PNG)) doc.image(TRUCK_PNG, X(s + 2), Y(hBottom - truckH - 2), { height: truckH * MM });
   const titleX = s + 2 + truckW + 2;
   doc.fillColor('#FFFFFF').font('black').fontSize(19).text(opt.title.toUpperCase(), X(titleX), Y(hTop + s + 2.2), { lineBreak: false });
@@ -153,7 +153,7 @@ function drawBack(doc: PDFKit.PDFDocument, ox: number, oy: number, opt: PdfOptio
       /* logo non leggibile: si stampa senza */
     }
   }
-  if (fs.existsSync(TRUCK_PNG)) doc.image(TRUCK_PNG, X(CARD_W / 2 - 28), Y(36), { width: 56 * MM });
+  if (fs.existsSync(TRUCK_PNG)) doc.image(TRUCK_PNG, X(CARD_W / 2 - 24), Y(33), { width: 48 * MM });
   doc.fillColor('#FFFFFF').font('black').fontSize(22).text(opt.title.toUpperCase(), X(0), Y(CARD_H - s - 16), { width: CARD_W * MM, align: 'center', lineBreak: false });
 }
 
