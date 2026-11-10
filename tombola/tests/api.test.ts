@@ -209,6 +209,27 @@ describe('PDF delle cartelle', () => {
     }
   });
 
+  it('lotto intero in A6: ogni pagina è un A6 con una cartella del lotto', async () => {
+    const batches = await (await adminFetch('/api/admin/batches')).json();
+    const t = batches.find((b: { prefix: string }) => b.prefix === 'T');
+    const r = await adminFetch('/api/admin/print', { method: 'POST', body: JSON.stringify({ format: 'a6', batchId: t.id }) });
+    expect(r.status).toBe(200);
+    const file = path.join(tmp(), 'lotto-a6.pdf');
+    fs.writeFileSync(file, Buffer.from(await r.arrayBuffer()));
+    const info = execFileSync('pdfinfo', ['-f', '1', '-l', String(t.count), file]).toString();
+    expect(info).toMatch(new RegExp(`Pages:\\s+${t.count}\\b`));
+    const sizes = [...info.matchAll(/Page\s+\d+ size:\s+([\d.]+) x ([\d.]+) pts/g)];
+    expect(sizes).toHaveLength(t.count);
+    for (const [, w, h] of sizes) {
+      expect(Number(w) / (72 / 25.4)).toBeCloseTo(148, 1);
+      expect(Number(h) / (72 / 25.4)).toBeCloseTo(105, 1);
+    }
+    ['T0001', 'T0002', 'T0003'].forEach((code, i) => {
+      const text = execFileSync('pdftotext', ['-f', String(i + 1), '-l', String(i + 1), file, '-']).toString();
+      expect(text).toContain(code);
+    });
+  });
+
   it('A4: quattro cartelle diverse per foglio, A4 orizzontale', async () => {
     const r = await adminFetch('/api/admin/print', { method: 'POST', body: JSON.stringify({ format: 'a4', spec: 'T0001-T0003', profile: { back: true, cropMarks: true } }) });
     expect(r.status).toBe(200);

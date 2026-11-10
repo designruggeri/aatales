@@ -359,7 +359,7 @@ export function createTombolaServer(opts: ServerOptions) {
         ids = r.ids;
       }
       if (!ids.length) return res.status(400).json({ error: 'Nessuna cartella da stampare' });
-      if (ids.length > 2000) return res.status(400).json({ error: 'Al massimo 2.000 cartelle per PDF' });
+      if (ids.length > MAX_PER_BATCH) return res.status(400).json({ error: 'Al massimo 9.999 cartelle per PDF' });
       const profile = sanitizeProfile({ ...getSetting<Partial<PrintProfile>>(db, 'printProfile', DEFAULT_PROFILE), ...(b.profile ?? {}) });
       const cards = getCardsByIds(db, ids);
       const br = engine.branding();

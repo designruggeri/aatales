@@ -674,20 +674,27 @@ export function CardsSection({ ctx }: { ctx: AdminCtx }) {
     api<CardRowView[]>(`/api/admin/cards?${p}`).then(setCards).catch(() => setCards([]));
   }, [q, filterBatch, ctx.version]);
 
-  const print = async (mark: boolean) => {
+  const print = async (mark: boolean, target?: { format: 'a6' | 'a4'; batchId: number; prefix: string }) => {
+    const fmt = target?.format ?? format;
     setBusy(true);
     try {
       const r = await fetch('/api/admin/print', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ format, spec: printSpec, batchId: printBatch || undefined, mark, profile }),
+        body: JSON.stringify({
+          format: fmt,
+          spec: target ? '' : printSpec,
+          batchId: target ? target.batchId : printBatch || undefined,
+          mark,
+          profile,
+        }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cartelle-${format}${mark ? '' : '-anteprima'}.pdf`;
+      a.download = `cartelle-${target ? `lotto-${target.prefix}-` : ''}${fmt}${mark ? '' : '-anteprima'}.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
       const re = Number(r.headers.get('x-reprints') ?? 0);
@@ -747,6 +754,28 @@ export function CardsSection({ ctx }: { ctx: AdminCtx }) {
                   <td>{b.printed}</td>
                   <td>{b.activeInGames}</td>
                   <td className="actions">
+                    {(['a6', 'a4'] as const).map((f) => (
+                      <button
+                        key={f}
+                        className="btn small"
+                        disabled={busy}
+                        title={f === 'a6' ? 'Ogni pagina è un A6 (148 × 105 mm) con una cartella' : 'Fogli A4 con 4 cartelle diverse'}
+                        onClick={async () => {
+                          const pages = f === 'a6' ? b.count : Math.ceil(b.count / 4);
+                          const ok = await ctx.confirm({
+                            title: `PDF ${f.toUpperCase()} del lotto ${b.prefix}`,
+                            body:
+                              f === 'a6'
+                                ? `${b.count} pagine A6 orizzontali (148 × 105 mm), una cartella per pagina, con il profilo di stampa salvato. La stampa viene registrata: le ristampe successive saranno segnalate.`
+                                : `${pages} fogli A4 con 4 cartelle diverse ciascuno, con il profilo di stampa salvato. La stampa viene registrata: le ristampe successive saranno segnalate.`,
+                            confirmLabel: 'Scarica PDF',
+                          });
+                          if (ok !== null) await print(true, { format: f, batchId: b.id, prefix: b.prefix });
+                        }}
+                      >
+                        PDF {f.toUpperCase()}
+                      </button>
+                    ))}
                     <a className="btn small ghost" href={`/api/admin/cards/export?batch=${b.id}&format=csv`}>
                       CSV
                     </a>
