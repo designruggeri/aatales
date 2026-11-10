@@ -42,7 +42,8 @@ button:disabled { cursor: not-allowed; }
 }
 .btn:hover:not(:disabled) { filter: brightness(1.06); }
 .btn:active:not(:disabled) { transform: scale(.98); }
-.btn:disabled { opacity: .45; }
+.btn:disabled, .btn.disabled { opacity: .45; }
+.btn.disabled { pointer-events: none; }
 .btn.secondary { background: #fff; color: var(--busa-dark); border-color: var(--busa); }
 .btn.ghost { background: transparent; color: var(--busa-dark); border-color: var(--line); }
 .btn.danger { background: var(--danger); }

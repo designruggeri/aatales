@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, newCommandId } from '../lib/live';
 import { CardGrid } from '../lib/ui';
+import { matchAudioFiles } from '../lib/audioNames';
 import {
   CATEGORIES,
   CATEGORY_LABEL,
@@ -947,12 +948,82 @@ export function NumbersSection({ ctx }: { ctx: AdminCtx }) {
   }, [ctx.version]);
   const shown = useMemo(() => rows.filter((r) => !filter || String(r.n) === filter || `${r.traditional} ${r.busaText} ${r.hostJoke}`.toLowerCase().includes(filter.toLowerCase())), [rows, filter]);
   const save = (r: NumberRow) => ctx.act(() => api(`/api/admin/numbers/${r.n}`, { method: 'PUT', json: r }));
+  const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
+
+  const bulkAudio = async (files: File[]) => {
+    const { matched, skipped } = matchAudioFiles(files);
+    const replaced = matched.filter((m) => rows.find((r) => r.n === m.n)?.audio).map((m) => m.n);
+    if (!matched.length) {
+      ctx.toast(`Nessun file riconosciuto. Usa nomi come 001.mp3 … 090.mp3${skipped.length ? ` (${skipped.length} scartati)` : ''}`, 'err');
+      return;
+    }
+    const ok = await ctx.confirm({
+      title: `Caricare ${matched.length} audio?`,
+      body: (
+        <>
+          <p>
+            Numeri riconosciuti: <b>{matched.map((m) => m.n).join(', ')}</b>
+          </p>
+          {replaced.length > 0 && (
+            <p>
+              Sostituiscono l'audio già presente per: <b>{replaced.join(', ')}</b>
+            </p>
+          )}
+          {skipped.length > 0 && (
+            <>
+              <p>File scartati ({skipped.length}):</p>
+              <ul>
+                {skipped.slice(0, 12).map((x) => (
+                  <li key={x.name}>
+                    {x.name} — {x.reason}
+                  </li>
+                ))}
+                {skipped.length > 12 && <li>… e altri {skipped.length - 12}</li>}
+              </ul>
+            </>
+          )}
+        </>
+      ),
+      confirmLabel: 'Carica',
+    });
+    if (ok === null) return;
+    const failed: string[] = [];
+    setBulk({ done: 0, total: matched.length });
+    for (const [i, m] of matched.entries()) {
+      try {
+        await upload(`/api/admin/numbers/${m.n}/audio`, m.file);
+      } catch (e) {
+        failed.push(`${m.file.name}: ${(e as Error).message}`);
+      }
+      setBulk({ done: i + 1, total: matched.length });
+    }
+    setBulk(null);
+    await ctx.reload();
+    if (failed.length) ctx.toast(`${matched.length - failed.length} audio caricati, ${failed.length} non riusciti: ${failed.slice(0, 3).join('; ')}`, 'err');
+    else ctx.toast(`${matched.length} audio caricati`);
+  };
+
   return (
     <Section
       title="Numeri e audio"
       actions={
         <div className="row-actions">
           <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Cerca numero o testo" />
+          <label className={`btn small ${bulk ? 'disabled' : ''}`} title="Seleziona più file: 001.mp3 … 090.mp3">
+            {bulk ? `Caricamento ${bulk.done}/${bulk.total}…` : 'Carica audio in blocco'}
+            <input
+              type="file"
+              accept=".mp3,.wav,.ogg,.m4a,audio/mpeg,audio/wav,audio/ogg,audio/mp4"
+              multiple
+              hidden
+              disabled={!!bulk}
+              onChange={(e) => {
+                const files = [...(e.target.files ?? [])];
+                e.target.value = '';
+                if (files.length) void bulkAudio(files);
+              }}
+            />
+          </label>
           <a className="btn small secondary" href="/api/admin/numbers-export">
             Esporta JSON
           </a>
@@ -977,7 +1048,7 @@ export function NumbersSection({ ctx }: { ctx: AdminCtx }) {
     >
       <div className="box">
         <p className="muted small">
-          <b>Tradizione</b>: significato tradizionale in italiano, precompilato dal documento “I numeri della tombola e il loro significato” fornito da Busa. <b>Testo Busa</b>: battuta inventata (precompilata, da rivedere liberamente), mostrata sul tabellone insieme alla tradizione. <b>Solo conduttore</b>: appare solo sul telecomando. Clacson e camioncino partono dopo l'estrazione del numero: usali con parsimonia per non rallentare il ritmo. Le probabilità di estrazione non cambiano mai.
+          <b>Tradizione</b>: significato tradizionale in italiano, precompilato dal documento “I numeri della tombola e il loro significato” fornito da Busa. <b>Testo Busa</b>: battuta inventata (precompilata, da rivedere liberamente), mostrata sul tabellone insieme alla tradizione. <b>Solo conduttore</b>: appare solo sul telecomando. <b>Carica audio in blocco</b>: seleziona insieme i file chiamati <code>001.mp3</code> … <code>090.mp3</code> (anche WAV, OGG o M4A): ognuno va al suo numero; prima del caricamento vedi quali sostituiscono un audio esistente e quali file vengono scartati. Clacson e camioncino partono dopo l'estrazione del numero: usali con parsimonia per non rallentare il ritmo. Le probabilità di estrazione non cambiano mai.
         </p>
         <table className="tbl numbers">
           <thead>

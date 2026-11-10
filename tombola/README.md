@@ -132,6 +132,7 @@ L'archivio dei 90 numeri ha: significato tradizionale, testo Busa (pubblico), ba
 - **Tradizione**: precompilata con le voci **in italiano** del documento *“I numeri della tombola e il loro significato”* fornito da Busa (senza le voci in napoletano; corretti tre refusi: 26 “diminutivo”, 39 “la corda al collo”, 58 “l'imbroglio”).
 - **Testo Busa**: una battuta leggera per ogni numero, tra autotrasporto e vita in azienda, scritta per i dipendenti. È una proposta: cambiala liberamente.
 - Entrambi compaiono **sul tabellone** quando esce il numero. Alcune voci tradizionali sono volgari o esplicite (6, 16, 21, 28, 29, 30, 40): se non vuoi proiettarle, cambiale o svuotale nel CMS. I relativi testi Busa sono già puliti.
+- **Audio dei numeri in blocco**: *Numeri e audio → Carica audio in blocco* e seleziona insieme i file chiamati `001.mp3` … `090.mp3` (vanno bene anche `1.mp3`, `01.mp3` e i formati WAV, OGG, M4A). Ogni file va al suo numero. Prima del caricamento un riepilogo mostra i numeri riconosciuti, quali sostituiscono un audio già presente e quali file vengono scartati, con il motivo (nome diverso, numero fuori da 1–90, due file per lo stesso numero). Un numero con un audio lo riproduce sul tabellone dopo l'estrazione.
 - I testi stanno in `assets/numeri-busa.json`. Al primo avvio il server li copia **solo nei campi vuoti, una volta sola**: le modifiche fatte dal CMS non vengono mai sovrascritte. Per ricaricarli: *Numeri e audio → Importa JSON* con quel file (sovrascrive tutti i 90 numeri).
 
 ## 10. Sicurezza
