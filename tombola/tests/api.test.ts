@@ -184,6 +184,29 @@ describe('API e sicurezza', () => {
   });
 });
 
+describe('numeri predefiniti', () => {
+  it('tradizione e testo Busa precompilati per tutti i 90 numeri', async () => {
+    const rows = await (await adminFetch('/api/admin/numbers')).json();
+    expect(rows).toHaveLength(90);
+    expect(rows.every((r: { traditional: string; busaText: string }) => r.traditional && r.busaText)).toBe(true);
+    expect(rows[0]).toMatchObject({ n: 1, traditional: "L'Italia", busaText: "L'Italia che viaggiamo" });
+  });
+
+  it('il caricamento avviene una volta sola e non sovrascrive le modifiche', async () => {
+    const { seedDefaultNumbers } = await import('../server/src/admin.js');
+    const { openDb } = await import('../server/src/db.js');
+    const db = openDb(':memory:');
+    db.prepare("UPDATE numbers SET busa_text='Scritto da me' WHERE n=2").run();
+    const data = { numbers: [{ n: 1, traditional: 'A', busaText: 'B' }, { n: 2, traditional: 'C', busaText: 'D' }] };
+    seedDefaultNumbers(db, data);
+    expect(db.prepare('SELECT traditional, busa_text FROM numbers WHERE n=2').get()).toEqual({ traditional: 'C', busa_text: 'Scritto da me' });
+    db.prepare("UPDATE numbers SET traditional='' WHERE n=1").run();
+    expect(seedDefaultNumbers(db, data)).toBe(0);
+    expect((db.prepare('SELECT traditional FROM numbers WHERE n=1').get() as { traditional: string }).traditional).toBe('');
+    db.close();
+  });
+});
+
 describe('PDF delle cartelle', () => {
   const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'tombola-pdf-'));
   it('A6: una cartella per pagina 148 × 105 mm, testo e numeri uguali al database', async () => {

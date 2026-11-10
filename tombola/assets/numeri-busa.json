@@ -1,0 +1,637 @@
+{
+ "format": "tombola-busa-numeri",
+ "version": 1,
+ "note": "traditional: significati in italiano dal PDF \"I numeri della tombola e il loro significato\" fornito da Busa (solo le voci italiane; corretti i refusi 26, 39, 58). busaText: battute Busa inventate, modificabili dal CMS.",
+ "numbers": [
+  {
+   "n": 1,
+   "traditional": "L'Italia",
+   "busaText": "L'Italia che viaggiamo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 2,
+   "traditional": "Il bimbo",
+   "busaText": "Il bimbo che da grande vuole guidare il camion",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 3,
+   "traditional": "Il gatto",
+   "busaText": "Il gatto che dorme sul cofano ancora caldo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 4,
+   "traditional": "Il maiale",
+   "busaText": "Il maiale: carico refrigerato, destinazione salumificio",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 5,
+   "traditional": "La mano",
+   "busaText": "La mano alzata per salutare un collega in strada",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 6,
+   "traditional": "Organo sessuale femminile",
+   "busaText": "La retromarcia perfetta al primo colpo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 7,
+   "traditional": "Il fucile",
+   "busaText": "Il colpo secco del portellone che si chiude",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 8,
+   "traditional": "La Madonna",
+   "busaText": "La Madonnina sul cruscotto",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 9,
+   "traditional": "La prole",
+   "busaText": "I mezzi della flotta: una grande famiglia",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 10,
+   "traditional": "I fagioli",
+   "busaText": "Il pranzo all'autogrill di mezzogiorno",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 11,
+   "traditional": "I topi",
+   "busaText": "Topi in magazzino? Il gatto è di turno",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 12,
+   "traditional": "I soldati",
+   "busaText": "I bancali allineati come soldati",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 13,
+   "traditional": "Sant'Antonio",
+   "busaText": "Sant'Antonio, protettore delle bolle smarrite",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 14,
+   "traditional": "L'ubriaco",
+   "busaText": "Al volante sempre lucidi. A cena, con moderazione",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 15,
+   "traditional": "Il ragazzo",
+   "busaText": "Il nuovo arrivato al primo giorno in piazzale",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 16,
+   "traditional": "Il deretano",
+   "busaText": "Le ore in cabina: viva i sedili ammortizzati",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 17,
+   "traditional": "La disgrazia",
+   "busaText": "La vera disgrazia: la macchinetta del caffè guasta",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 18,
+   "traditional": "Il sangue",
+   "busaText": "Il sangue verde Busa",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 19,
+   "traditional": "La risata",
+   "busaText": "La risata in pausa caffè",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 20,
+   "traditional": "La festa",
+   "busaText": "La festa di stasera: tutti a bordo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 21,
+   "traditional": "La donna nuda",
+   "busaText": "Il rimorchio vuoto, pronto per un nuovo carico",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 22,
+   "traditional": "Il pazzo",
+   "busaText": "Chi prende la tangenziale alle otto di lunedì",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 23,
+   "traditional": "Lo scemo",
+   "busaText": "Il navigatore che ti porta in una strada chiusa",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 24,
+   "traditional": "Le guardie",
+   "busaText": "Il controllo su strada: documenti in ordine",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 25,
+   "traditional": "Natale",
+   "busaText": "Natale: l'unica consegna fatta in una notte sola",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 26,
+   "traditional": "Nanninella (diminutivo del nome Anna)",
+   "busaText": "Nanninella: il nome che ognuno dà al suo camion",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 27,
+   "traditional": "Il vaso da notte",
+   "busaText": "La cuccetta delle notti fuori casa",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 28,
+   "traditional": "Il seno",
+   "busaText": "Le curve della Val Trebbia",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 29,
+   "traditional": "Organo sessuale maschile",
+   "busaText": "Il cambio manuale dei camion di una volta",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 30,
+   "traditional": "Le palle del tenente",
+   "busaText": "Le palline dell'albero di Natale in ufficio",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 31,
+   "traditional": "Il proprietario di casa",
+   "busaText": "Il cliente che ci apre il cancello alle sei",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 32,
+   "traditional": "Il capitone",
+   "busaText": "Il capitone del cenone, consegnato in tempo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 33,
+   "traditional": "Gli anni di Cristo",
+   "busaText": "Gli anni di strada dei nostri veterani",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 34,
+   "traditional": "La testa",
+   "busaText": "La motrice: la testa del convoglio",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 35,
+   "traditional": "L'uccellino",
+   "busaText": "L'uccellino che avvisa: c'è un carico urgente",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 36,
+   "traditional": "Le castagnelle (petardi)",
+   "busaText": "Il botto dei tappi a fine serata",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 37,
+   "traditional": "Il frate",
+   "busaText": "La calma del frate in coda al casello",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 38,
+   "traditional": "Le botte",
+   "busaText": "Le buche della provinciale: le sospensioni ringraziano",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 39,
+   "traditional": "La corda al collo",
+   "busaText": "Le cinghie che tengono fermo il carico",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 40,
+   "traditional": "L'ernia inguinale",
+   "busaText": "Il bancale si alza col transpallet, non con la schiena",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 41,
+   "traditional": "Il coltello",
+   "busaText": "Il coltello per il salame del pranzo in cabina",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 42,
+   "traditional": "Il caffè",
+   "busaText": "Il caffè delle cinque, prima di partire",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 43,
+   "traditional": "La donna al balcone",
+   "busaText": "Chi saluta dal balcone quando passa il camion verde",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 44,
+   "traditional": "Il carcere",
+   "busaText": "La coda al casello nell'ora di punta",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 45,
+   "traditional": "Il vino",
+   "busaText": "Il vino del brindisi di stasera, per chi non guida",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 46,
+   "traditional": "I denari",
+   "busaText": "Il gasolio al prezzo di oggi",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 47,
+   "traditional": "Il morto",
+   "busaText": "Il motore spento a fine turno",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 48,
+   "traditional": "Il morto che parla",
+   "busaText": "Il CB che gracchia nel silenzio della notte",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 49,
+   "traditional": "Il pezzo di carne",
+   "busaText": "Il carico refrigerato a quattro gradi",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 50,
+   "traditional": "Il pane",
+   "busaText": "Il pane fresco consegnato prima dell'alba",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 51,
+   "traditional": "Il giardino",
+   "busaText": "Il verde: il nostro colore, non solo in giardino",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 52,
+   "traditional": "La mamma",
+   "busaText": "La mamma che chiede: «sei arrivato?»",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 53,
+   "traditional": "Il vecchio",
+   "busaText": "Il primo camion della flotta, quello del 1982",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 54,
+   "traditional": "Il cappello",
+   "busaText": "Il cappellino verde Busa",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 55,
+   "traditional": "La musica",
+   "busaText": "La playlist dei viaggi lunghi",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 56,
+   "traditional": "La caduta",
+   "busaText": "La caduta del prezzo del gasolio: sognare è gratis",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 57,
+   "traditional": "Il gobbo",
+   "busaText": "Il dosso davanti al cancello",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 58,
+   "traditional": "L'imbroglio",
+   "busaText": "L'incastro dei bancali: un Tetris quotidiano",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 59,
+   "traditional": "I peli",
+   "busaText": "Per un pelo: carico arrivato in orario",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 60,
+   "traditional": "Si lamenta",
+   "busaText": "Il freno che fischia",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 61,
+   "traditional": "Il cacciatore",
+   "busaText": "Chi caccia l'ultimo posto libero all'area di sosta",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 62,
+   "traditional": "Il morto ammazzato",
+   "busaText": "La batteria a terra il lunedì mattina",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 63,
+   "traditional": "La sposa",
+   "busaText": "Il camion nuovo, appena consegnato e tirato a lucido",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 64,
+   "traditional": "La marsina",
+   "busaText": "La giacca della festa al posto della divisa",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 65,
+   "traditional": "Il pianto",
+   "busaText": "Il navigatore in lacrime: «Ricalcolo il percorso»",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 66,
+   "traditional": "Le due zitelle",
+   "busaText": "Le due motrici sempre parcheggiate vicine",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 67,
+   "traditional": "Il totano nella chitarra",
+   "busaText": "Il carico più strano mai trasportato",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 68,
+   "traditional": "La zuppa cotta",
+   "busaText": "Il pranzo caldo dopo un turno al freddo",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 69,
+   "traditional": "Sottosopra",
+   "busaText": "Il magazzino il giorno dell'inventario",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 70,
+   "traditional": "Il palazzo",
+   "busaText": "Il carico alto fino al limite di sagoma",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 71,
+   "traditional": "L'uomo senza princìpi",
+   "busaText": "Chi non mette la freccia in rotonda",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 72,
+   "traditional": "La meraviglia",
+   "busaText": "L'alba vista dalla cabina",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 73,
+   "traditional": "L'ospedale",
+   "busaText": "L'officina: anche i camion hanno bisogno di cure",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 74,
+   "traditional": "La grotta",
+   "busaText": "La galleria sull'A1",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 75,
+   "traditional": "Pulcinella",
+   "busaText": "Il segreto di Pulcinella: stasera si festeggia",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 76,
+   "traditional": "La fontana",
+   "busaText": "Il lavaggio dei mezzi del sabato",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 77,
+   "traditional": "I diavoli",
+   "busaText": "Il diavolo sta nei dettagli: bolla firmata?",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 78,
+   "traditional": "La bella ragazza",
+   "busaText": "La motrice nuova che fa girare tutti",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 79,
+   "traditional": "Il ladro",
+   "busaText": "Chi ruba l'ultimo parcheggio in piazzale",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 80,
+   "traditional": "La bocca",
+   "busaText": "Il portellone aperto sulla ribalta",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 81,
+   "traditional": "I fiori",
+   "busaText": "Il carico di fiori a San Valentino",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 82,
+   "traditional": "La tavola imbandita",
+   "busaText": "La tavola di stasera: buon appetito a tutti",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 83,
+   "traditional": "Il maltempo",
+   "busaText": "La nebbia della pianura piacentina",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 84,
+   "traditional": "La chiesa",
+   "busaText": "Il campanile che annuncia l'arrivo in paese",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 85,
+   "traditional": "Le anime del purgatorio",
+   "busaText": "Chi aspetta lo scarico in coda dal mattino",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 86,
+   "traditional": "Il negozio",
+   "busaText": "Gli scaffali che riempiamo ogni giorno",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 87,
+   "traditional": "I pidocchi",
+   "busaText": "I moscerini sul parabrezza dopo l'estate",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 88,
+   "traditional": "I caciocavalli",
+   "busaText": "Le forme di grana in viaggio",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 89,
+   "traditional": "La vecchia",
+   "busaText": "La vecchia statale che conosciamo a memoria",
+   "hostJoke": "",
+   "special": "none"
+  },
+  {
+   "n": 90,
+   "traditional": "La paura",
+   "busaText": "La paura della ZTL senza permesso",
+   "hostJoke": "",
+   "special": "none"
+  }
+ ]
+}

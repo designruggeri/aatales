@@ -9,7 +9,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import QRCode from 'qrcode';
 import { openDb, getSetting, setSetting, audit, type DB } from './db.js';
 import { Engine, GameError } from './engine.js';
-import { Admin } from './admin.js';
+import { Admin, seedDefaultNumbers } from './admin.js';
 import * as auth from './auth.js';
 import {
   deleteBatch,
@@ -27,7 +27,7 @@ import {
 import { renderCardsPdf, sanitizeProfile, layoutInfo, DEFAULT_PROFILE, type PrintProfile } from './pdf.js';
 import { autoBackup, createBackupZip, validateBackup } from './backup.js';
 import { createDemo } from './demo.js';
-import { CLIENT_DIST } from './paths.js';
+import { ASSETS, CLIENT_DIST } from './paths.js';
 import type { ControlState, PublicState } from '../../shared/types.js';
 
 export interface ServerOptions {
@@ -81,6 +81,11 @@ export function createTombolaServer(opts: ServerOptions) {
   const dbFile = path.join(dataDir, 'tombola.sqlite');
   fs.mkdirSync(uploadsDir, { recursive: true });
   let db = openDb(dbFile);
+  const defaultNumbersFile = path.join(ASSETS, 'numeri-busa.json');
+  const seedNumbers = (d: DB) => {
+    if (fs.existsSync(defaultNumbersFile)) seedDefaultNumbers(d, JSON.parse(fs.readFileSync(defaultNumbersFile, 'utf8')));
+  };
+  seedNumbers(db);
   const engine = new Engine(db);
 
   const copyUpload = (rel: string): string | null => {
@@ -465,6 +470,7 @@ export function createTombolaServer(opts: ServerOptions) {
     else fs.mkdirSync(uploadsDir, { recursive: true });
     fs.rmSync(dir, { recursive: true, force: true });
     const ndb = openDb(dbFile);
+    seedNumbers(ndb);
     ctx.db = ndb;
     engine.db = ndb;
     admin.db = ndb;

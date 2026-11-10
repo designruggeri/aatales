@@ -977,13 +977,13 @@ export function NumbersSection({ ctx }: { ctx: AdminCtx }) {
     >
       <div className="box">
         <p className="muted small">
-          <b>Tradizione</b>: significato tradizionale (es. della smorfia), da inserire solo con una fonte verificata — il progetto non ne include uno. <b>Testo Busa</b>: battuta inventata, mostrata sul tabellone. <b>Solo conduttore</b>: appare solo sul telecomando. Clacson e camioncino partono dopo l'estrazione del numero: usali con parsimonia per non rallentare il ritmo. Le probabilità di estrazione non cambiano mai.
+          <b>Tradizione</b>: significato tradizionale in italiano, precompilato dal documento “I numeri della tombola e il loro significato” fornito da Busa. <b>Testo Busa</b>: battuta inventata (precompilata, da rivedere liberamente), mostrata sul tabellone insieme alla tradizione. <b>Solo conduttore</b>: appare solo sul telecomando. Clacson e camioncino partono dopo l'estrazione del numero: usali con parsimonia per non rallentare il ritmo. Le probabilità di estrazione non cambiano mai.
         </p>
         <table className="tbl numbers">
           <thead>
             <tr>
               <th>N.</th>
-              <th>Tradizione (con fonte)</th>
+              <th>Tradizione</th>
               <th>Testo Busa (pubblico)</th>
               <th>Battuta solo conduttore</th>
               <th>Evento</th>
@@ -999,10 +999,10 @@ export function NumbersSection({ ctx }: { ctx: AdminCtx }) {
                   <input defaultValue={r.traditional} maxLength={120} onBlur={(e) => e.target.value !== r.traditional && save({ ...r, traditional: e.target.value })} />
                 </td>
                 <td>
-                  <input defaultValue={r.busaText} maxLength={160} onBlur={(e) => e.target.value !== r.busaText && save({ ...r, busaText: e.target.value })} />
+                  <textarea rows={2} defaultValue={r.busaText} maxLength={160} onBlur={(e) => e.target.value !== r.busaText && save({ ...r, busaText: e.target.value })} />
                 </td>
                 <td>
-                  <input defaultValue={r.hostJoke} maxLength={300} onBlur={(e) => e.target.value !== r.hostJoke && save({ ...r, hostJoke: e.target.value })} />
+                  <textarea rows={2} defaultValue={r.hostJoke} maxLength={300} onBlur={(e) => e.target.value !== r.hostJoke && save({ ...r, hostJoke: e.target.value })} />
                 </td>
                 <td>
                   <select value={r.special} onChange={(e) => save({ ...r, special: e.target.value as NumberRow['special'] })}>

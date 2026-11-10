@@ -127,7 +127,12 @@ Per provare tutto senza toccare i dati reali: *Panoramica* → **Crea dati dimos
 
 ## 9. Numeri e smorfia
 
-L'archivio dei 90 numeri ha: significato tradizionale, testo Busa (pubblico), battuta solo conduttore, immagine, audio ed evento speciale (clacson o camioncino). **Il progetto non include il repertorio della smorfia**: non è stato possibile verificarne una fonte affidabile in fase di sviluppo, e non si inventano significati spacciandoli per tradizionali. Se lo inserisci (a mano o con *Importa JSON*), indica la fonte. Formato: *Esporta JSON* dal CMS.
+L'archivio dei 90 numeri ha: significato tradizionale, testo Busa (pubblico), battuta solo conduttore, immagine, audio ed evento speciale (clacson o camioncino).
+
+- **Tradizione**: precompilata con le voci **in italiano** del documento *“I numeri della tombola e il loro significato”* fornito da Busa (senza le voci in napoletano; corretti tre refusi: 26 “diminutivo”, 39 “la corda al collo”, 58 “l'imbroglio”).
+- **Testo Busa**: una battuta leggera per ogni numero, tra autotrasporto e vita in azienda, scritta per i dipendenti. È una proposta: cambiala liberamente.
+- Entrambi compaiono **sul tabellone** quando esce il numero. Alcune voci tradizionali sono volgari o esplicite (6, 16, 21, 28, 29, 30, 40): se non vuoi proiettarle, cambiale o svuotale nel CMS. I relativi testi Busa sono già puliti.
+- I testi stanno in `assets/numeri-busa.json`. Al primo avvio il server li copia **solo nei campi vuoti, una volta sola**: le modifiche fatte dal CMS non vengono mai sovrascritte. Per ricaricarli: *Numeri e audio → Importa JSON* con quel file (sovrascrive tutti i 90 numeri).
 
 ## 10. Sicurezza
 
@@ -182,6 +187,6 @@ Cosa coprono: invarianti su 1.000 cartelle; 90 numeri distinti e nessuna 91ª es
 
 **Completo**: estrazioni, verifica, vincite con una vincita per riga, pari merito, premi e rivelazione, display, telecomando con abbinamento, CMS, generatore e PDF A6/A4, import/export, backup/ripristino, dati dimostrativi e modalità prova, registro e archivio vincitori.
 
-**Facoltativo / non incluso**: lettura del QR della cartella con la fotocamera dentro l'app (richiede HTTPS: su HTTP locale usa la fotocamera del telefono con il prefisso del QR, oppure digita il codice); modalità di apertura sequenziale delle categorie; lotti in serie da sei con copertura 1–90; tombolino e decina; repertorio della smorfia; logo Busa vettoriale (da caricare dal CMS). La voce sintetica usa le voci installate nel sistema e può non essere disponibile offline su tutti i dispositivi.
+**Facoltativo / non incluso**: lettura del QR della cartella con la fotocamera dentro l'app (richiede HTTPS: su HTTP locale usa la fotocamera del telefono con il prefisso del QR, oppure digita il codice); modalità di apertura sequenziale delle categorie; lotti in serie da sei con copertura 1–90; tombolino e decina; logo Busa vettoriale (da caricare dal CMS). La voce sintetica usa le voci installate nel sistema e può non essere disponibile offline su tutti i dispositivi.
 
 **Asset**: il camioncino Busa natalizio (con cappello) è in `assets/img/camioncino.png` e `client/src/assets/camioncino.png` (stesso file, usato da tabellone, CMS e PDF), con molla animata; il pacco regalo è un disegno vettoriale con la scritta BUSA. Sostituibili.

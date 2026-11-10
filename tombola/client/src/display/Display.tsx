@@ -369,7 +369,9 @@ function SidePanel({ pub, anims, drawAnim, christmas }: { pub: PublicState; anim
         {!rolling && info?.imageUrl && <img className="number-img" src={info.imageUrl} alt="" />}
       </div>
       <div className="last-five">
-        <h3>Ultimi 5 numeri</h3>
+        <h3>
+          Ultimi 5 numeri <span className="count">· {rolling ? draws.length - 1 : draws.length}/90 estratti</span>
+        </h3>
         <div className="row">
           {lastFive.length ? (
             lastFive.map((n, i) => <Ball key={`${n}-${i}`} n={n} size={82} className={`mini c${i}`} />)
@@ -379,7 +381,6 @@ function SidePanel({ pub, anims, drawAnim, christmas }: { pub: PublicState; anim
         </div>
       </div>
       <PrizeTable pub={pub} />
-      <div className="count">{rolling ? draws.length - 1 : draws.length} / 90 estratti</div>
     </aside>
   );
 }

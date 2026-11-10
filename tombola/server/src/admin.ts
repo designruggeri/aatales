@@ -1,5 +1,5 @@
 // Operazioni del CMS: serate, partite, premi, attivazione cartelle, numeri, impostazioni.
-import { setSetting, type DB } from './db.js';
+import { audit, setSetting, type DB } from './db.js';
 import { GameError, type Engine, type Branding } from './engine.js';
 import { resolveCodes } from './cards.js';
 import {
@@ -518,4 +518,24 @@ export class Admin {
       detail: JSON.parse(String(r.detail_json)),
     }));
   }
+}
+
+/**
+ * Testi predefiniti dei 90 numeri (assets/numeri-busa.json): riempie solo i campi vuoti e una volta sola,
+ * così le modifiche fatte dal CMS (anche un campo svuotato apposta) non vengono mai sovrascritte.
+ */
+export function seedDefaultNumbers(db: DB, data: unknown): number {
+  if (db.prepare("SELECT 1 FROM meta WHERE key='numbers_seeded'").get()) return 0;
+  const list = (data as { numbers?: { n: number; traditional?: string; busaText?: string }[] })?.numbers ?? [];
+  let n = 0;
+  const st = db.prepare(
+    "UPDATE numbers SET traditional=CASE WHEN traditional='' THEN ? ELSE traditional END, busa_text=CASE WHEN busa_text='' THEN ? ELSE busa_text END WHERE n=?",
+  );
+  for (const item of list) {
+    if (!(item.n >= 1 && item.n <= 90)) continue;
+    n += Number(st.run(str(item.traditional, 120), str(item.busaText, 160), item.n).changes);
+  }
+  db.prepare("INSERT INTO meta(key,value) VALUES('numbers_seeded','1')").run();
+  if (n) audit(db, 'sistema', 'numeri_predefiniti_caricati', { numeri: n });
+  return n;
 }
