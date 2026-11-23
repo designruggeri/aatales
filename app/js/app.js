@@ -274,7 +274,7 @@
         ${CONFIG.busaLogo ? `<img class="busa-logo" src="${esc(CONFIG.busaLogo)}" alt="Busa Trasporti e Logistica">`
           : `<div class="busa">busa<small>TRASPORTI E LOGISTICA</small></div>`}
         <p style="margin-top:10px">${esc(CONFIG.footerText ?? 'MÖVAT! è un gioco di Busa Trasporti e Logistica')}</p>
-        <p style="margin-top:6px"><a href="${CONFIG.privacyUrl}">Informativa privacy</a></p>
+        <p style="margin-top:6px"><a href="${CONFIG.privacyUrl}">Informativa privacy</a>${creditLines().length ? ` · <a href="#" data-credits>Credits</a>` : ''}</p>
       </footer>`,
     };
   }
@@ -2114,6 +2114,32 @@
     { title: 'Come li usiamo', text: 'Il nickname viene pubblicato insieme alla modalità dopo il controllo del team Busa. L’email serve solo per eventuali aggiornamenti e non viene mai pubblicata.' },
     { title: 'Voti', text: 'I voti sono anonimi e il tuo voto viene ricordato solo su questo dispositivo.' },
   ]).map((x) => `${x.title ? `<h2>${esc(x.title)}</h2>` : ''}${String(x.text || '').split(/\n\s*\n/).map(privacyBlock).join('')}`).join('');
+  // Credits: una riga per voce, "Ruolo: Nome" (testo impostato dal CMS).
+  const creditLines = () => String(CONFIG.credits ?? 'Sviluppo web-app: Andrea Ruggeri\nPronuncia in dialetto: Andrea Bergonzi\nProdotta da: Busa Logistica S.r.l.')
+    .split('\n').map((l) => l.trim()).filter(Boolean);
+  function openCreditsModal() {
+    const root = document.getElementById('modal-root');
+    const opener = document.activeElement;
+    root.innerHTML = `<div class="modal-backdrop" data-close>
+      <div class="modal credits-modal" role="dialog" aria-modal="true" aria-labelledby="credits-title">
+        <div class="grab"></div>
+        <div class="close-row"><button class="icon-btn" data-close aria-label="Chiudi">${icon('close')}</button></div>
+        <img class="credits-logo" src="assets/img/logo-movat.png" alt="MÖVAT!">
+        <h2 id="credits-title">Credits</h2>
+        <dl class="credits-list">${creditLines().map((l) => {
+          const i = l.indexOf(':');
+          return i > 0 ? `<div><dt>${esc(l.slice(0, i).trim())}</dt><dd>${esc(l.slice(i + 1).trim())}</dd></div>` : `<div><dd>${esc(l)}</dd></div>`;
+        }).join('')}</dl>
+      </div></div>`;
+    const bd = root.firstElementChild;
+    bd.addEventListener('click', (e) => { if (e.target === bd || e.target.closest('button[data-close]')) closeModal(opener); });
+    document.addEventListener('keydown', escClose);
+    root.querySelector('button[data-close]').focus();
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-credits]'); if (!a) return;
+    e.preventDefault(); openCreditsModal();
+  });
   // Informativa in una finestra sopra la pagina: chi sta compilando un modulo non esce dal percorso.
   function openPrivacyModal() {
     const root = document.getElementById('modal-root');

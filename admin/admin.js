@@ -1284,6 +1284,9 @@
         <div class="field"><span class="label">Logo Busa (in fondo alla Home)</span>${uploadField('image', s.busaLogo, { name: 'busaLogo', empty: 'Nessun logo: si usa la scritta “busa” segnaposto' })}
           <p class="help">PNG con sfondo trasparente consigliato, circa 600 px di larghezza. Accettati anche JPG e WEBP.</p></div>
         <div class="field"><label for="footerText">Testo del footer</label><input id="footerText" name="footerText" type="text" maxlength="200" value="${esc(s.footerText)}"></div>
+        <div class="field"><label for="credits">Credits <span class="opt">(voce “Credits” nel footer dell’app)</span></label>
+          <textarea id="credits" name="credits" rows="4" style="font-weight:500">${esc(s.credits ?? 'Sviluppo web-app: Andrea Ruggeri\nPronuncia in dialetto: Andrea Bergonzi\nProdotta da: Busa Logistica S.r.l.')}</textarea>
+          <p class="help">Una riga per voce, nella forma “Ruolo: Nome”. Se lasci vuoto, la voce Credits non compare.</p></div>
         <div class="field"><label for="ratio">Formato delle carte</label>
           <div class="row"><select id="ratio" style="max-width:260px">${RATIOS.map(([k, l]) => `<option value="${k}" ${curRatio?.[0] === k ? 'selected' : ''}>${l}</option>`).join('')}<option value="custom" ${curRatio ? '' : 'selected'}>Personalizzato…</option></select>
             <span id="custom" ${curRatio ? 'hidden' : ''}><input type="number" id="rw" min="10" max="300" style="width:90px" placeholder="larg."> × <input type="number" id="rh" min="10" max="300" style="width:90px" placeholder="alt."> mm</span></div>

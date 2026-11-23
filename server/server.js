@@ -457,6 +457,8 @@ function ratingFor(modeId, key = 'modeId') {
   for (const v of db.votes) if (v[key] === modeId && !v.excluded) { sum += v.value; count++; }
   return { ratingSum: sum, ratingCount: count };
 }
+// Credits (voce nel footer dell'app): una riga per voce, "Ruolo: Nome". Modificabili dal CMS.
+const CREDITS = 'Sviluppo web-app: Andrea Ruggeri\nPronuncia in dialetto: Andrea Bergonzi\nProdotta da: Busa Logistica S.r.l.';
 // Testi sotto le 4 voci della Home, modificabili dal CMS.
 const HOME_SUBS = { ascolta: 'Le carte e ascolta il dialetto', scopri: 'Le modalità e carte create dagli utenti', crea: 'Le tue modalità di gioco', faq: 'Le risposte alle domande sul gioco' };
 const homeSubsOf = (s) => Object.fromEntries(Object.keys(HOME_SUBS).map((k) => [k, (s.homeSubs && s.homeSubs[k]) || HOME_SUBS[k]]));
@@ -474,7 +476,7 @@ function publicContent() {
     config: {
       turnstileSiteKey: sec.turnstileMode() === 'on' ? sec.CONFIG.turnstile.siteKey : null, antibot: sec.turnstileMode(),
       mail: mailReady(), rankMinVotes: s.rankMinVotes || 5, proposalsPerDay: s.proposalsPerDay || 3,
-      cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), cardSizes: cardSizesOf(s.cardSizes), footerText: s.footerText, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
+      cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), cardSizes: cardSizesOf(s.cardSizes), footerText: s.footerText, credits: s.credits ?? CREDITS, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
     cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
       ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
@@ -1111,6 +1113,7 @@ on('PUT', '/api/admin/settings', async (req) => {
   const s = db.settings;
   if ('welcome' in b) s.welcome = str(b.welcome, 80) || 'Il gioco continua qui!';
   if ('footerText' in b) s.footerText = str(b.footerText, 200);
+  if ('credits' in b) s.credits = String(b.credits ?? '').replace(/\r\n?/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 20).join('\n').slice(0, 1500);
   for (const k of Object.keys(HOME_SUBS)) {
     if (`homeSub_${k}` in b) s.homeSubs = { ...homeSubsOf(s), [k]: str(b[`homeSub_${k}`], 80) || HOME_SUBS[k] };
   }
