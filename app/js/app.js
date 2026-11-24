@@ -873,6 +873,10 @@
     });
   }
   async function downloadModePdf(m, url) {
+    downloadBlob(await buildModePdf(m, url), `movat-${m.id}.pdf`);
+  }
+  // draft: modalità non ancora approvata (dalla pagina di creazione): niente voti, avviso nel PDF.
+  async function buildModePdf(m, url, { draft = false } = {}) {
     if (!window.jspdf) await loadScript('assets/vendor/jspdf.umd.min.js');
     const { jsPDF } = window.jspdf;
     const W = 150, H = 190, M = 12, FOOT = 12;
@@ -883,7 +887,7 @@
 
     const footer = () => {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED);
-      doc.text('MÖVAT! · Busa Trasporti e Logistica', M, H - 6);
+      doc.text(draft ? 'MÖVAT! · Modalità non ancora approvata dal team Busa' : 'MÖVAT! · Busa Trasporti e Logistica', M, H - 6);
       doc.text(doc.splitTextToSize(url, 80)[0], W - M, H - 6, { align: 'right' });
     };
     const ensure = (h) => { if (y + h > H - FOOT) { footer(); doc.addPage([W, H], 'portrait'); y = M; } };
@@ -905,7 +909,7 @@
     doc.setFillColor(...GREEN); doc.rect(0, 0, W, 24, 'F');
     try { const logo = await imageData('assets/img/logo-movat.png'); doc.addImage(logo.data, 'PNG', M, 4.5, 15 * logo.w / logo.h, 15); } catch { /* logo facoltativo */ }
     doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
-    doc.text('MODALITÀ DEI GIOCATORI', W - M, 14, { align: 'right' });
+    doc.text(draft ? 'MODALITÀ IN PROVA' : 'MODALITÀ DEI GIOCATORI', W - M, 14, { align: 'right' });
     y = 32;
 
     // Copertina (se presente) e titolo
@@ -932,12 +936,15 @@
     };
     fact(0, 'GIOCATORI', m.players || '—');  // es. "2", "2–5", "5+"
     fact(1, 'CARTE BUSA', String(modeTotal(m)));
-    fact(2, 'VALUTAZIONE', '');
+    fact(2, draft ? 'STATO' : 'VALUTAZIONE', draft ? 'In prova' : '');
     const sx = M + colW * 2 + 4;
+    if (draft) { doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.text('Non ancora pubblicata', sx, y + 17); }
+    else {
     const full = Math.round(r.avg);
     for (let i = 0; i < 5; i++) star(sx + 2.2 + i * 5, y + 11.2, 2.2, i < full && r.count ? YELLOW : [205, 214, 200]);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED);
     doc.text(r.count ? `${fmtNum(r.avg)} su 5 · ${r.count} ${r.count === 1 ? 'voto' : 'voti'}` : 'Ancora nessun voto', sx, y + 17);
+    }
     y += boxH + 7;
 
     heading('Descrizione'); para(m.description);
@@ -961,13 +968,87 @@
     y += 11;
     para('Più le carte del mazzo di base, che si usano come sempre.', 8.5);
     footer();
-    // Scaricamento gestito direttamente: funziona anche su Android e iPhone.
-    const blob = doc.output('blob');
-    const href = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = href; a.download = `movat-${m.id}.pdf`; a.rel = 'noopener';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(href), 60000);
+    return doc.output('blob');
+  }
+
+  /* ---------------- Salva e condividi prima dell'invio ----------------
+     Tutto avviene sul dispositivo: niente viene inviato al server e l'email non compare mai. */
+  const canShareFiles = () => !!(navigator.canShare && window.File && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }));
+  const slug = (t) => norm(t).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'bozza';
+  const appUrl = () => location.href.split('#')[0];
+  async function busy(btn, label, fn) {
+    const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = icon('progress_activity', 'spin') + label;
+    try { await fn(); } catch (e) { if (e?.name !== 'AbortError') { console.error(e); toast('Non è stato possibile completare l’operazione. Riprova.'); } }
+    finally { btn.disabled = false; btn.innerHTML = old; }
+  }
+  // Carta Busa in preparazione: immagine PNG/JPG o condivisione diretta.
+  function draftCardShareHtml(id = 'draft-share') {
+    return `<section class="share-box draft-share" id="${id}" aria-labelledby="${id}-t">
+      <h2 id="${id}-t">${icon('share')}Salvala o condividila con gli amici</h2>
+      <div class="share-actions">
+        ${canShareFiles() ? `<button type="button" class="btn secondary small" data-ds="share">${icon('ios_share')}Condividi immagine</button>` : ''}
+        <button type="button" class="btn secondary small" data-ds="image/png">${icon('image')}Scarica PNG</button>
+        <button type="button" class="btn secondary small" data-ds="image/jpeg">${icon('photo')}Scarica JPG</button>
+      </div>
+      <p class="hint">Non serve inviarla al team Busa: la carta resta anche salvata su questo dispositivo. Se vuoi vederla pubblicata in Scopri, prosegui e inviala.</p>
+    </section>`;
+  }
+  function bindDraftCardShare(getData, id = 'draft-share') {
+    const box = document.getElementById(id); if (!box) return;
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-ds]'); if (!b) return;
+      const d = getData();
+      if (!d.title.trim()) { toast('Scrivi almeno il titolo della carta'); document.getElementById('f-title')?.focus(); return; }
+      const name = (ext) => `movat-carta-${slug(d.title)}.${ext}`;
+      const data = { title: d.title, dialect: d.dialect, translation: d.translation, text: d.text };
+      if (b.dataset.ds === 'share') {
+        busy(b, 'Preparo…', async () => {
+          const blob = await window.MovatCardRender.toBlob(data, cardCfg({ width: 1080 }), 'image/png');
+          await navigator.share({ files: [new File([blob], name('png'), { type: 'image/png' })], title: `MÖVAT! — ${d.title}`, text: `Guarda la carta MÖVAT! che ho inventato: “${d.title}”` });
+        });
+      } else {
+        const type = b.dataset.ds;
+        busy(b, 'Preparo…', async () => {
+          downloadBlob(await window.MovatCardRender.toBlob(data, cardCfg({ width: 1080 }), type, 0.92), name(type === 'image/png' ? 'png' : 'jpg'));
+          toast('Immagine scaricata');
+        });
+      }
+    });
+  }
+  // Modalità in preparazione: PDF, condivisione (PDF o testo) e testo da copiare.
+  function draftModeOf(d) {
+    return { id: 'bozza-' + slug(d.name), title: d.name.trim(), author: d.nickname.trim() || 'un giocatore', players: d.players, description: d.description.trim(), rules: d.rules.trim(), cards: d.cards, cover: d.cover || null, ratingSum: 0, ratingCount: 0 };
+  }
+  function draftModeText(m) {
+    const cards = modeCardList(m).map(({ card, qty }) => `• #${pad2(card.number)} ${card.name} ×${qty}`).join('\n');
+    return [`MÖVAT! — ${m.title}`, `di ${m.author}`, m.players ? `Giocatori: ${playersLabel(m.players)}` : '', '', m.description, m.rules ? `\nRegole aggiuntive: ${m.rules}` : '',
+      '', `Carte Busa (${modeTotal(m)}):`, cards, '', 'Più le carte del mazzo di base.', `Creata con l’app MÖVAT!: ${appUrl()}`].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n');
+  }
+  function draftModeShareHtml() {
+    return `<section class="share-box draft-share" id="draft-share" aria-labelledby="draft-share-t">
+      <h2 id="draft-share-t">${icon('share')}Salvala o condividila con gli amici</h2>
+      <div class="share-actions">
+        ${navigator.share ? `<button type="button" class="btn secondary small" data-ds="share">${icon('ios_share')}Condividi…</button>` : ''}
+        <button type="button" class="btn secondary small" data-ds="pdf">${icon('picture_as_pdf')}Scarica PDF</button>
+        <button type="button" class="btn secondary small" data-ds="copy">${icon('content_copy')}Copia testo</button>
+      </div>
+      <p class="hint">Per giocarla subito con gli amici non serve inviarla: il PDF (15 × 19 cm) ha tutte le regole e le carte. La modalità resta anche salvata su questo dispositivo.</p>
+    </section>`;
+  }
+  function bindDraftModeShare(getDraft) {
+    const box = document.getElementById('draft-share'); if (!box) return;
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-ds]'); if (!b) return;
+      const m = draftModeOf(getDraft());
+      const pdf = () => buildModePdf(m, appUrl(), { draft: true });
+      if (b.dataset.ds === 'pdf') busy(b, 'Preparo il PDF…', async () => { downloadBlob(await pdf(), `movat-${slug(m.title)}.pdf`); toast('PDF scaricato'); });
+      else if (b.dataset.ds === 'copy') busy(b, 'Copio…', async () => toast((await copyText(draftModeText(m))) ? 'Testo copiato! Incollalo in chat o dove vuoi.' : 'Non è stato possibile copiare il testo'));
+      else busy(b, 'Preparo…', async () => {
+        const file = new File([await pdf()], `movat-${slug(m.title)}.pdf`, { type: 'application/pdf' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: `MÖVAT! — ${m.title}`, text: `Proviamo la modalità MÖVAT! “${m.title}”?` });
+        else await navigator.share({ title: `MÖVAT! — ${m.title}`, text: draftModeText(m) });
+      });
+    });
   }
 
   /* ---------------- Modal carta ---------------- */
@@ -1434,6 +1515,7 @@
           </ul>
           <p class="muted" style="font-size:13px;font-weight:600;margin-top:8px">Più le carte del mazzo di base, incluse automaticamente.</p>
         </section>
+        ${draftModeShareHtml()}
         <div class="notice">${icon('lock')}<span>La proposta resta privata finché il team Busa non la controlla. ${d.email ? 'La tua email <b>non sarà mai pubblicata</b> e la useremo solo per la proposta.' : ''}</span></div>
         <label class="check" id="consent-wrap">
           <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''} aria-describedby="consent-err">
@@ -1456,6 +1538,7 @@
       section: 'crea', back: '#/crea/dettagli', noTabs: true, title: 'Crea: riepilogo', html,
       mount() {
         loadTurnstile().catch(() => {});
+        bindDraftModeShare(() => draft.get());
         const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
         $c.addEventListener('change', () => {
           draft.update({ consent: $c.checked });
@@ -1620,7 +1703,7 @@
   function viewUserCard(id) {
     const c = UCARD[id];
     if (!c) return viewNotFound();
-    const canShareFiles = !!(navigator.canShare && window.File && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }));
+    const canShareImg = canShareFiles();
     const html = `
       <div class="page">
         <div class="ucard-detail"><canvas id="uc-canvas" role="img" aria-label="Carta “${esc(c.title)}”"></canvas></div>
@@ -1638,7 +1721,7 @@
         <section class="share-box" aria-labelledby="share-title">
           <h2 id="share-title">${icon('share')}Condividi la carta</h2>
           <div class="share-actions">
-            ${canShareFiles ? `<button class="btn secondary small" id="share-img">${icon('ios_share')}Condividi immagine</button>` : ''}
+            ${canShareImg ? `<button class="btn secondary small" id="share-img">${icon('ios_share')}Condividi immagine</button>` : ''}
             <button class="btn secondary small" data-dl="image/png">${icon('image')}Scarica PNG</button>
             <button class="btn secondary small" data-dl="image/jpeg">${icon('photo')}Scarica JPG</button>
             <button class="btn secondary small" id="copy-link">${icon('link')}Copia link</button>
@@ -1752,6 +1835,7 @@
             ${cfield(d, errs, 'translation', 'Traduzione in italiano', `<textarea id="f-translation" name="translation" maxlength="${L.translation}" rows="2" placeholder="Compare nel fumetto, sotto la frase">${esc(d.translation)}</textarea>`, { opt: ' (facoltativa)', count: L.translation })}
             ${cfield(d, errs, 'text', 'Testo della carta', `<textarea id="f-text" name="text" maxlength="${L.text}" rows="4" placeholder="Cosa succede quando qualcuno gioca questa carta?">${esc(d.text)}</textarea>`, { req: true, count: L.text })}
           </form>
+          ${draftCardShareHtml()}
         </div>
         <div class="sticky-action"><div class="tot" style="font-weight:700">La carta si aggiorna mentre scrivi</div>
           <button class="btn" id="next">Continua${icon('arrow_forward')}</button></div>
@@ -1763,6 +1847,7 @@
         let pending = false;
         const draw = () => { if (pending) return; pending = true; requestAnimationFrame(async () => { pending = false; await window.MovatCardRender.render(canvas, cardDraft.get(), cardCfg({ width: 600, placeholders: true })); }); };
         draw();
+        bindDraftCardShare(() => cardDraft.get());
         const $f = document.getElementById('form');
         $f.addEventListener('input', (e) => {
           const t = e.target; if (!t.name) return;
@@ -1852,6 +1937,7 @@
             ${d.note ? `<div><dt>Note per il team Busa</dt><dd>${esc(d.note)}</dd></div>` : ''}
           </dl>
         </section>
+        ${draftCardShareHtml()}
         <label class="check" id="consent-wrap">
           <input type="checkbox" id="consent" ${d.consent ? 'checked' : ''}>
           <span>Acconsento alla pubblicazione della carta con il nickname <b>“${esc(d.nickname)}”</b>, dopo il controllo del team Busa. Ho letto l’<a href="${CONFIG.privacyUrl}" data-privacy-modal>informativa privacy</a>.</span>
@@ -1873,6 +1959,7 @@
       mount() {
         window.MovatCardRender.render(document.getElementById('rv-canvas'), d, cardCfg({ width: 600 }));
         loadTurnstile().catch(() => {});
+        bindDraftCardShare(() => cardDraft.get());
         const $c = document.getElementById('consent'), $send = document.getElementById('send'), $state = document.getElementById('send-state');
         $c.addEventListener('change', () => { cardDraft.update({ consent: $c.checked }); if ($c.checked) { document.getElementById('consent-wrap').classList.remove('invalid'); document.getElementById('consent-err').hidden = true; } });
         $send.onclick = async () => {

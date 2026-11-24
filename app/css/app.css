@@ -384,6 +384,8 @@ main { flex: 1; outline: none; }
 .shell:not(.has-tabs) .sticky-action { bottom: var(--safe-b); }
 .privacy-modal h1, .privacy-modal h2, .privacy-modal p, .privacy-modal li { text-align: left; }
 .privacy-modal h2 { font-size: 18px; margin-top: 18px; }
+/* Salva e condividi una creazione prima dell'invio */
+.draft-share { margin-top: 18px; }
 /* Credits */
 .credits-modal { text-align: center; padding-bottom: calc(32px + var(--safe-b)); }
 .credits-logo { width: 150px; margin: 0 auto; filter: drop-shadow(0 3px 4px rgba(0,0,0,.2)); }
