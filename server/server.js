@@ -171,6 +171,7 @@ function loadDb() {
 
 /*
  * Migrazione dei dati salvati con versioni precedenti (idempotente).
+ * v4: avviso facoltativo prima dell'ascolto dell'audio di una carta (audioNote).
  * v3: FAQ collegate a più carte (cardIds).
  * v2: voti legati all'impronta dell'identificativo anonimo del browser (campo "voter"), un solo voto
  *     per browser e contenuto, esclusioni dal CMS; messaggi dei contatti; notifiche email con verifica.
@@ -199,6 +200,13 @@ function migrate(d) {
     if (!seen.has(k)) seen.set(k, v);
   }
   d.votes = d.votes.filter((v) => seen.get(voteKeyOf(v)) === v);
+  // v4: avviso facoltativo prima dell'ascolto; la carta "Mano fortunata" lo riceve già compilato (nell'audio c'è una parola volgare).
+  for (const c of d.cards || []) {
+    if (!('audioNote' in c)) {
+      const isMano = String(c.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]+/g, ' ').trim() === 'mano fortunata';
+      c.audioNote = isMano ? AUDIO_NOTE_DEFAULT : '';
+    }
+  }
   // v3: una FAQ può citare più carte (cardIds), al posto della singola cardId.
   for (const f of d.faq || []) {
     if (!Array.isArray(f.cardIds)) f.cardIds = f.cardId ? [f.cardId] : [];
@@ -208,8 +216,9 @@ function migrate(d) {
     if (!('votingSuspended' in x)) x.votingSuspended = false;
     if (!x.notify) x.notify = { status: 'none' };
   }
-  d.version = 3;
+  d.version = 4;
 }
+const AUDIO_NOTE_DEFAULT = 'Attenzione: nella frase in dialetto c’è una parola un po’ volgare. Se ci sono bambini, valuta tu se farla ascoltare.';
 const clampInt = (v, lo, hi, def) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= lo && n <= hi ? n : def; };
 const voteTargetKey = (v) => (v.cardId ? 'card:' + v.cardId : 'mode:' + v.modeId);
 const voteKeyOf = (v) => voteTargetKey(v) + '|' + v.voter;
@@ -477,8 +486,8 @@ function publicContent() {
       turnstileSiteKey: sec.turnstileMode() === 'on' ? sec.CONFIG.turnstile.siteKey : null, antibot: sec.turnstileMode(),
       mail: mailReady(), rankMinVotes: s.rankMinVotes || 5, proposalsPerDay: s.proposalsPerDay || 3,
       cardRatio: Number(s.cardRatio) || 63 / 88, cardMaker: s.cardMaker, welcome: s.welcome, homeSubs: homeSubsOf(s), contact: contactOf(s), cardSizes: cardSizesOf(s.cardSizes), footerText: s.footerText, credits: s.credits ?? CREDITS, busaLogo: s.busaLogo || null, privacy: s.privacy, privacyIsPlaceholder: !!s.privacyIsPlaceholder },
-    cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image }) =>
-      ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null })),
+    cards: db.cards.map(({ id, number, name, copies, color, icon, dialect, translation, text, audio, image, audioNote }) =>
+      ({ id, number, name, copies, color, icon, dialect: dialect || null, translation: translation || null, text: text || null, audio: audio || null, image: image || null, audioNote: audioNote || undefined })),
     modes: db.modes.filter((m) => m.status === 'published').map((m) => ({
       id: m.id, title: m.title, author: m.author, date: (m.publishedAt || m.createdAt).slice(0, 10), players: m.players,
       description: m.description, rules: m.rules, cards: m.cards, cover: m.cover || null, official: m.source === 'busa', icon: m.icon || null, iconScale: m.iconScale || 70, iconX: m.iconX || 0, iconY: m.iconY || 0, votingOpen: !m.votingSuspended, ...ratingFor(m.id),
@@ -931,6 +940,8 @@ function cardFrom(b, existing = {}) {
     ...existing, number, copies, name: str(b.name, 60), color: /^#[0-9a-f]{6}$/i.test(b.color) ? b.color : (existing.color || '#439626'),
     icon: str(b.icon, 40) || existing.icon || 'style', dialect: str(b.dialect, 300), translation: str(b.translation, 300), text: str(b.text, 1500),
     audio: str(b.audio, 300), image: str(b.image, 300), demo: false,
+    // Avviso mostrato prima di ascoltare l'audio (es. parole non adatte ai bambini). Se non arriva, resta quello salvato.
+    audioNote: 'audioNote' in b ? str(b.audioNote, 200) : (existing.audioNote || ''),
   };
 }
 on('POST', '/api/admin/cards', async (req) => {

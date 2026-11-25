@@ -47,6 +47,7 @@ Se aggiorni i file senza riavviare il server, il CMS mostra un avviso rosso “R
 
 - **Panoramica:** le proposte da controllare e un elenco di tutto ciò che è ancora segnaposto.
 - **Carte:** numero, nome, copie (il massimo selezionabile in *Crea*), frase in piacentino, traduzione, testo della carta, **immagine** e **audio** caricati dal computer.
+  - **Avviso prima dell'ascolto** (facoltativo): un testo mostrato sopra il lettore audio della carta in *Guarda*, per esempio se la frase contiene una parola non adatta ai bambini; dalle liste viene chiesta una conferma prima di ascoltare. La carta “Mano fortunata” lo riceve già compilato.
 - **Caricamento massivo delle immagini** (in *Carte*):
   - selezioni o trascini tante immagini di carte insieme;
   - per ognuna compili a mano numero, nome, copie nel mazzo, frase, traduzione e testo;

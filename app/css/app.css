@@ -386,6 +386,16 @@ main { flex: 1; outline: none; }
 .privacy-modal h2 { font-size: 18px; margin-top: 18px; }
 /* Salva e condividi una creazione prima dell'invio */
 .draft-share { margin-top: 18px; }
+/* Avviso prima dell'ascolto */
+.audio-note { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: 16px; background: #fff6d6; border: 1.5px solid #f2cf5b; color: #5c4400; font-weight: 700; font-size: 15px; line-height: 1.35; }
+.audio-note .ms { color: #c58f00; flex: none; }
+.audio-note + .player { margin-top: 10px; }
+.audio-confirm { text-align: center; }
+.audio-confirm .ac-icon .ms { font-size: 48px; color: #c58f00; }
+.audio-confirm h2 { font-size: 22px; margin-top: 4px; }
+.audio-confirm p { margin-top: 10px; font-size: 16px; font-weight: 600; }
+.audio-confirm .ac-actions { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 18px; }
+.audio-confirm .ac-actions .btn { white-space: nowrap; padding-left: 16px; padding-right: 16px; }
 /* Credits */
 .credits-modal { text-align: center; padding-bottom: calc(32px + var(--safe-b)); }
 .credits-logo { width: 150px; margin: 0 auto; filter: drop-shadow(0 3px 4px rgba(0,0,0,.2)); }

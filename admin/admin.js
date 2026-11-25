@@ -280,7 +280,7 @@
 
   function viewCard($m, id) {
     const isNew = id === 'nuova';
-    const c = isNew ? { number: Math.max(0, ...DATA.cards.map((x) => x.number)) + 1, name: '', copies: 1, color: '#439626', icon: 'style', dialect: '', translation: '', text: '', image: '', audio: '' } : cardById(id);
+    const c = isNew ? { number: Math.max(0, ...DATA.cards.map((x) => x.number)) + 1, name: '', copies: 1, color: '#439626', icon: 'style', dialect: '', translation: '', text: '', image: '', audio: '', audioNote: '' } : cardById(id);
     if (!c) { $m.innerHTML = `<p class="empty">Carta non trovata. <a href="#/carte">Torna alle carte</a></p>`; return; }
     const usedIn = isNew ? [] : DATA.modes.filter((m) => m.cards[c.id]);
     $m.innerHTML = `
@@ -305,6 +305,9 @@
               <p class="help">Nell’app compare sotto la frase, quando si apre la carta.</p></div>
             <div class="field"><span class="label">Audio</span>${uploadField('audio', c.audio)}
               <p class="help">MP3 o M4A consigliati, massimo 15 MB.</p></div>
+            <div class="field"><label for="audioNote">Avviso prima dell’ascolto <span class="opt">(facoltativo)</span></label>
+              <textarea id="audioNote" name="audioNote" rows="2" maxlength="200" placeholder="Es. nella frase c’è una parola non adatta ai bambini">${esc(c.audioNote || '')}</textarea>
+              <p class="help">Compare sopra il lettore audio della carta in Guarda; dalle liste viene chiesta una conferma prima di ascoltare. <a href="#" id="note-suggest">Usa il testo suggerito</a></p></div>
           </div>
           <div class="panel form">
             <h2>Immagine</h2>
@@ -334,6 +337,11 @@
       </form>`;
     const $f = document.getElementById('f');
     const values = () => Object.fromEntries(new FormData($f));
+    document.getElementById('note-suggest').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('audioNote').value = 'Attenzione: nella frase in dialetto c’è una parola un po’ volgare. Se ci sono bambini, valuta tu se farla ascoltare.';
+      dirty = true;
+    });
     const preview = () => { const v = values(); document.getElementById('preview').innerHTML = cardArt({ ...v, number: v.number || '?' }); };
     preview(); watchDirty($f);
     // Il numero accetta solo cifre (campo di testo, senza frecce su/giù).

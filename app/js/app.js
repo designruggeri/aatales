@@ -350,7 +350,10 @@
         $clear.addEventListener('click', () => { $q.value = ''; $q.dispatchEvent(new Event('input')); $q.focus(); });
         $view.addEventListener('click', (e) => {
           const b = e.target.closest('[data-play]'); if (!b) return;
-          player.toggle(CARD[b.dataset.play]);
+          const c = CARD[b.dataset.play];
+          // Carte con avviso (es. parole non adatte ai bambini): prima di ascoltare dalla lista si chiede conferma.
+          if (c.audioNote && !player.isPlaying(c.id) && !audioOk.has(c.id)) return confirmAudio(c, () => { audioOk.add(c.id); player.toggle(c); });
+          player.toggle(c);
         });
         bindPlayer(syncPlayButtons);
       },
@@ -392,6 +395,7 @@
             <h2 id="ct-title">${icon('style')}Testo della carta</h2>
             ${String(card.text).split(/\n\s*\n|\n/).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join('')}
           </section>` : ''}
+          ${card.audio && card.audioNote ? `<div class="audio-note" role="note">${icon('warning', 'fill')}<span>${esc(card.audioNote)}</span></div>` : ''}
           ${card.audio ? `
           <div class="player" id="player">
             <div class="row">
@@ -1049,6 +1053,29 @@
         else await navigator.share({ title: `MÖVAT! — ${m.title}`, text: draftModeText(m) });
       });
     });
+  }
+
+  /* ---------------- Avviso prima dell'ascolto ---------------- */
+  const audioOk = new Set(); // carte già confermate in questa visita
+  function confirmAudio(card, onOk) {
+    const root = document.getElementById('modal-root');
+    const opener = document.activeElement;
+    root.innerHTML = `<div class="modal-backdrop" data-close>
+      <div class="modal audio-confirm" role="alertdialog" aria-modal="true" aria-labelledby="ac-title" aria-describedby="ac-text">
+        <div class="grab"></div>
+        <div class="ac-icon">${icon('warning', 'fill')}</div>
+        <h2 id="ac-title">Prima di ascoltare “${esc(card.name)}”</h2>
+        <p id="ac-text">${esc(card.audioNote)}</p>
+        <div class="ac-actions">
+          <button class="btn secondary" data-close>Annulla</button>
+          <button class="btn" id="ac-ok">${icon('play_arrow')}Ascolta comunque</button>
+        </div>
+      </div></div>`;
+    const bd = root.firstElementChild;
+    bd.addEventListener('click', (e) => { if (e.target === bd || e.target.closest('button[data-close]')) closeModal(opener); });
+    document.addEventListener('keydown', escClose);
+    root.querySelector('#ac-ok').addEventListener('click', () => { closeModal(opener); onOk(); });
+    root.querySelector('button[data-close]').focus();
   }
 
   /* ---------------- Modal carta ---------------- */
